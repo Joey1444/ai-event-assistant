@@ -36,8 +36,8 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
 
 | Agent | 文件 | 产出 |
 |---|---|---|
-| PM（项目经理） | `lib/agents/pm.ts` | 已知/未知/假设/下一步分析 |
-| Strategist（策划师） | `lib/agents/strategist.ts` | 三个方向不同的方案 A/B/C |
+| PM（项目经理） | `lib/agents/pm.ts` | 主要矛盾 / 次要提醒 / 下一步 |
+| Strategist（策划师） | `lib/agents/strategist.ts` | 2~4 个方向不同的方案（维度驱动） |
 | Critic（评审） | `lib/agents/critic.ts` | 8 维评分 + 问题 + 推荐 |
 | Fact Checker（事实核查） | `lib/agents/factChecker.ts` | 外部事实 + FACT/ASSUMPTION/UNKNOWN/CONFLICT 分类 |
 | Planner（详细方案） | `lib/agents/planner.ts` | 16 章节正式方案 |
@@ -48,7 +48,7 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
 | Final QA（最终质检） | `lib/agents/qa.ts` | PASS / WARNING / BLOCK |
 
 **两道人工关卡**：
-- **Human Gate 1**——「请选择活动方向」：用户在方案 A/B/C 中点击选择（或 Reject All），系统绝不自动选。
+- **Human Gate 1**——「请选择活动方向」：用户在多个方案中点击选择（或全部驳回），系统绝不自动选。
 - **Human Gate 2**——「最终人工审批」：用户点击 APPROVE / REJECT / REQUEST CHANGES。
 
 ## 完整工作流
@@ -56,7 +56,7 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
 ```
 创建项目
   → PM 分析（已知/未知/假设）
-  → 生成三个方案 A/B/C
+  → 生成多个方案（2~4 个）
   → AI 评审（打分 + 推荐）
   → 事实核验（外部事实分类）
   → 🧑 Human Gate 1：人工选择方向
@@ -98,7 +98,7 @@ npm run dev
 
 ### 测试 AI 连接
 
-打开 `http://localhost:3000/ai-test`，点「Test AI」，看到 `Status: CONNECTED` 和 `Response: AI connection successful.` 即代表网关通了。
+打开 `http://localhost:3000/ai-test`，点「测试 AI」，看到「状态：已连接」即代表网关通了。
 
 ### 通过临时链接分享给他人（可选）
 
@@ -168,9 +168,10 @@ AI_MODEL=deepseek-v4-pro            # 当前模型
 | `lib/agents/types.ts` | 共享类型 + 各 Agent 字段标签/常量 |
 | `lib/agents/format.ts` | 格式化助手（DB 行 → Agent 输入文本） |
 | `lib/agents/registry.ts` | Agent 注册表（单一事实来源） |
+| `lib/agents/parse.ts` | 公共解析工具（`parseJsonObject` / `toBool` / `toStrArray` / `toNumber`） |
 | `lib/agents/actions.ts` | 所有 Agent 的服务端 action（`analyzeProject` / `generateConcepts` / `runCritique` / `factCheckProject` / `selectConcept` / `generatePlan` / `generateBudget` / `generateCopy` / `generatePoster` / `generateDesign` / `runFinalQa` / `submitApproval`） |
-| `lib/agents/pm.ts` | PM Agent：已知 / 未知 / 假设 / 下一步 |
-| `lib/agents/strategist.ts` | Strategist Agent：三个方向方案 A/B/C |
+| `lib/agents/pm.ts` | PM Agent：主要矛盾 / 次要提醒 / 下一步 |
+| `lib/agents/strategist.ts` | Strategist Agent：2~4 个方向方案（维度驱动 + differentiator） |
 | `lib/agents/critic.ts` | Critic Agent：8 维评分 + 优点/缺点/风险 + 推荐 |
 | `lib/agents/factChecker.ts` | Fact Checker Agent：外部事实 + FACT/ASSUMPTION/UNKNOWN/CONFLICT 分类 |
 | `lib/agents/planner.ts` | Planner Agent：16 章节正式活动方案 |
@@ -185,6 +186,7 @@ AI_MODEL=deepseek-v4-pro            # 当前模型
 | 文件 | 功能 |
 |---|---|
 | `lib/db.ts` | Prisma 客户端单例（开发环境热重载防重复创建） |
+| `lib/workflow.ts` | 下一步引导（`getNextAction` 判断当前该做什么） |
 | `lib/status.ts` | 项目状态常量 + 中文标签 + 徽章颜色 |
 | `lib/serializers.ts` | 序列化助手（DB 行 → 前端数据对象） |
 | `lib/actions.ts` | 项目 CRUD 服务端 action（`createProject` / `updateProject` / `deleteProject`） |
@@ -208,13 +210,14 @@ AI_MODEL=deepseek-v4-pro            # 当前模型
 | `components/projects/ProjectForm.tsx` | 创建/编辑共用的项目表单 |
 | `components/projects/DeleteProjectButton.tsx` | 二次确认删除按钮 |
 | `components/projects/WorkflowStepper.tsx` | 工作流步骤条 |
+| `components/projects/NextActionBar.tsx` | 详情页「下一步」引导条 |
 
 **Agent 面板（`agents/`）**
 
 | 文件 | 功能 |
 |---|---|
 | `components/agents/PmAnalysisPanel.tsx` | PM 分析面板 |
-| `components/agents/ConceptPanel.tsx` | 方案面板（生成 + 查看 A/B/C） |
+| `components/agents/ConceptPanel.tsx` | 方案面板（生成 + 查看多个方案） |
 | `components/agents/CriticPanel.tsx` | AI 评审面板（8 维评分 + 推荐） |
 | `components/agents/FactCheckPanel.tsx` | 事实核验面板 |
 | `components/agents/HumanDecisionGate.tsx` | 人工选择方向（Human Gate 1） |
@@ -259,7 +262,7 @@ AI_MODEL=deepseek-v4-pro            # 当前模型
 
 ## 已知说明 / 踩坑记录
 
-- **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。复杂 Agent 需要 `max_tokens ≥ 16000`，否则输出会被截断（`stop_reason=max_tokens`）。
+- **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。各 Agent 的 `max_tokens` 已统一设为 50000，provider 层也会检测 `stop_reason=max_tokens` 截断并提示。
 - **`next build`/`next dev` 在 Claude 沙箱里跑会报 EXDEV**（写 `%APPDATA%\nextjs-nodejs` 失败），你自己的终端里无此问题。
 - **杀毒/清理程序可能清空 `node_modules`**：若报「`next` 不是内部或外部命令」，重跑 `npm install` 即可。
 - **「资料研究（Researcher）」尚未实现**：`ResearchItem` 表已建好，但自动联网调研的 Agent 是后续步骤；当前研究库和事实账本为空时，各 Agent 会把所有外部信息严格标为 `UNKNOWN`/`ASSUMPTION`。
