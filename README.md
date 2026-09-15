@@ -213,8 +213,13 @@ AI_MODEL=deepseek-v4-pro            # 当前模型
 |---|---|
 | `README.md` | 本文件 |
 | `AI_DEVELOPMENT_RULES.md` | 开发铁律（25 条 + 13 条补充） |
+| `CONTRIBUTING.md` | 工程规范（目录结构 / 命名 / 如何新增 Agent） |
+| `PROJECT_SPEC.md` | 验收标准（Definition of Done + 反幻觉 / AI 调用验收） |
+| `TASKS.md` | 按优先级排序的待办清单 |
+| `PROGRESS.md` | 进度记录（当前状态 + 变更日志） |
+| `verify.sh` | 迭代验证闸门（typecheck + lint + build） |
 | `AGENTS.md` | Next.js 自动生成的 AI 说明（**勿手改**，会被 `next dev` 重新生成） |
-| `CLAUDE.md` | 引用 `AGENTS.md` + `AI_DEVELOPMENT_RULES.md` |
+| `CLAUDE.md` | 自治开发循环 + 引用 `AGENTS.md` / `AI_DEVELOPMENT_RULES.md` / `CONTRIBUTING.md` 等 |
 | `.env` / `.env.example` | 环境变量（数据库 + AI 网关） |
 | `.npmrc` | 固定官方 npm 源 |
 | `docs/AI接入说明.md` | AI 网关接入说明 |

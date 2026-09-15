@@ -5,7 +5,7 @@
 
 ## Phase 0 — 补齐地基（先做）
 
-- [ ] 初始化 git 仓库并做首次提交（项目当前**没有 .git**，提交闭环的前提）
+- [x] 初始化 git 仓库并做首次提交（项目当前**没有 .git**，提交闭环的前提）
 - [ ] 引入测试框架（Vitest 或 Jest）+ 一个冒烟测试；在 `package.json` 加 `test` script，并把测试接入 `verify.sh`
 - [ ] 让 `./verify.sh` 在干净环境可跑（确认 `npx prisma generate` 之后 typecheck 能过）
 

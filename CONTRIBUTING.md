@@ -31,7 +31,7 @@ lib/
 
 - Agent 文件：`lib/agents/<小写名词>.ts`，导出 `run<Xxx>()` 函数（纯函数：输入 → 调 `generateText` → 返回解析后的数据）。
 - 服务端 action：`lib/agents/actions.ts` 里导出 `<动词><名词>()`，负责读库 → 调 agent → 落库 → 返回可序列化结果。
-- 面板组件：`components/<Agent>Panel.tsx`（`"use client"`），负责「按钮 + 调 action + 展示」。
+- 面板组件：`components/agents/<Agent>Panel.tsx`（`"use client"`），负责「按钮 + 调 action + 展示」。
 - 序列化：DB 行 → 前端数据对象的转换，一律放 `lib/serializers.ts`，不要在页面里重复写 `toXxx`。
 
 ## 如何新增一个 Agent（4 步）
