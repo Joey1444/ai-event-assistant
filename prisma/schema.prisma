@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 项目主表
+model Project {
+  id           String   @id @default(cuid())
+  projectName  String
+  organization String
+  status       String   @default("DRAFT")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  brief         ProjectBrief?
+  analyses      PmAnalysis[]
+  researchItems ResearchItem[]
+  facts         Fact[]
+  concepts      Concept[]
+  critiques     Critique[]
+  decisions     Decision[]
+  plans         ActivityPlan[]
+  budgets       Budget[]
+  copies        Copy[]
+  posters       Poster[]
+  posterDesigns PosterDesign[]
+  finalQas      FinalQa[]
+  approvals     Approval[]
+}
+
+// 项目详情：创建项目时填写的活动信息
+model ProjectBrief {
+  id                   String   @id @default(cuid())
+  projectId            String   @unique
+  project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  eventType            String?
+  eventDate            String?
+  expectedParticipants String?
+  budget               String?
+  location             String?
+  targetAudience       String?
+  objective            String?
+  requirements         String?
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+// 项目经理（PM Agent）分析结果
+model PmAnalysis {
+  id                 String   @id @default(cuid())
+  projectId          String
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  summary            String
+  knownFacts         String
+  missingInformation String
+  assumptions        String
+  nextStep           String
+  requiresHumanInput Boolean
+  createdAt          DateTime @default(now())
+}
+
+// 研究资料库
+model ResearchItem {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  source    String?
+  sourceUrl String?
+  createdAt DateTime @default(now())
+}
+
+// 事实账本
+model Fact {
+  id                        String    @id @default(cuid())
+  projectId                 String
+  project                   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  claim                     String
+  evidence                  String?
+  source                    String?
+  sourceUrl                 String?
+  confidence                String?
+  status                    String    @default("UNKNOWN")
+  reason                    String?
+  requiresHumanVerification Boolean   @default(false)
+  checkedAt                 DateTime?
+  createdAt                 DateTime  @default(now())
+}
+
+// 活动方案（Event Strategist 生成，variant 为 A/B/C）
+model Concept {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  variant   String
+  direction String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+// 评审结果（Critic Agent 生成）
+model Critique {
+  id                 String   @id @default(cuid())
+  projectId          String
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  scores             String
+  strengths          String
+  weaknesses         String
+  risks              String
+  criticalIssues     String
+  recommendation     String
+  recommendedConcept String
+  createdAt          DateTime @default(now())
+}
+
+// 人工决策（Human Gate 的选择记录）
+model Decision {
+  id              String    @id @default(cuid())
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  selectedConcept String?   // "A" | "B" | "C"；Reject All 时为 null
+  rejected        Boolean   @default(false)
+  selectedBy      String    @default("user")
+  decisionNote    String?
+  createdAt       DateTime  @default(now())
+}
+
+// 正式活动方案（Detailed Planning Agent 生成，带版本）
+model ActivityPlan {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version        Int      @default(1)
+  content        String
+  createdByAgent String
+  createdAt      DateTime @default(now())
+}
+
+// 预算（Budget Agent 生成，带版本）
+model Budget {
+  id              String       @id @default(cuid())
+  projectId       String
+  project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version         Int          @default(1)
+  currency        String       @default("元")
+  contingencyRate Float        @default(0.1)
+  summary         String?
+  costRisks       String?
+  createdByAgent  String       @default("budget-agent")
+  createdAt       DateTime     @default(now())
+
+  items BudgetItem[]
+}
+
+// 预算明细项
+model BudgetItem {
+  id         String   @id @default(cuid())
+  budgetId   String
+  budget     Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category   String
+  item       String
+  quantity   Float
+  unit       String
+  unitPrice  Float
+  notes      String?
+  source     String   @default("ASSUMPTION")
+  confidence String?
+  createdAt  DateTime @default(now())
+}
+
+// 宣传文案（Copywriter Agent 生成，带版本）
+model Copy {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version        Int      @default(1)
+  content        String
+  createdByAgent String
+  createdAt      DateTime @default(now())
+}
+
+// 海报内容（Poster Agent 生成，带版本）
+model Poster {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version        Int      @default(1)
+  content        String
+  createdByAgent String
+  createdAt      DateTime @default(now())
+}
+
+// 海报网页设计（Web Design Agent 生成，存完整 HTML）
+model PosterDesign {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version        Int      @default(1)
+  html           String
+  createdByAgent String
+  createdAt      DateTime @default(now())
+}
+
+// Final QA 结果（发布前最后一道 AI 检查）
+model FinalQa {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version        Int      @default(1)
+  result         String
+  summary        String
+  findings       String
+  createdByAgent String
+  createdAt      DateTime @default(now())
+}
+
+// 最终人工审批
+model Approval {
+  id           String    @id @default(cuid())
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  decision     String
+  approvedBy   String    @default("user")
+  approvalNote String?
+  approvedAt   DateTime  @default(now())
+}

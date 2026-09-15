@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  /* 水墨中国风 配色 */
+  --color-paper: #faf8f3;
+  --color-paper-2: #f0ead9;
+  --color-card: #ffffff;
+  --color-ink: #1a2233;
+  --color-ink-soft: #5a6472;
+  --color-gold: #b8860b;
+  --color-gold-soft: #f5e9c9;
+  --color-cinnabar: #b8442f;
+  --color-cinnabar-soft: #f7e2dc;
+  --color-teal: #2a4a5a;
+  --color-border: #e7e0d2;
+
+  /* 字体 */
+  --font-serif: "Noto Serif SC", "STKaiti", "KaiTi", "Songti SC", serif;
+  --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Segoe UI",
+    sans-serif;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
