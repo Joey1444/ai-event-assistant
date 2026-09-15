@@ -102,6 +102,10 @@ export async function researchProject(
       queries: queries.slice(0, 4),
     });
 
+    if (result.items.length === 0 && result.facts.length === 0) {
+      return { ok: false, error: "未从检索结果中提取到有效资料，请稍后重试" };
+    }
+
     await prisma.researchItem.deleteMany({ where: { projectId } });
     for (const item of result.items) {
       await prisma.researchItem.create({

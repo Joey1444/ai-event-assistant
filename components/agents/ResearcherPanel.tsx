@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { researchProject } from "@/lib/agents/actions";
 import { FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
@@ -33,11 +33,12 @@ export function ResearcherPanel({
   const [items, setItems] = useState<Item[]>(savedItems);
   const [facts, setFacts] = useState<FactData[]>(savedFacts);
   const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleRun() {
+  async function handleRun() {
     setError(null);
-    startTransition(async () => {
+    setIsLoading(true);
+    try {
       const r = await researchProject(projectId);
       if (r.ok) {
         setItems(r.items);
@@ -45,7 +46,11 @@ export function ResearcherPanel({
       } else {
         setError(r.error);
       }
-    });
+    } catch {
+      setError("调研失败，请重试");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -55,10 +60,10 @@ export function ResearcherPanel({
         <button
           type="button"
           onClick={handleRun}
-          disabled={isPending}
+          disabled={isLoading}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "调研中…（约 30-60 秒）" : items.length > 0 || facts.length > 0 ? "重新调研" : "开始联网调研"}
+          {isLoading ? "调研中…（约 30-60 秒）" : items.length > 0 || facts.length > 0 ? "重新调研" : "开始联网调研"}
         </button>
       </div>
 

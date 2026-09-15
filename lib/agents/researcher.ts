@@ -48,11 +48,13 @@ export async function runResearcher(input: {
         snippets.push(`【标题】${r.title}\n【来源】${r.url}\n【内容】${r.content}`);
       }
     } catch {
-      // 单条查询失败不影响整体
+      // 单条查询失败继续下一条
     }
   }
-  const researchText =
-    snippets.join("\n\n---\n\n") || "（未检索到任何资料）";
+  if (snippets.length === 0) {
+    throw new Error("联网搜索无结果或失败，请检查 TAVILY_API_KEY 与网络");
+  }
+  const researchText = snippets.join("\n\n---\n\n");
 
   const text = await generateText({
     messages: [
