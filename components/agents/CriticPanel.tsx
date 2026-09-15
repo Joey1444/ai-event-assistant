@@ -12,9 +12,11 @@ import {
 export function CriticPanel({
   projectId,
   savedCritique,
+  id,
 }: {
   projectId: string;
   savedCritique: CritiqueData | null;
+  id?: string;
 }) {
   const [critique, setCritique] = useState<CritiqueData | null>(savedCritique);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,7 @@ export function CriticPanel({
   }
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">AI 评审</h2>
         <button
@@ -42,7 +44,7 @@ export function CriticPanel({
           disabled={isPending}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "评审中…" : critique ? "重新评审" : "AI 评审"}
+          {isPending ? "评审中…（约 20-60 秒）" : critique ? "重新评审" : "AI 评审"}
         </button>
       </div>
 

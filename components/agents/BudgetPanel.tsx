@@ -19,15 +19,33 @@ const SOURCE_STYLES: Record<string, string> = {
 export function BudgetPanel({
   projectId,
   latestBudget,
+  id,
 }: {
   projectId: string;
   latestBudget: BudgetData | null;
+  id?: string;
 }) {
   const [budget, setBudget] = useState<BudgetData | null>(latestBudget);
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<BudgetItemData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [copied, setCopied] = useState(false);
+
+  function copyBudget() {
+    if (!budget) return;
+    const cur = budget.currency ?? "KES";
+    const lines = [`预算摘要：${budget.summary ?? ""}`];
+    for (const i of budget.items) {
+      lines.push(
+        `${BUDGET_CATEGORY_LABELS[i.category] ?? i.category}｜${i.item} ×${i.quantity}${i.unit} @ ${i.unitPrice} = ${(i.quantity * i.unitPrice).toFixed(2)} ${cur}`,
+      );
+    }
+    navigator.clipboard.writeText(lines.join("\n")).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   function handleGenerate() {
     setError(null);
@@ -73,7 +91,7 @@ export function BudgetPanel({
   const grandTotal = total + contingency;
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">预算</h2>
         <div className="flex gap-2">
@@ -98,13 +116,22 @@ export function BudgetPanel({
           ) : (
             <>
               {budget ? (
-                <button
-                  type="button"
-                  onClick={startEdit}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
-                >
-                  编辑
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={startEdit}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={copyBudget}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+                  >
+                    {copied ? "已复制" : "复制"}
+                  </button>
+                </>
               ) : null}
               <button
                 type="button"
@@ -112,7 +139,7 @@ export function BudgetPanel({
                 disabled={isPending}
                 className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
               >
-                {isPending ? "生成中…" : budget ? "重新生成" : "生成预算"}
+                {isPending ? "生成中…（约 20-60 秒）" : budget ? "重新生成" : "生成预算"}
               </button>
             </>
           )}
@@ -176,7 +203,10 @@ export function BudgetPanel({
                     <td className="px-3 py-2">
                       <div>{item.item}</div>
                       {item.confidence ? (
-                        <div className="mt-0.5 text-xs text-ink-soft">
+                        <div
+                          className="mt-0.5 text-xs text-ink-soft"
+                          title="AI 对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
+                        >
                           置信度：{CONFIDENCE_LABELS[item.confidence] ?? item.confidence}
                         </div>
                       ) : null}

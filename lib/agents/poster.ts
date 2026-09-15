@@ -1,5 +1,6 @@
 // Poster Agent：根据最终活动方案生成海报文案与视觉要素
 import { generateText } from "@/lib/ai/provider";
+import { parseJsonObject } from "./parse";
 
 const POSTER_PROMPT = `# 角色
 你是一名海报设计师（Poster Agent）。你的职责是：根据最终活动方案，提炼出做一张海报所需的全部文案与视觉要素，供后续网页设计（Web Design）生成 HTML 海报使用。
@@ -47,13 +48,7 @@ export async function runPoster(input: {
 }
 
 function parseFields(text: string): Record<string, string> {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
   const keys = [
     "headline",
     "subtitle",

@@ -1,6 +1,7 @@
 // Event Strategist Agent：根据项目简报 + 研究资料库 + 事实账本，生成三个方向不同的方案
 import { generateText } from "@/lib/ai/provider";
 import type { ConceptData } from "./types";
+import { parseJsonObject } from "./parse";
 
 const STRATEGIST_PROMPT = `# 角色
 你是一名资深的活动策划师（Event Strategist）。你的职责是：根据项目简报、研究资料库、事实账本，设计多个方向明显不同、可对比的活动方案，供用户挑选。你不是最终决策者。
@@ -40,13 +41,7 @@ export async function runStrategist(input: {
 }
 
 function parseConcepts(text: string): ConceptData[] {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
 
   const arr = Array.isArray(parsed) ? parsed : parsed.concepts;
   if (!Array.isArray(arr)) {

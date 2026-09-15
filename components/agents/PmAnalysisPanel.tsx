@@ -37,7 +37,7 @@ export function PmAnalysisPanel({
           disabled={isPending}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "分析中…" : analysis ? "重新分析" : "运行分析"}
+          {isPending ? "分析中…（约 20-60 秒）" : analysis ? "重新分析" : "运行分析"}
         </button>
       </div>
 
@@ -90,7 +90,12 @@ function AnalysisView({ analysis }: { analysis: PmAnalysisData }) {
       ) : null}
 
       <ListSection title="其它提醒（次要）" items={analysis.minorGaps} tone="muted" />
-      <ListSection title="AI 的猜测（未经确认）" items={analysis.assumptions} tone="muted" />
+      <ListSection
+        title="AI 的猜测（未经确认）"
+        items={analysis.assumptions}
+        tone="muted"
+        hint="AI 在信息不全时的推测，不是事实，你确认后再往下走"
+      />
 
       <div className="rounded-lg border border-border bg-card px-4 py-3">
         <div className="text-xs font-medium text-ink-soft">下一步</div>
@@ -109,10 +114,12 @@ function ListSection({
   title,
   items,
   tone = "default",
+  hint,
 }: {
   title: string;
   items: string[];
   tone?: "default" | "amber" | "muted";
+  hint?: string;
 }) {
   const titleColor =
     tone === "amber"
@@ -122,7 +129,7 @@ function ListSection({
         : "text-ink-soft";
 
   return (
-    <div className="rounded-lg border border-border bg-card px-4 py-3">
+    <div className="rounded-lg border border-border bg-card px-4 py-3" title={hint}>
       <div className={`text-xs font-medium ${titleColor}`}>
         {title}（{items.length}）
       </div>

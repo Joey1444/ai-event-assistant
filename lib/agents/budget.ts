@@ -1,6 +1,7 @@
 // Budget Agent：根据活动方案生成预算
 import { generateText } from "@/lib/ai/provider";
 import type { BudgetItemData } from "./types";
+import { parseJsonObject, toNumber, toStrArray } from "./parse";
 
 const BUDGET_PROMPT = `# 角色
 你是一名严谨的预算规划师（Budget Agent）。你的职责是：根据活动方案，生成一份分类清晰、可复核的预算，并明确标注每笔价格的来源与可信度。你绝不假装知道当地实际价格。
@@ -68,13 +69,7 @@ export async function runBudget(input: {
 }
 
 function parseBudget(text: string): BudgetResult {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
 
   const items = Array.isArray(parsed.items) ? parsed.items : [];
   const mapped = items.map((x) => {
@@ -105,14 +100,4 @@ function parseBudget(text: string): BudgetResult {
     total,
     contingencyRate: Number.isFinite(contingency) ? contingency : 0.1,
   };
-}
-
-function toNumber(v: unknown): number {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function toStrArray(v: unknown): string[] {
-  if (!Array.isArray(v)) return [];
-  return v.map((x) => String(x)).filter((s) => s.trim() !== "");
 }

@@ -14,11 +14,13 @@ export function DetailedPlanPanel({
   decisionCompleted,
   selectedVariant,
   latestPlan,
+  id,
 }: {
   projectId: string;
   decisionCompleted: boolean;
   selectedVariant: string | null;
   latestPlan: ActivityPlanData | null;
+  id?: string;
 }) {
   const [plan, setPlan] = useState<ActivityPlanData | null>(latestPlan);
   const [editing, setEditing] = useState(false);
@@ -69,7 +71,7 @@ export function DetailedPlanPanel({
   }
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">详细活动方案</h2>
         {decisionCompleted ? (
@@ -118,7 +120,7 @@ export function DetailedPlanPanel({
                   disabled={isPending}
                   className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
                 >
-                  {isPending ? "生成中…" : plan ? "重新生成" : "生成正式方案"}
+                  {isPending ? "生成中…（约 20-60 秒）" : plan ? "重新生成" : "生成正式方案"}
                 </button>
               </>
             )}

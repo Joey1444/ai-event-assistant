@@ -2,6 +2,7 @@
 // 只做分析，不策划活动、不推进工作流。
 import { generateText } from "@/lib/ai/provider";
 import type { PmAnalysisData, PmBlocker } from "./types";
+import { parseJsonObject, toBool, toStrArray } from "./parse";
 
 const PM_ROLE_PROMPT = `# 角色
 你是一名严谨的项目经理（Project Manager）。在活动策划开始前，你的唯一职责是给「项目简报」做一次信息体检：判断哪些信息已明确、哪些缺失、哪些只是推测，并给出下一步。你不负责策划活动本身。
@@ -41,20 +42,7 @@ export async function runPmAnalysis(briefText: string): Promise<PmAnalysisData> 
 }
 
 function parseAnalysisJson(text: string): PmAnalysisData {
-  let cleaned = text.trim();
-  // 去掉可能出现的 Markdown 代码块包裹
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<
-    string,
-    unknown
-  >;
+  const parsed = parseJsonObject(text);
 
   return {
     summary: String(parsed.summary ?? ""),
@@ -62,13 +50,8 @@ function parseAnalysisJson(text: string): PmAnalysisData {
     minorGaps: toStrArray(parsed.minorGaps),
     assumptions: toStrArray(parsed.assumptions),
     nextStep: String(parsed.nextStep ?? ""),
-    canStart: parsed.canStart !== false,
+    canStart: toBool(parsed.canStart),
   };
-}
-
-function toStrArray(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.map((x) => String(x)).filter((s) => s.trim() !== "");
 }
 
 function toBlockers(value: unknown): PmBlocker[] {

@@ -1,5 +1,6 @@
 // Copywriter Agent：根据最终活动方案生成宣传文案
 import { generateText } from "@/lib/ai/provider";
+import { parseJsonObject } from "./parse";
 
 const COPYWRITER_PROMPT = `# 角色
 你是一名文案策划师（Copywriter Agent）。你的职责是：根据最终活动方案，产出 9 种不同用途、不同语气的宣传文案，覆盖正式到口语的完整场合。
@@ -58,13 +59,7 @@ export async function runCopywriter(input: {
 }
 
 function parseFields(text: string, keys: string[]): Record<string, string> {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
   const result: Record<string, string> = {};
   for (const key of keys) {
     result[key] = String(parsed[key] ?? "");

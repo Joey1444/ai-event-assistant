@@ -1,6 +1,7 @@
 // Critic Agent：给三个方案「找问题」并评分，但不替用户做最终决定
 import { generateText } from "@/lib/ai/provider";
 import type { CritiqueData, ScoreItem } from "./types";
+import { parseJsonObject, toStrArray } from "./parse";
 
 const CRITIC_PROMPT = `# 角色
 你是一名严格的评审专家（Critic）。你的唯一职责是给三个活动方案「找问题」，而不是重新写方案，也不是替用户做决定。
@@ -53,13 +54,7 @@ export async function runCritic(input: {
 }
 
 function parseCritique(text: string): CritiqueData {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
   const scores = (parsed.scores ?? {}) as Record<string, unknown>;
 
   return {
@@ -88,9 +83,4 @@ function scoreItem(value: unknown): ScoreItem {
   if (!Number.isFinite(score)) score = 0;
   score = Math.max(0, Math.min(10, Math.round(score)));
   return { score, reason: String(o.reason ?? "") };
-}
-
-function toStrArray(value: unknown): string[] {
-  if (!Array.isArray(value)) return [];
-  return value.map((x) => String(x)).filter((s) => s.trim() !== "");
 }

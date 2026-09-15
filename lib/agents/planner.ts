@@ -1,6 +1,7 @@
 // Detailed Planning Agent：基于已选方案 + 简报 + 研究 + 事实账本，生成正式活动方案
 import { generateText } from "@/lib/ai/provider";
 import type { PlanData } from "./types";
+import { parseJsonObject } from "./parse";
 
 const PLANNER_PROMPT = `# 角色
 你是一名严谨的活动方案策划师（Detailed Planning Agent）。你的职责是：基于「已选方案」，把它展开成一份正式、可执行的活动方案——补充执行层面的细节（时间、流程、分工、物料、预算），但不改变已选方案的方向和定位。
@@ -74,13 +75,7 @@ export async function runPlanner(input: {
 }
 
 function parsePlan(text: string): PlanData {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
 
   const result: PlanData = {};
   for (const key of SECTION_KEYS) {

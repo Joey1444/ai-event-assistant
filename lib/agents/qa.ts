@@ -1,6 +1,7 @@
 // Final QA Agent：项目发布前最后一道 AI 检查
 import { generateText } from "@/lib/ai/provider";
 import type { QaFinding } from "./types";
+import { parseJsonObject } from "./parse";
 
 const QA_PROMPT = `# 角色
 你是一名严谨的 QA 审核员（Final QA Agent）。这是活动项目发布前的最后一道 AI 检查。你的职责是：读完整项目，逐项核对，找出会阻碍发布的问题，并给出 PASS / WARNING / BLOCK 结论。你不是最终批准者。
@@ -68,13 +69,7 @@ function parseQa(text: string): {
   summary: string;
   findings: QaFinding[];
 } {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
 
   const result = String(parsed.result ?? "WARNING").toUpperCase();
   const findings = Array.isArray(parsed.findings)

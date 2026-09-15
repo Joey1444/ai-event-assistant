@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/Badge";
 import { DeleteProjectButton } from "@/components/projects/DeleteProjectButton";
 import { WorkflowStepper } from "@/components/projects/WorkflowStepper";
+import { NextActionBar } from "@/components/projects/NextActionBar";
 import { PmAnalysisPanel } from "@/components/agents/PmAnalysisPanel";
 import { ConceptPanel } from "@/components/agents/ConceptPanel";
 import { CriticPanel } from "@/components/agents/CriticPanel";
@@ -30,6 +31,7 @@ import {
   STATUS_TONES,
   type ProjectStatus,
 } from "@/lib/status";
+import { getNextAction } from "@/lib/workflow";
 
 export const dynamic = "force-dynamic";
 
@@ -86,9 +88,30 @@ export default async function ProjectDetailPage({
     where: { projectId: project.id },
     orderBy: { version: "desc" },
   });
+  const latestFinalQa = await prisma.finalQa.findFirst({
+    where: { projectId: project.id },
+    orderBy: { version: "desc" },
+  });
+  const latestApproval = await prisma.approval.findFirst({
+    where: { projectId: project.id },
+    orderBy: { approvedAt: "desc" },
+  });
 
   const status = project.status as ProjectStatus;
   const decisionCompleted = project.status === "HUMAN_DECISION_COMPLETED";
+
+  const nextAction = getNextAction({
+    id: project.id,
+    concepts,
+    critiques: latestCritique ? [latestCritique] : [],
+    decisions: latestDecision && !latestDecision.rejected ? [latestDecision] : [],
+    plans: latestPlan ? [latestPlan] : [],
+    budgets: latestBudget ? [latestBudget] : [],
+    copies: latestCopy ? [latestCopy] : [],
+    posters: latestPoster ? [latestPoster] : [],
+    finalQas: latestFinalQa ? [latestFinalQa] : [],
+    approvals: latestApproval ? [latestApproval] : [],
+  });
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
@@ -103,6 +126,8 @@ export default async function ProjectDetailPage({
         <Badge tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Badge>
       </div>
       <p className="mt-1 text-ink-soft">{project.organization}</p>
+
+      <NextActionBar action={nextAction} />
 
       <div className="mt-4 rounded-xl border border-border bg-card px-4 py-3">
         <WorkflowStepper current={project.status} />
@@ -141,11 +166,13 @@ export default async function ProjectDetailPage({
       />
 
       <ConceptPanel
+        id="panel-concept"
         projectId={project.id}
         savedConcepts={concepts.map(toConceptData)}
       />
 
       <CriticPanel
+        id="panel-critic"
         projectId={project.id}
         savedCritique={toCritiqueData(latestCritique)}
       />
@@ -156,6 +183,7 @@ export default async function ProjectDetailPage({
       />
 
       <HumanDecisionGate
+        id="panel-decision"
         projectId={project.id}
         concepts={concepts.map(toConceptData)}
         critic={toCritiqueData(latestCritique)}
@@ -164,6 +192,7 @@ export default async function ProjectDetailPage({
       />
 
       <DetailedPlanPanel
+        id="panel-plan"
         projectId={project.id}
         decisionCompleted={decisionCompleted}
         selectedVariant={latestDecision?.selectedConcept ?? null}
@@ -171,6 +200,7 @@ export default async function ProjectDetailPage({
       />
 
       <BudgetPanel
+        id="panel-budget"
         projectId={project.id}
         latestBudget={toBudgetData(latestBudget)}
       />

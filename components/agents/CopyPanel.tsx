@@ -109,7 +109,7 @@ export function CopyPanel({
                 disabled={isPending}
                 className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
               >
-                {isPending ? "生成中…" : data ? "重新生成" : "生成文案"}
+                {isPending ? "生成中…（约 20-60 秒）" : data ? "重新生成" : "生成文案"}
               </button>
             </>
           )}

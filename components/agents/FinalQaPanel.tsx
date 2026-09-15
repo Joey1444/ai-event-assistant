@@ -46,7 +46,7 @@ export function FinalQaPanel({
           disabled={isPending}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "检查中…" : qa ? "重新检查" : "运行发布前检查"}
+          {isPending ? "检查中…（约 20-60 秒）" : qa ? "重新检查" : "运行发布前检查"}
         </button>
       </div>
 

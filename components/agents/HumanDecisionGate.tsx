@@ -19,12 +19,14 @@ export function HumanDecisionGate({
   critic,
   facts,
   decision,
+  id,
 }: {
   projectId: string;
   concepts: ConceptData[];
   critic: CritiqueData | null;
   facts: FactData[];
   decision: DecisionData | null;
+  id?: string;
 }) {
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -64,7 +66,7 @@ export function HumanDecisionGate({
   }
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">请选择活动方向</h2>
 
       {concepts.length === 0 ? (

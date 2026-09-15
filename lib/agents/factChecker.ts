@@ -1,6 +1,7 @@
 // Fact Checker Agent：从活动方案中找出所有外部事实，并判断 FACT/ASSUMPTION/UNKNOWN/CONFLICT
 import { generateText } from "@/lib/ai/provider";
 import type { FactData } from "./types";
+import { parseJsonObject, toBool } from "./parse";
 
 const FACT_CHECKER_PROMPT = `# 角色
 你是一名严谨的事实核查员（Fact Checker）。你的职责是：找出三个活动方案中所有「外部事实」，并逐一判断其真实性状态。
@@ -57,13 +58,7 @@ export async function runFactChecker(input: {
 }
 
 function parseFacts(text: string): FactData[] {
-  const cleaned = text.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  const start = cleaned.indexOf("{");
-  const end = cleaned.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) {
-    throw new Error("AI 返回的内容无法解析为 JSON");
-  }
-  const parsed = JSON.parse(cleaned.slice(start, end + 1)) as Record<string, unknown>;
+  const parsed = parseJsonObject(text);
 
   const arr = Array.isArray(parsed) ? parsed : parsed.facts;
   if (!Array.isArray(arr)) {
@@ -73,19 +68,20 @@ function parseFacts(text: string): FactData[] {
   return arr.map((x) => {
     const o = (x ?? {}) as Record<string, unknown>;
     const status = String(o.status ?? "UNKNOWN").toUpperCase();
+    const confidence = String(o.confidence ?? "").toLowerCase();
     return {
       claim: String(o.claim ?? ""),
       evidence: String(o.evidence ?? ""),
       source: String(o.source ?? ""),
       sourceUrl: String(o.sourceUrl ?? ""),
-      confidence: String(o.confidence ?? ""),
+      confidence: ["high", "medium", "low"].includes(confidence)
+        ? confidence
+        : "low",
       status: ["FACT", "ASSUMPTION", "UNKNOWN", "CONFLICT"].includes(status)
         ? status
         : "UNKNOWN",
       reason: String(o.reason ?? ""),
-      requiresHumanVerification:
-        o.requiresHumanVerification !== false &&
-        o.requiresHumanVerification !== "false",
+      requiresHumanVerification: toBool(o.requiresHumanVerification),
     };
   });
 }

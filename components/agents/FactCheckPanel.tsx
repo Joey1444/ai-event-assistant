@@ -46,7 +46,7 @@ export function FactCheckPanel({
           disabled={isPending}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "核验中…" : facts.length > 0 ? "重新核验" : "事实核验"}
+          {isPending ? "核验中…（约 20-60 秒）" : facts.length > 0 ? "重新核验" : "事实核验"}
         </button>
       </div>
 
@@ -116,7 +116,12 @@ function FactCard({ fact }: { fact: FactData }) {
         <div className="mt-1 text-xs text-ink-soft">证据：{fact.evidence}</div>
       ) : null}
       {fact.confidence ? (
-        <div className="mt-1 text-xs text-ink-soft">置信度：{CONFIDENCE_LABELS[fact.confidence] ?? fact.confidence}</div>
+        <div
+          className="mt-1 text-xs text-ink-soft"
+          title="AI 对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
+        >
+          置信度：{CONFIDENCE_LABELS[fact.confidence] ?? fact.confidence}
+        </div>
       ) : null}
       {fact.reason ? (
         <div className="mt-1 text-xs text-ink-soft">理由：{fact.reason}</div>

@@ -61,30 +61,39 @@ export function ApprovalPanel({
           />
 
           <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={() => handle("APPROVED")}
-              disabled={isPending}
-              className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
-            >
-              批准
-            </button>
-            <button
-              type="button"
-              onClick={() => handle("REJECTED")}
-              disabled={isPending}
-              className="rounded-lg bg-cinnabar px-5 py-2.5 text-sm font-semibold text-paper hover:bg-cinnabar-soft0 disabled:opacity-50"
-            >
-              驳回
-            </button>
-            <button
-              type="button"
-              onClick={() => handle("REVISION_REQUIRED")}
-              disabled={isPending}
-              className="rounded-lg bg-gold-soft0 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
-            >
-              要求修改
-            </button>
+            <div className="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handle("APPROVED")}
+                disabled={isPending}
+                className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
+              >
+                批准
+              </button>
+              <p className="text-xs text-ink-soft">流程结束，项目定稿</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handle("REJECTED")}
+                disabled={isPending}
+                className="rounded-lg bg-cinnabar px-5 py-2.5 text-sm font-semibold text-paper hover:bg-cinnabar-soft0 disabled:opacity-50"
+              >
+                驳回
+              </button>
+              <p className="text-xs text-ink-soft">打回重做，需重新生成方案</p>
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handle("REVISION_REQUIRED")}
+                disabled={isPending}
+                className="rounded-lg bg-gold-soft0 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
+              >
+                要求修改
+              </button>
+              <p className="text-xs text-ink-soft">退回修改后重新审批</p>
+            </div>
           </div>
         </>
       )}

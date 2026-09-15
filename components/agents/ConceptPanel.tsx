@@ -11,9 +11,11 @@ import {
 export function ConceptPanel({
   projectId,
   savedConcepts,
+  id,
 }: {
   projectId: string;
   savedConcepts: ConceptData[];
+  id?: string;
 }) {
   const [concepts, setConcepts] = useState<ConceptData[]>(savedConcepts);
   const [selected, setSelected] = useState<string>(
@@ -38,7 +40,7 @@ export function ConceptPanel({
   const current = concepts.find((c) => c.variant === selected) ?? concepts[0];
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">活动方案</h2>
         <button

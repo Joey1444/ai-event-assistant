@@ -219,8 +219,19 @@ export async function selectConcept(
   variant: string,
   note?: string,
 ): Promise<DecisionResult> {
-  const project = await prisma.project.findUnique({ where: { id: projectId } });
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: { concepts: true },
+  });
   if (!project) return { ok: false, error: "项目不存在" };
+
+  const exists = project.concepts.some((c) => c.variant === variant);
+  if (!exists) {
+    return {
+      ok: false,
+      error: "所选方案不存在，请先运行「活动方案」生成方案。",
+    };
+  }
 
   const decision = await prisma.decision.create({
     data: {
