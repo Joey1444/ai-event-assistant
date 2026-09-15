@@ -12,8 +12,9 @@ const FACT_CHECKER_PROMPT = `# 角色
 # 「外部事实」指
 关于现实世界的具体信息：场地名称与容量、日期时间、预算金额与币种、人员数量、联系人、学校/机构规定、供应商、设备租赁、食品许可、安全要求等。
 
-# 每条事实判断 status（四选一）
+# 每条事实判断 status（五选一）
 - FACT：有来源（事实账本/研究资料）明确支持、可确认为真。
+- USER_PROVIDED：项目简报里用户明确填写的信息（主办机构、日期、地点、预算、人数等），视为用户提供、可信，无需外部来源。
 - ASSUMPTION：方案里作为假设提出、没有确凿来源。
 - UNKNOWN：无法确认、也没有来源。
 - CONFLICT：两个或多个来源互相矛盾。
@@ -30,10 +31,12 @@ const FACT_CHECKER_PROMPT = `# 角色
 # 硬性规则
 1. 绝不根据常识把事实判为 FACT。没有来源就是 UNKNOWN，绝不是 FACT。
 2. 只有事实账本或研究资料库能明确支持的说法，才可判 FACT，并写出 source / evidence。
-3. 方案中标注了 [ASSUMPTION] 的内容，一律判 ASSUMPTION。
-4. 若不同来源说法矛盾，判 CONFLICT，并在 reason 里明确写出冲突双方各自说了什么。
-5. confidence 用 high / medium / low。
-6. requiresHumanVerification：status 为 UNKNOWN 或 CONFLICT 的关键事实（场地/日期/预算/人数/联系人/审批/安全合规）设为 true；FACT 设为 false；ASSUMPTION 通常设为 true（需人工确认是否接受该假设）。
+3. 简报里明确填写的信息（主办机构、日期、地点、预算、人数、目标人群等），判为 USER_PROVIDED，source 填「项目简报」，不要判成 UNKNOWN。
+4. 方案中标注了 [ASSUMPTION] 的内容，一律判 ASSUMPTION。
+5. 若不同来源说法矛盾，判 CONFLICT，并在 reason 里明确写出冲突双方各自说了什么。
+6. confidence 必须与 status 匹配：FACT / USER_PROVIDED → high 或 medium；ASSUMPTION → medium 或 low；UNKNOWN → low；CONFLICT → medium 或 low。绝不允许 UNKNOWN 配 high。
+7. 只抽取「影响可落地性 / 决策」的外部事实；忽略概念内部的时段安排、岗位分工等方案自身设计，不要把它们拆成一条条 ASSUMPTION。
+8. requiresHumanVerification：status 为 UNKNOWN 或 CONFLICT 的关键事实设为 true；FACT / USER_PROVIDED 设为 false；ASSUMPTION 仅当影响方案走向时设为 true。
 
 # 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
 {"facts":[{"claim":"...","evidence":"...","source":"...","sourceUrl":"...","confidence":"...","status":"...","reason":"...","requiresHumanVerification":true}]}`;
@@ -67,19 +70,27 @@ function parseFacts(text: string): FactData[] {
 
   return arr.map((x) => {
     const o = (x ?? {}) as Record<string, unknown>;
-    const status = String(o.status ?? "UNKNOWN").toUpperCase();
-    const confidence = String(o.confidence ?? "").toLowerCase();
+    const rawStatus = String(o.status ?? "UNKNOWN").toUpperCase();
+    const status = [
+      "FACT",
+      "USER_PROVIDED",
+      "ASSUMPTION",
+      "UNKNOWN",
+      "CONFLICT",
+    ].includes(rawStatus)
+      ? rawStatus
+      : "UNKNOWN";
+    const rawConfidence = String(o.confidence ?? "").toLowerCase();
+    const confidence = ["high", "medium", "low"].includes(rawConfidence)
+      ? rawConfidence
+      : "low";
     return {
       claim: String(o.claim ?? ""),
       evidence: String(o.evidence ?? ""),
       source: String(o.source ?? ""),
       sourceUrl: String(o.sourceUrl ?? ""),
-      confidence: ["high", "medium", "low"].includes(confidence)
-        ? confidence
-        : "low",
-      status: ["FACT", "ASSUMPTION", "UNKNOWN", "CONFLICT"].includes(status)
-        ? status
-        : "UNKNOWN",
+      confidence: status === "UNKNOWN" ? "low" : confidence,
+      status,
       reason: String(o.reason ?? ""),
       requiresHumanVerification: toBool(o.requiresHumanVerification),
     };

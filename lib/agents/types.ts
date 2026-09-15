@@ -150,6 +150,7 @@ export type FactCheckResult =
 
 export const FACT_STATUS_LABELS: Record<string, string> = {
   FACT: "已确认",
+  USER_PROVIDED: "用户提供",
   ASSUMPTION: "假设",
   UNKNOWN: "未知",
   CONFLICT: "冲突",

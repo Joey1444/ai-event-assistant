@@ -9,6 +9,7 @@ export type NextAction = {
 // 入参为「项目 + 已加载的相关数据」。数组有元素即代表该阶段已产出内容。
 export function getNextAction(project: {
   id: string;
+  researchItems?: unknown[];
   concepts?: unknown[];
   critiques?: unknown[];
   decisions?: unknown[];
@@ -21,6 +22,9 @@ export function getNextAction(project: {
 }): NextAction {
   const has = (arr?: unknown[]): boolean => !!arr && arr.length > 0;
 
+  if (!has(project.researchItems)) {
+    return { text: "先联网调研资料", href: "#panel-research" };
+  }
   if (!has(project.concepts)) {
     return { text: "让 AI 出活动方案", href: "#panel-concept" };
   }

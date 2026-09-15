@@ -6,6 +6,7 @@ import { CONFIDENCE_LABELS, FACT_STATUS_LABELS, type FactData } from "@/lib/agen
 
 const STATUS_STYLES: Record<string, string> = {
   FACT: "bg-green-100 text-green-800",
+  USER_PROVIDED: "bg-blue-100 text-blue-700",
   ASSUMPTION: "bg-gold-soft text-gold",
   UNKNOWN: "bg-paper-2 text-ink-soft",
   CONFLICT: "bg-cinnabar-soft text-cinnabar",

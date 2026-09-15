@@ -22,6 +22,7 @@ import { runCopywriter } from "./copywriter";
 import { runPoster } from "./poster";
 import { runDesigner } from "./designer";
 import { runQa } from "./qa";
+import { runResearcher, type ResearchResult } from "./researcher";
 import {
   formatBrief,
   formatBudgetForQa,
@@ -72,6 +73,66 @@ export async function analyzeProject(projectId: string): Promise<AnalyzeResult> 
       },
     });
     return { ok: true, analysis };
+  } catch (err) {
+    return { ok: false, error: classifyError(err) };
+  }
+}
+
+export async function researchProject(
+  projectId: string,
+): Promise<({ ok: true } & ResearchResult) | { ok: false; error: string }> {
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: { brief: true },
+  });
+  if (!project) return { ok: false, error: "项目不存在" };
+
+  const brief = project.brief;
+  const queries: string[] = [];
+  if (project.organization) queries.push(project.organization);
+  if (project.organization && brief?.location) {
+    queries.push(`${project.organization} ${brief.location}`);
+    queries.push(`${brief.location} 场地 容纳人数`);
+  }
+  if (brief?.eventType) queries.push(`${brief.eventType} 活动 策划`);
+
+  try {
+    const result = await runResearcher({
+      briefText: formatBrief(project),
+      queries: queries.slice(0, 4),
+    });
+
+    await prisma.researchItem.deleteMany({ where: { projectId } });
+    for (const item of result.items) {
+      await prisma.researchItem.create({
+        data: {
+          projectId,
+          title: item.title,
+          content: item.content,
+          source: item.source || null,
+          sourceUrl: item.sourceUrl || null,
+        },
+      });
+    }
+
+    await prisma.fact.deleteMany({ where: { projectId } });
+    for (const f of result.facts) {
+      await prisma.fact.create({
+        data: {
+          projectId,
+          claim: f.claim,
+          evidence: f.evidence || null,
+          source: f.source || null,
+          sourceUrl: f.sourceUrl || null,
+          confidence: f.confidence || null,
+          status: f.status,
+          reason: f.reason || null,
+          requiresHumanVerification: f.requiresHumanVerification,
+        },
+      });
+    }
+
+    return { ok: true, ...result };
   } catch (err) {
     return { ok: false, error: classifyError(err) };
   }

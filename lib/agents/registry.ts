@@ -21,6 +21,15 @@ export const AGENTS: AgentMeta[] = [
     requiresPlan: false,
   },
   {
+    id: "researcher",
+    name: "资料调研",
+    role: "联网调研，填充研究库与事实账本",
+    file: "researcher.ts",
+    input: "项目简报 + 联网检索",
+    output: "研究条目 + 事实（带来源）",
+    requiresPlan: false,
+  },
+  {
     id: "strategist",
     name: "策划师",
     role: "设计 2~4 个方向不同的活动方案",

@@ -6,6 +6,7 @@ import { DeleteProjectButton } from "@/components/projects/DeleteProjectButton";
 import { WorkflowStepper } from "@/components/projects/WorkflowStepper";
 import { NextActionBar } from "@/components/projects/NextActionBar";
 import { PmAnalysisPanel } from "@/components/agents/PmAnalysisPanel";
+import { ResearcherPanel } from "@/components/agents/ResearcherPanel";
 import { ConceptPanel } from "@/components/agents/ConceptPanel";
 import { CriticPanel } from "@/components/agents/CriticPanel";
 import { FactCheckPanel } from "@/components/agents/FactCheckPanel";
@@ -63,6 +64,10 @@ export default async function ProjectDetailPage({
     where: { projectId: project.id },
     orderBy: { createdAt: "asc" },
   });
+  const researchItems = await prisma.researchItem.findMany({
+    where: { projectId: project.id },
+    orderBy: { createdAt: "asc" },
+  });
   const latestDecision = await prisma.decision.findFirst({
     where: { projectId: project.id },
     orderBy: { createdAt: "desc" },
@@ -102,6 +107,7 @@ export default async function ProjectDetailPage({
 
   const nextAction = getNextAction({
     id: project.id,
+    researchItems,
     concepts,
     critiques: latestCritique ? [latestCritique] : [],
     decisions: latestDecision && !latestDecision.rejected ? [latestDecision] : [],
@@ -163,6 +169,18 @@ export default async function ProjectDetailPage({
       <PmAnalysisPanel
         projectId={project.id}
         savedAnalysis={toAnalysisData(latestAnalysis)}
+      />
+
+      <ResearcherPanel
+        id="panel-research"
+        projectId={project.id}
+        savedItems={researchItems.map((r) => ({
+          title: r.title,
+          content: r.content,
+          source: r.source ?? "",
+          sourceUrl: r.sourceUrl ?? "",
+        }))}
+        savedFacts={facts.map(toFactData)}
       />
 
       <ConceptPanel

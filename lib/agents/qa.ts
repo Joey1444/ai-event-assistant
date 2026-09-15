@@ -17,13 +17,13 @@ const QA_PROMPT = `# 角色
 5. 预算是否一致
 6. 活动流程是否自相矛盾
 7. 海报信息是否缺失
-8. 是否存在 UNKNOWN 事实（事实账本 status=UNKNOWN，尤其是关键事实）
+8. 是否存在 UNKNOWN 事实（事实账本 status=UNKNOWN，尤其是关键事实；status=USER_PROVIDED 的用户提供信息不算未确认，无需警告）
 9. 是否有冲突事实（事实账本 status=CONFLICT）
 10. 是否存在明显执行风险
 
 # 结论判定（result）
 - BLOCK：发现明显冲突（两模块地点/日期/预算互相矛盾）、或预算严重不一致（方案预算与预算表总额差异巨大）。有任一 BLOCK 级问题，result 就应为 BLOCK。
-- WARNING：发现关键事实（日期/地点/预算/联系人/人数）未确认、或普通文案问题（错别字/措辞不当），但没有 BLOCK 级问题。
+- WARNING：发现关键事实（日期/地点/预算/联系人/人数）未确认（status 为 UNKNOWN/CONFLICT）、或普通文案问题（错别字/措辞不当），但没有 BLOCK 级问题；USER_PROVIDED 不算未确认。
 - PASS：10 项全部无问题。
 
 # 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
