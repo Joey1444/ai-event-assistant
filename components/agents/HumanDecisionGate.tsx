@@ -73,20 +73,20 @@ export function HumanDecisionGate({
         </div>
       ) : alreadySelected ? (
         <div className="mt-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
-          ✅ 已选择 Concept {decision?.selectedConcept}
+          ✅ 已选择方案 {decision?.selectedConcept}
           {selectedConcept ? ` · ${selectedConcept.direction}` : ""}
           {decision?.decisionNote ? `（备注：${decision.decisionNote}）` : ""}
         </div>
       ) : decision?.rejected ? (
         <div className="mt-3 rounded-lg border border-cinnabar-soft bg-cinnabar-soft px-4 py-3 text-sm text-cinnabar">
-          已 Reject All。如需重新选择，请先「重新生成方案」，再选择新的方向。
+          已全部驳回。如需重新选择，请先「重新生成方案」，再选择新的方向。
         </div>
       ) : (
         <>
           <div className="mt-3 flex flex-wrap gap-3 text-sm">
             {critic ? (
               <span className="rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
-                AI 推荐：Concept {critic.recommendedConcept}
+                AI 推荐：方案 {critic.recommendedConcept}
               </span>
             ) : null}
             <span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold">
@@ -120,7 +120,7 @@ export function HumanDecisionGate({
                 >
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-ink">
-                      Concept {c.variant} · {c.direction}
+                      方案 {c.variant} · {c.direction}
                     </div>
                     {recommended ? (
                       <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
@@ -144,7 +144,7 @@ export function HumanDecisionGate({
                     disabled={isPending}
                     className="mt-3 rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
                   >
-                    选择 {c.variant}
+                    选择方案 {c.variant}
                   </button>
                 </div>
               );
@@ -160,7 +160,7 @@ export function HumanDecisionGate({
               onChange={(e) => setNote(e.target.value)}
               rows={2}
               className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
-              placeholder="例如：选择 Concept B，但建议去掉月饼制作环节"
+              placeholder="例如：选择方案 B，但建议去掉月饼制作环节"
             />
           </div>
 
@@ -170,7 +170,7 @@ export function HumanDecisionGate({
             disabled={isPending}
             className="mt-2 rounded-lg border border-cinnabar-soft px-4 py-2 text-sm font-medium text-cinnabar hover:bg-cinnabar-soft disabled:opacity-50"
           >
-            Reject All（全部驳回）
+            全部驳回
           </button>
         </>
       )}

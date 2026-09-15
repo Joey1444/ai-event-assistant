@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 import { classifyError } from "@/lib/ai/provider";
 import {
+  parseBlockers,
   toApprovalData,
   toBudgetData,
   toContentData,
@@ -58,15 +59,16 @@ export async function analyzeProject(projectId: string): Promise<AnalyzeResult> 
 
   try {
     const analysis = await runPmAnalysis(formatBrief(project));
+    await prisma.pmAnalysis.deleteMany({ where: { projectId } });
     await prisma.pmAnalysis.create({
       data: {
         projectId,
         summary: analysis.summary,
-        knownFacts: JSON.stringify(analysis.knownFacts),
-        missingInformation: JSON.stringify(analysis.missingInformation),
+        blockers: JSON.stringify(analysis.blockers),
+        minorGaps: JSON.stringify(analysis.minorGaps),
         assumptions: JSON.stringify(analysis.assumptions),
         nextStep: analysis.nextStep,
-        requiresHumanInput: analysis.requiresHumanInput,
+        canStart: analysis.canStart,
       },
     });
     return { ok: true, analysis };
@@ -83,6 +85,21 @@ export async function generateConcepts(
     include: { brief: true, researchItems: true, facts: true },
   });
   if (!project) return { ok: false, error: "项目不存在" };
+
+  const latestAnalysis = await prisma.pmAnalysis.findFirst({
+    where: { projectId },
+    orderBy: { createdAt: "desc" },
+  });
+  if (latestAnalysis && !latestAnalysis.canStart) {
+    const items = parseBlockers(latestAnalysis.blockers)
+      .map((b) => b.item)
+      .slice(0, 3)
+      .join("、");
+    return {
+      ok: false,
+      error: `信息还不完整，请先补充：${items || "日期/地点/预算等关键信息"}`,
+    };
+  }
 
   try {
     const concepts = await runStrategist({
@@ -120,7 +137,7 @@ export async function runCritique(projectId: string): Promise<CritiqueResult> {
   });
   if (!project) return { ok: false, error: "项目不存在" };
   if (project.concepts.length === 0) {
-    return { ok: false, error: "还没有生成方案，请先运行「活动方案」生成 Concept A/B/C。" };
+    return { ok: false, error: "还没有生成方案，请先运行「活动方案」生成方案。" };
   }
 
   try {
@@ -164,7 +181,7 @@ export async function factCheckProject(
   });
   if (!project) return { ok: false, error: "项目不存在" };
   if (project.concepts.length === 0) {
-    return { ok: false, error: "还没有生成方案，请先运行「活动方案」生成 Concept A/B/C。" };
+    return { ok: false, error: "还没有生成方案，请先运行「活动方案」生成方案。" };
   }
 
   try {
@@ -260,7 +277,7 @@ export async function generatePlan(
 
   const selectedVariant = project.decisions[0]?.selectedConcept;
   if (!selectedVariant) {
-    return { ok: false, error: "还没有选择活动方向，请先在「请选择活动方向」选择 Concept A/B/C。" };
+    return { ok: false, error: "还没有选择活动方向，请先在「请选择活动方向」选择方案。" };
   }
 
   const selected = project.concepts.find((c) => c.variant === selectedVariant);
@@ -345,6 +362,9 @@ export async function generateBudget(
         version,
         summary: result.summary,
         costRisks: JSON.stringify(result.costRisks),
+        currency: result.currency,
+        contingencyRate: result.contingencyRate,
+        total: result.total,
         createdByAgent: "budget-agent",
         items: { create: result.items },
       },
@@ -373,6 +393,9 @@ export async function saveBudgetVersion(
       version,
       summary: latest?.summary ?? "",
       costRisks: latest?.costRisks ?? "[]",
+      currency: latest?.currency ?? "KES",
+      contingencyRate: latest?.contingencyRate ?? 0.1,
+      total: items.reduce((s, i) => s + i.quantity * i.unitPrice, 0),
       createdByAgent: "user",
       items: { create: items },
     },
@@ -521,6 +544,7 @@ export async function generateDesign(projectId: string): Promise<DesignResult> {
       researchItems: true,
       facts: true,
       plans: { orderBy: { version: "desc" } },
+      posters: { orderBy: { version: "desc" } },
     },
   });
   if (!project) return { ok: false, error: "项目不存在" };
@@ -533,6 +557,9 @@ export async function generateDesign(projectId: string): Promise<DesignResult> {
       briefText: formatBrief(project),
       researchText: formatResearch(project.researchItems),
       factsText: formatFacts(project.facts),
+      posterText: project.posters[0]
+        ? formatContentForQa(project.posters[0].content)
+        : "（无海报内容）",
     });
 
     const version = await nextDesignVersion(projectId);
@@ -587,6 +614,7 @@ export async function runFinalQa(projectId: string): Promise<FinalQaResult> {
       budgets: { orderBy: { version: "desc" }, include: { items: true } },
       copies: { orderBy: { version: "desc" } },
       posters: { orderBy: { version: "desc" } },
+      posterDesigns: { orderBy: { version: "desc" } },
     },
   });
   if (!project) return { ok: false, error: "项目不存在" };
@@ -612,6 +640,7 @@ export async function runFinalQa(projectId: string): Promise<FinalQaResult> {
       posterText: project.posters[0]
         ? formatContentForQa(project.posters[0].content)
         : "（无海报）",
+      htmlText: project.posterDesigns[0]?.html ?? "（无海报设计）",
     });
 
     const version = await nextFinalQaVersion(projectId);

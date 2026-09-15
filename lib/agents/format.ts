@@ -86,6 +86,8 @@ export function formatPlanText(plan: { content: string }): string {
 export function formatBudgetForQa(b: {
   summary: string | null;
   currency: string;
+  total: number | null;
+  contingencyRate: number;
   items: {
     category: string;
     item: string;
@@ -95,7 +97,10 @@ export function formatBudgetForQa(b: {
     source: string;
   }[];
 }): string {
-  const lines = [`预算摘要：${b.summary ?? ""}`];
+  const lines = [`预算摘要：${b.summary ?? ""}`, `币种：${b.currency}`];
+  const total =
+    b.total ?? b.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
+  lines.push(`合计：${total} ${b.currency}（应急金 ${Math.round((b.contingencyRate ?? 0.1) * 100)}%）`);
   for (const i of b.items) {
     lines.push(
       `${i.category} ${i.item} x${i.quantity}${i.unit} @${i.unitPrice}${b.currency} (${i.source})`,

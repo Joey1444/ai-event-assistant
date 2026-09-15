@@ -75,7 +75,7 @@ export function PosterDesignPanel({
                   onClick={startEdit}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
                 >
-                  编辑 HTML
+                  编辑海报代码
                 </button>
               ) : null}
               <button

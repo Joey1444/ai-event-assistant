@@ -41,7 +41,7 @@ export async function runCopywriter(input: {
         content: `${COPYWRITER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n活动方案：\n${input.planText}\n\n请生成文案并输出 JSON。`,
       },
     ],
-    maxTokens: 8000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return parseFields(text, [

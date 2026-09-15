@@ -52,16 +52,16 @@ model ProjectBrief {
 
 // 项目经理（PM Agent）分析结果
 model PmAnalysis {
-  id                 String   @id @default(cuid())
-  projectId          String
-  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  summary            String
-  knownFacts         String
-  missingInformation String
-  assumptions        String
-  nextStep           String
-  requiresHumanInput Boolean
-  createdAt          DateTime @default(now())
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  summary     String
+  blockers    String
+  minorGaps   String
+  assumptions String
+  nextStep    String
+  canStart    Boolean  @default(true)
+  createdAt   DateTime @default(now())
 }
 
 // 研究资料库
@@ -148,8 +148,9 @@ model Budget {
   projectId       String
   project         Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
   version         Int          @default(1)
-  currency        String       @default("元")
+  currency        String       @default("KES")
   contingencyRate Float        @default(0.1)
+  total           Float?
   summary         String?
   costRisks       String?
   createdByAgent  String       @default("budget-agent")

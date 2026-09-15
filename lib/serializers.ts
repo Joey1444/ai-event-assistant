@@ -11,6 +11,7 @@ import type {
   FactData,
   FinalQaRecord,
   PmAnalysisData,
+  PmBlocker,
   QaFinding,
   VersionedContentData,
 } from "@/lib/agents/types";
@@ -42,21 +43,41 @@ export function parseFindings(s: string): QaFinding[] {
 
 export function toAnalysisData(row: {
   summary: string;
-  knownFacts: string;
-  missingInformation: string;
+  blockers: string;
+  minorGaps: string;
   assumptions: string;
   nextStep: string;
-  requiresHumanInput: boolean;
+  canStart: boolean;
 } | null): PmAnalysisData | null {
   if (!row) return null;
   return {
     summary: row.summary,
-    knownFacts: parseArr(row.knownFacts),
-    missingInformation: parseArr(row.missingInformation),
+    blockers: parseBlockers(row.blockers),
+    minorGaps: parseArr(row.minorGaps),
     assumptions: parseArr(row.assumptions),
     nextStep: row.nextStep,
-    requiresHumanInput: row.requiresHumanInput,
+    canStart: row.canStart,
   };
+}
+
+export function parseBlockers(s: string): PmBlocker[] {
+  if (!s) return [];
+  try {
+    const v = JSON.parse(s);
+    if (!Array.isArray(v)) return [];
+    return v
+      .map((x) => {
+        const o = (x ?? {}) as Record<string, unknown>;
+        return {
+          item: String(o.item ?? ""),
+          why: String(o.why ?? ""),
+          blockingQuestion: String(o.blockingQuestion ?? ""),
+        };
+      })
+      .filter((b) => b.item !== "");
+  } catch {
+    return [];
+  }
 }
 
 export function toConceptData(row: {
@@ -162,6 +183,7 @@ export function toBudgetData(row: {
   version: number;
   currency: string;
   contingencyRate: number;
+  total: number | null;
   summary: string | null;
   costRisks: string | null;
   createdByAgent: string;
@@ -182,6 +204,7 @@ export function toBudgetData(row: {
     version: row.version,
     currency: row.currency,
     contingencyRate: row.contingencyRate,
+    total: row.total ?? 0,
     summary: row.summary ?? "",
     costRisks: parseArr(row.costRisks),
     createdByAgent: row.createdByAgent,

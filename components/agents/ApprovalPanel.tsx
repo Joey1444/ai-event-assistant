@@ -67,7 +67,7 @@ export function ApprovalPanel({
               disabled={isPending}
               className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
             >
-              APPROVE（批准）
+              批准
             </button>
             <button
               type="button"
@@ -75,7 +75,7 @@ export function ApprovalPanel({
               disabled={isPending}
               className="rounded-lg bg-cinnabar px-5 py-2.5 text-sm font-semibold text-paper hover:bg-cinnabar-soft0 disabled:opacity-50"
             >
-              REJECT（驳回）
+              驳回
             </button>
             <button
               type="button"
@@ -83,7 +83,7 @@ export function ApprovalPanel({
               disabled={isPending}
               className="rounded-lg bg-gold-soft0 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
             >
-              REQUEST CHANGES（要求修改）
+              要求修改
             </button>
           </div>
         </>

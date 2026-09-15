@@ -1,12 +1,18 @@
 // Agent 相关类型与常量（供服务端与客户端共用）
 
+export type PmBlocker = {
+  item: string;
+  why: string;
+  blockingQuestion: string;
+};
+
 export type PmAnalysisData = {
   summary: string;
-  knownFacts: string[];
-  missingInformation: string[];
+  blockers: PmBlocker[];
+  minorGaps: string[];
   assumptions: string[];
   nextStep: string;
-  requiresHumanInput: boolean;
+  canStart: boolean;
 };
 
 export type AnalyzeResult =
@@ -17,6 +23,7 @@ export type AnalyzeResult =
 export type ConceptData = {
   variant: string;
   direction: string;
+  differentiator?: string;
   name: string;
   theme: string;
   positioning: string;
@@ -148,6 +155,18 @@ export const FACT_STATUS_LABELS: Record<string, string> = {
   CONFLICT: "冲突",
 };
 
+export const RESULT_LABELS: Record<string, string> = {
+  PASS: "通过",
+  WARNING: "有警告",
+  BLOCK: "有问题，建议修改",
+};
+
+export const CONFIDENCE_LABELS: Record<string, string> = {
+  high: "高",
+  medium: "中",
+  low: "低",
+};
+
 export type DecisionData = {
   selectedConcept: string | null;
   rejected: boolean;
@@ -230,6 +249,7 @@ export type BudgetData = {
   version: number;
   currency: string;
   contingencyRate: number;
+  total: number;
   summary: string;
   costRisks: string[];
   items: BudgetItemData[];

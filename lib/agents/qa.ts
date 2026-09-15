@@ -39,6 +39,7 @@ export async function runQa(input: {
   budgetText: string;
   copyText: string;
   posterText: string;
+  htmlText: string;
 }): Promise<{ result: string; summary: string; findings: QaFinding[] }> {
   const content = [
     `项目简报：\n${input.briefText}`,
@@ -49,13 +50,14 @@ export async function runQa(input: {
     `预算：\n${input.budgetText}`,
     `宣传文案：\n${input.copyText}`,
     `海报内容：\n${input.posterText}`,
+    `海报 HTML：\n${input.htmlText}`,
   ].join("\n\n");
 
   const text = await generateText({
     messages: [
       { role: "user", content: `${QA_PROMPT}\n\n${content}\n\n请检查并输出 JSON。` },
     ],
-    maxTokens: 16000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return parseQa(text);

@@ -15,7 +15,7 @@ export type GenerateTextOptions = {
 };
 
 export class AiError extends Error {
-  kind: "network" | "http" | "timeout" | "unknown";
+  kind: "network" | "http" | "timeout" | "truncated" | "unknown";
   status?: number;
   causeCode?: string;
 
@@ -71,7 +71,14 @@ export async function generateText({
 
   const data = (await res.json()) as {
     content?: Array<{ type?: string; text?: string }>;
+    stop_reason?: string | null;
   };
+  if (data.stop_reason === "max_tokens") {
+    throw new AiError({
+      kind: "truncated",
+      message: "输出被截断（达到 max_tokens 上限）",
+    });
+  }
   return extractText(data);
 }
 
@@ -103,37 +110,37 @@ export async function checkAiHealth(): Promise<boolean> {
 // 把底层错误翻译成用户能看懂的提示
 export function classifyError(err: unknown): string {
   if (err instanceof AiError) {
+    if (err.kind === "truncated") {
+      return "AI 输出过长被截断，请降低内容复杂度后重试";
+    }
     if (err.kind === "timeout") {
-      return "请求超时：网络慢或 Provider 响应慢";
+      return "请求超时，AI 响应较慢，请稍后重试";
     }
     if (err.kind === "network") {
       if (err.causeCode === "ECONNREFUSED") {
-        return `CCSwitch 没启动：无法连接 ${aiConfig.baseURL}，请确认 CCSwitch 正在运行`;
+        return "AI 服务没连上，请确认电脑上的 AI 网关软件已打开，再重试";
       }
-      if (err.causeCode === "ENOTFOUND") {
-        return "网络错误：无法解析 Base URL 的主机名";
-      }
-      return "网络错误：无法连接 AI 网关（" + (err.causeCode || "未知原因") + "）";
+      return "网络异常，连不上 AI 服务，请检查网络后重试";
     }
     if (err.kind === "http") {
       const s = err.status ?? 0;
       if (s === 401 || s === 403) {
-        return "API Key 错误：CCSwitch 拒绝了请求的鉴权信息";
+        return "AI 服务的访问密钥不对，请检查 AI 服务配置";
       }
       if (s === 404) {
-        return "Base URL 错误：找不到 /v1/messages 端点，请检查 AI_BASE_URL";
+        return "AI 服务地址配置有误，请检查 AI 服务设置";
       }
       if (s === 400 || s === 422) {
-        return "Model 不存在或请求不被接受：请检查 AI_MODEL";
+        return "当前选择的 AI 模型不可用，请在 AI 服务里换一个模型";
       }
       if (s === 429) {
-        return "请求过于频繁，请稍后再试";
+        return "请求太频繁了，请稍后再试";
       }
       if (s >= 500) {
-        return "Provider 错误：上游模型服务异常（HTTP " + s + "）";
+        return "AI 服务暂时异常，请稍后重试";
       }
-      return "请求失败（HTTP " + s + "）";
+      return "请求失败，请稍后重试";
     }
   }
-  return "未知错误：" + (err instanceof Error ? err.message : String(err));
+  return "操作失败，请重试一次";
 }

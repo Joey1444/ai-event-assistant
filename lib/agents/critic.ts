@@ -6,7 +6,7 @@ const CRITIC_PROMPT = `# 角色
 你是一名严格的评审专家（Critic）。你的唯一职责是给三个活动方案「找问题」，而不是重新写方案，也不是替用户做决定。
 
 # 输入
-三个方案（Concept A/B/C）、项目简报、研究资料库、事实账本。
+多个方案、项目简报、研究资料库、事实账本。
 
 # 评分（8 个维度，每项 0-10 分整数，用统一标尺）
 分数标尺：9-10 优秀；7-8 良好；5-6 一般；3-4 较差；0-2 严重问题。
@@ -28,7 +28,7 @@ const CRITIC_PROMPT = `# 角色
 - strengths / weaknesses / risks：整体层面的字符串数组（可点名具体是哪个 Concept）。
 - criticalIssues：严重问题，尤其要主动寻找这 8 类——不现实的预算、不合理的人数、文化错误、没有证据的事实、执行困难、时间冲突、资源不足、潜在风险。
 - recommendation：一段评审总结，说清各方案的取舍。
-- recommendedConcept：填 "A" 或 "B" 或 "C"（这是 AI 建议，不代表最终决定）。
+- recommendedConcept：填你要推荐的方案的 variant 值（如 "A"、"B"、"C" 等，按方案实际编号；若无明确推荐填空字符串）——这是 AI 建议，不代表最终决定。
 
 # 事实规则
 如果某个方案把未经事实账本验证的信息当作事实，必须在 criticalIssues 里指出。`;
@@ -46,7 +46,7 @@ export async function runCritic(input: {
         content: `${CRITIC_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n三个方案：\n${input.conceptsText}\n\n请评审并输出 JSON。`,
       },
     ],
-    maxTokens: 12000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return parseCritique(text);

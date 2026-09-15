@@ -20,7 +20,7 @@ const DESIGNER_PROMPT = `# 角色
 - 事实账本中 UNKNOWN/CONFLICT/ASSUMPTION 的信息，不要当作确定事实。
 
 【设计主题】
-莫伊大学孔子学院 2026 年中秋节活动，面向学生与教职工，中英双语，传播中秋文化。这是一场有文化厚度的校园活动，不是商业促销。
+主办机构、活动年份、活动主题与目标人群，一律以「项目简报」和「事实账本」为准，不要写死具体学校/年份；未确认处用 [待确认] 占位。这是一场有文化厚度的校园活动，不是商业促销。
 
 【设计方向（必须遵循）】
 「水墨月夜 · 中秋雅集」：用水墨的克制与雅致，承载中秋的团圆与诗意。
@@ -52,15 +52,16 @@ export async function runDesigner(input: {
   briefText: string;
   researchText: string;
   factsText: string;
+  posterText: string;
 }): Promise<string> {
   const text = await generateText({
     messages: [
       {
         role: "user",
-        content: `${DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n活动方案：\n${input.planText}\n\n请直接输出 HTML 文档。`,
+        content: `${DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n海报内容（由海报 Agent 提炼，标题/日期/地点等事实以此为准，不得重新推断）：\n${input.posterText}\n\n活动方案：\n${input.planText}\n\n请直接输出 HTML 文档。`,
       },
     ],
-    maxTokens: 16000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return stripCodeFence(text);

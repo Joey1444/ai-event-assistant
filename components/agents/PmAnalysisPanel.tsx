@@ -66,16 +66,38 @@ function AnalysisView({ analysis }: { analysis: PmAnalysisData }) {
         <p className="mt-1 text-sm text-ink">{analysis.summary || "—"}</p>
       </div>
 
-      <ListSection title="已知信息" items={analysis.knownFacts} />
-      <ListSection title="未知信息" items={analysis.missingInformation} tone="amber" />
-      <ListSection title="假设" items={analysis.assumptions} tone="muted" />
+      {analysis.blockers.length > 0 ? (
+        <div className="rounded-lg border border-cinnabar-soft bg-cinnabar-soft px-4 py-3">
+          <div className="text-xs font-semibold text-cinnabar">
+            需要先解决的关键问题（{analysis.blockers.length}）
+          </div>
+          <ul className="mt-2 space-y-2 text-sm text-ink">
+            {analysis.blockers.map((b, i) => (
+              <li key={i}>
+                <div className="font-medium">{b.item}</div>
+                {b.why ? (
+                  <div className="mt-0.5 text-xs text-ink-soft">{b.why}</div>
+                ) : null}
+                {b.blockingQuestion ? (
+                  <div className="mt-0.5 text-xs text-cinnabar">
+                    → {b.blockingQuestion}
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <ListSection title="其它提醒（次要）" items={analysis.minorGaps} tone="muted" />
+      <ListSection title="AI 的猜测（未经确认）" items={analysis.assumptions} tone="muted" />
 
       <div className="rounded-lg border border-border bg-card px-4 py-3">
         <div className="text-xs font-medium text-ink-soft">下一步</div>
         <p className="mt-1 text-sm text-ink">{analysis.nextStep || "—"}</p>
-        {analysis.requiresHumanInput ? (
+        {!analysis.canStart ? (
           <div className="mt-2 text-xs font-medium text-gold">
-            ⚠️ 需要你补充信息后才能继续
+            ⚠️ 信息还不完整，补充后才能继续
           </div>
         ) : null}
       </div>

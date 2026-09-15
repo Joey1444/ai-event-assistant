@@ -5,6 +5,7 @@ import { generateBudget, saveBudgetVersion } from "@/lib/agents/actions";
 import {
   BUDGET_CATEGORY_LABELS,
   BUDGET_SOURCE_LABELS,
+  CONFIDENCE_LABELS,
   type BudgetData,
   type BudgetItemData,
 } from "@/lib/agents/types";
@@ -66,7 +67,7 @@ export function BudgetPanel({
   }
 
   const displayItems = editing ? draft : (budget?.items ?? []);
-  const currency = budget?.currency ?? "元";
+  const currency = budget?.currency ?? "KES";
   const total = displayItems.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
   const contingency = total * (budget?.contingencyRate ?? 0.1);
   const grandTotal = total + contingency;
@@ -134,7 +135,7 @@ export function BudgetPanel({
 
           <div className="rounded-lg border border-border bg-card px-4 py-3">
             <div className="text-xs font-medium text-ink-soft">
-              Budget Summary
+              预算摘要
             </div>
             <p className="mt-1 whitespace-pre-wrap text-sm text-ink">
               {budget.summary || "—"}
@@ -176,7 +177,7 @@ export function BudgetPanel({
                       <div>{item.item}</div>
                       {item.confidence ? (
                         <div className="mt-0.5 text-xs text-ink-soft">
-                          置信度：{item.confidence}
+                          置信度：{CONFIDENCE_LABELS[item.confidence] ?? item.confidence}
                         </div>
                       ) : null}
                       {item.notes ? (
@@ -233,7 +234,7 @@ export function BudgetPanel({
           </div>
 
           <div className="rounded-lg border border-border bg-card px-4 py-3">
-            <div className="text-xs font-medium text-ink-soft">Cost Risks</div>
+            <div className="text-xs font-medium text-ink-soft">成本风险</div>
             {budget.costRisks.length > 0 ? (
               <ul className="mt-1 list-disc pl-5 text-sm text-ink">
                 {budget.costRisks.map((r, i) => (

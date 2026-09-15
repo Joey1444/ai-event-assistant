@@ -25,6 +25,18 @@ export function DetailedPlanPanel({
   const [draft, setDraft] = useState<PlanData>({});
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [copied, setCopied] = useState(false);
+
+  function copyAll() {
+    if (!plan) return;
+    const text = PLAN_SECTIONS.map(
+      (k) => `${PLAN_SECTION_LABELS[k]}\n${plan.content[k] ?? ""}`,
+    ).join("\n\n");
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   function handleGenerate() {
     setError(null);
@@ -83,13 +95,22 @@ export function DetailedPlanPanel({
             ) : (
               <>
                 {plan ? (
-                  <button
-                    type="button"
-                    onClick={startEdit}
-                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
-                  >
-                    编辑
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={startEdit}
+                      className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+                    >
+                      编辑
+                    </button>
+                    <button
+                      type="button"
+                      onClick={copyAll}
+                      className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+                    >
+                      {copied ? "已复制" : "复制全部"}
+                    </button>
+                  </>
                 ) : null}
                 <button
                   type="button"
@@ -113,7 +134,7 @@ export function DetailedPlanPanel({
 
       {!decisionCompleted ? (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          请先在「请选择活动方向」选择 Concept A/B/C，然后才能生成详细方案。
+          请先在「请选择活动方向」选择方案 A/B/C，然后才能生成详细方案。
         </div>
       ) : editing ? (
         <div className="mt-3 space-y-4">
@@ -156,7 +177,7 @@ export function DetailedPlanPanel({
         </div>
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          已选择 Concept {selectedVariant}。点击「生成正式方案」生成详细活动方案。
+          已选择方案 {selectedVariant}。点击「生成正式方案」生成详细活动方案。
         </div>
       )}
     </section>

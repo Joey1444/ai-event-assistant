@@ -20,6 +20,18 @@ export function CopyPanel({
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [copied, setCopied] = useState(false);
+
+  function copyAll() {
+    if (!data) return;
+    const text = COPY_FIELDS.map(
+      (k) => `${COPY_FIELD_LABELS[k]}\n${data.content[k] ?? ""}`,
+    ).join("\n\n");
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    });
+  }
 
   function handleGenerate() {
     setError(null);
@@ -74,13 +86,22 @@ export function CopyPanel({
           ) : (
             <>
               {data ? (
-                <button
-                  type="button"
-                  onClick={startEdit}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
-                >
-                  编辑
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={startEdit}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    type="button"
+                    onClick={copyAll}
+                    className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+                  >
+                    {copied ? "已复制" : "复制全部"}
+                  </button>
+                </>
               ) : null}
               <button
                 type="button"

@@ -106,7 +106,7 @@ export default async function ApprovalPage({
 
       <section className="mt-8">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-          Project Summary
+          项目概览
         </h2>
         <div className="mt-3 rounded-xl border border-border bg-card px-4 py-3 text-sm text-ink">
           <div>主办机构：{project.organization}</div>
@@ -116,7 +116,7 @@ export default async function ApprovalPage({
           <div>预算：{project.brief?.budget || "—"}</div>
           {selectedConcept ? (
             <div className="mt-2 rounded-lg bg-paper-2 px-3 py-2">
-              👤 人类决定：已选择 Concept {selectedConcept.variant} ·{" "}
+              👤 人类决定：已选择方案 {selectedConcept.variant} ·{" "}
               {selectedConcept.direction}（{selectedConceptName}）
             </div>
           ) : (
@@ -127,15 +127,15 @@ export default async function ApprovalPage({
         </div>
       </section>
 
-      <Module title="📋 Final Activity Plan 🤖 AI 建议">
+      <Module title="📋 最终活动方案（AI 建议）">
         {planData ? <FieldView data={planData} labels={PLAN_SECTION_LABELS} /> : <Empty />}
       </Module>
 
-      <Module title="💰 Budget 🤖 AI 建议">
+      <Module title="💰 预算（AI 建议）">
         {budget ? <BudgetView budget={budget} /> : <Empty />}
       </Module>
 
-      <Module title="🗓 Timeline 🤖 AI 建议">
+      <Module title="🗓 时间安排（AI 建议）">
         {planData ? (
           <div className="whitespace-pre-wrap text-sm text-ink">
             {planData.dayOfSchedule || planData.flow || "—"}
@@ -145,19 +145,19 @@ export default async function ApprovalPage({
         )}
       </Module>
 
-      <Module title="✍️ Copy 🤖 AI 建议">
+      <Module title="✍️ 宣传文案（AI 建议）">
         {copyData ? <FieldView data={copyData} labels={COPY_FIELD_LABELS} /> : <Empty />}
       </Module>
 
-      <Module title="🎨 Poster 🤖 AI 建议">
+      <Module title="🎨 海报（AI 建议）">
         {posterData ? <FieldView data={posterData} labels={POSTER_FIELD_LABELS} /> : <Empty />}
       </Module>
 
-      <Module title="✅ Fact Verification">
+      <Module title="✅ 事实核验">
         {facts.length > 0 ? <FactsView facts={facts} /> : <Empty />}
       </Module>
 
-      <Module title="⚠️ Risk">
+      <Module title="⚠️ 风险">
         <div className="space-y-3 text-sm">
           <div>
             <div className="text-xs font-medium text-ink-soft">方案风险管理</div>

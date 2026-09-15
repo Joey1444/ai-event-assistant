@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { runFinalQa } from "@/lib/agents/actions";
-import type { FinalQaRecord } from "@/lib/agents/types";
+import { RESULT_LABELS, type FinalQaRecord } from "@/lib/agents/types";
 
 const RESULT_STYLES: Record<string, string> = {
   PASS: "bg-green-100 text-green-800",
@@ -39,14 +39,14 @@ export function FinalQaPanel({
   return (
     <section className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">AI Final QA</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">发布前检查</h2>
         <button
           type="button"
           onClick={handleRun}
           disabled={isPending}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "检查中…" : qa ? "重新检查" : "运行 Final QA"}
+          {isPending ? "检查中…" : qa ? "重新检查" : "运行发布前检查"}
         </button>
       </div>
 
@@ -62,7 +62,7 @@ export function FinalQaPanel({
             <span
               className={`rounded-full px-3 py-1 text-sm font-bold ${RESULT_STYLES[qa.result] ?? "bg-paper-2 text-ink-soft"}`}
             >
-              {qa.result}
+              {RESULT_LABELS[qa.result] ?? qa.result}
             </span>
             <span className="text-xs text-ink-soft">版本 {qa.version}</span>
           </div>
@@ -95,7 +95,7 @@ export function FinalQaPanel({
         </div>
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          还没有 QA 结果。点击「运行 Final QA」对项目做发布前检查。
+          还没有检查结果。点击「运行发布前检查」对项目做发布前检查。
         </div>
       )}
 

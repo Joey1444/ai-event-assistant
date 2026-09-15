@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { factCheckProject } from "@/lib/agents/actions";
-import { FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
+import { CONFIDENCE_LABELS, FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
 const STATUS_STYLES: Record<string, string> = {
   FACT: "bg-green-100 text-green-800",
@@ -60,7 +60,7 @@ export function FactCheckPanel({
         <>
           <div className="mt-3 rounded-lg border border-gold bg-gold-soft px-4 py-3">
             <div className="text-sm font-semibold text-gold">
-              Critical Facts Requiring Human Verification（{critical.length}）
+              需要人工确认的关键事实（{critical.length}）
             </div>
             {critical.length > 0 ? (
               <ul className="mt-2 list-disc pl-5 text-sm text-ink">
@@ -116,7 +116,7 @@ function FactCard({ fact }: { fact: FactData }) {
         <div className="mt-1 text-xs text-ink-soft">证据：{fact.evidence}</div>
       ) : null}
       {fact.confidence ? (
-        <div className="mt-1 text-xs text-ink-soft">置信度：{fact.confidence}</div>
+        <div className="mt-1 text-xs text-ink-soft">置信度：{CONFIDENCE_LABELS[fact.confidence] ?? fact.confidence}</div>
       ) : null}
       {fact.reason ? (
         <div className="mt-1 text-xs text-ink-soft">理由：{fact.reason}</div>

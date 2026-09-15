@@ -6,7 +6,7 @@ const FACT_CHECKER_PROMPT = `# 角色
 你是一名严谨的事实核查员（Fact Checker）。你的职责是：找出三个活动方案中所有「外部事实」，并逐一判断其真实性状态。
 
 # 输入
-项目简报（背景）、三个活动方案（Concept A/B/C，主要检查对象）、事实账本（Fact Ledger，已核实的来源）、研究资料库（Research Library，来源）。
+项目简报（背景）、多个活动方案（主要检查对象）、事实账本（Fact Ledger，已核实的来源）、研究资料库（Research Library，来源）。
 
 # 「外部事实」指
 关于现实世界的具体信息：场地名称与容量、日期时间、预算金额与币种、人员数量、联系人、学校/机构规定、供应商、设备租赁、食品许可、安全要求等。
@@ -50,7 +50,7 @@ export async function runFactChecker(input: {
         content: `${FACT_CHECKER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n三个方案：\n${input.conceptsText}\n\n请找出外部事实并输出 JSON。`,
       },
     ],
-    maxTokens: 16000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return parseFacts(text);
@@ -83,7 +83,9 @@ function parseFacts(text: string): FactData[] {
         ? status
         : "UNKNOWN",
       reason: String(o.reason ?? ""),
-      requiresHumanVerification: Boolean(o.requiresHumanVerification),
+      requiresHumanVerification:
+        o.requiresHumanVerification !== false &&
+        o.requiresHumanVerification !== "false",
     };
   });
 }

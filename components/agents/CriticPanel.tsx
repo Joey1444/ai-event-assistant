@@ -101,7 +101,7 @@ function CritiqueView({ critique }: { critique: CritiqueData }) {
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-ink">推荐方案</span>
           <span className="rounded-full bg-ink px-2.5 py-0.5 text-xs font-medium text-paper">
-            Concept {critique.recommendedConcept || "—"}
+            方案 {critique.recommendedConcept || "—"}
           </span>
         </div>
         <p className="mt-2 text-xs font-medium text-ink-soft">

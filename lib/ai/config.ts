@@ -4,7 +4,7 @@ export const aiConfig = {
   apiKey: process.env.AI_API_KEY ?? "cc-switch-local",
   model: process.env.AI_MODEL ?? "deepseek-v4-pro",
   timeoutMs: toNumber(process.env.AI_TIMEOUT_MS, 60000),
-  maxTokens: toNumber(process.env.AI_MAX_TOKENS, 2048),
+  maxTokens: toNumber(process.env.AI_MAX_TOKENS, 50000),
 };
 
 function toNumber(value: string | undefined, fallback: number): number {

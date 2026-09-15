@@ -67,7 +67,7 @@ export async function runPlanner(input: {
         content: `${PLANNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n已选方案：\n${input.selectedConceptText}\n\n请生成正式活动方案并输出 JSON。`,
       },
     ],
-    maxTokens: 16000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return parsePlan(text);
