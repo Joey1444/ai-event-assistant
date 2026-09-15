@@ -100,6 +100,33 @@ npm run dev
 
 打开 `http://localhost:3000/ai-test`，点「Test AI」，看到 `Status: CONNECTED` 和 `Response: AI connection successful.` 即代表网关通了。
 
+### 通过临时链接分享给他人（可选）
+
+应用默认只能在 `localhost:3000` 本机访问。想让**没装环境的人**（比如参与体验的老师）通过公网链接直接打开，可以用 [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)（cloudflared）把本地端口临时暴露出去。
+
+前提：应用已启动（`npm run dev`，监听 3000），且 CCSwitch 网关已运行。
+
+```bash
+# 本机 cloudflared 已装在下面这个路径；
+# 换机器未安装的话，从 GitHub Releases 下载 cloudflared-windows-amd64.exe 即可。
+"C:/Users/Lenovo/.claude/bin/cloudflared.exe" tunnel --url http://localhost:3000
+```
+
+启动后，从输出里找到这行里的链接（形如 `https://xxx.trycloudflare.com`）：
+
+```text
+|  https://random-words.trycloudflare.com  |
+```
+
+把这个链接发给别人即可访问。
+
+**注意**：
+
+- 这是**临时链接**，每次重启 cloudflared 都会生成全新的随机域名，旧链接随即失效。
+- 需**一直开着**这个窗口（以及应用、网关），链接才有效；关掉窗口即断链，电脑也要保持开机。
+- 免费快速隧道**无可用性保证**，且需每小时至少访问一次以保持存活，不适合长期或正式使用。
+- 一旦开启，应用即**对公网可见**，其中的报名信息（机构、联系人、预算等）他人也能看到，演示时注意。
+
 ## 环境变量（.env）
 
 ```bash
