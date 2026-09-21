@@ -107,7 +107,8 @@ export type GenerateImageResult = {
   dataUrl: string;
 };
 
-// 文生图 / 图生图：直连第三方 OpenAI 兼容 /v1/images/generations（不走 CCSwitch）。
+// 文生图 / 图生图：直连第三方 OpenAI 兼容 /images/generations（不走 CCSwitch）。
+// baseURL 需填到版本段为止（含 /v1 或 /compatible-mode/v1），代码只拼 /images/generations。
 export async function generateImage({
   prompt,
   initImage,
@@ -151,7 +152,7 @@ export async function generateImage({
   const timeout = timeoutMs ?? imageConfig.timeoutMs;
   let res: Response;
   try {
-    res = await fetch(`${baseURL.replace(/\/+$/, "")}/v1/images/generations`, {
+    res = await fetch(`${baseURL.replace(/\/+$/, "")}/images/generations`, {
       method: "POST",
       headers: {
         "content-type": "application/json",

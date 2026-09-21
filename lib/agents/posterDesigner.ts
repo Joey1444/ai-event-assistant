@@ -15,7 +15,7 @@ const POSTER_DESIGNER_PROMPT = `# 角色
   3. 构图与画面元素（以文化元素 culturalElements 为准；竖版居中排版；信息层级清晰）；
   4. 整体氛围（有文化厚度、雅致，非商业促销）；
   5. 画面质量要求：文字清晰无乱码、无错别字、无水印/logo、无肢体畸形、背景干净不杂乱。
-- size 尺寸：固定输出 "1024x1536"（竖版 3:4）。
+- size 尺寸：固定输出 "1024*1536"（竖版 3:4）。
 
 # 事实规则（极其重要）
 1. 主标题、日期、时间、地点、主办机构、联系方式等文字必须来自海报文案，逐字照抄，不得改写或编造。
@@ -24,7 +24,7 @@ const POSTER_DESIGNER_PROMPT = `# 角色
 4. 若提供了「用户修改指令」，在保留上一版 prompt 已确定风格/元素的基础上，只按指令做局部修改，不要推倒重来。
 
 # 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
-{"imagePrompt":"...","size":"1024x1536"}`;
+{"imagePrompt":"...","size":"1024*1536"}`;
 
 export type PosterDesignerResult = {
   imagePrompt: string;
@@ -59,10 +59,10 @@ export async function runPosterDesigner(input: {
 
 function parseFields(text: string): PosterDesignerResult {
   const parsed = parseJsonObject(text);
-  const size = String(parsed.size ?? "1024x1536");
-  const allowedSizes = ["1024x1536", "1536x1024", "1024x1024"];
+  const size = String(parsed.size ?? "1024*1536");
+  const allowedSizes = ["1024*1536", "1536*1024", "1024*1024"];
   return {
     imagePrompt: String(parsed.imagePrompt ?? ""),
-    size: allowedSizes.includes(size) ? size : "1024x1536",
+    size: allowedSizes.includes(size) ? size : "1024*1536",
   };
 }
