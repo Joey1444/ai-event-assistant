@@ -1,4 +1,4 @@
-// Poster Designer Agent：把海报文案转成文生图提示词（首图 / 基于上一张的局部修改）。
+// Poster Designer Agent：把海报文案转成文生图提示词（首图 / 按修改意见重新生成，不基于上一张图片）。
 import { generateText } from "@/lib/ai/provider";
 import { parseJsonObject } from "./parse";
 
@@ -6,7 +6,7 @@ const POSTER_DESIGNER_PROMPT = `# 角色
 你是一名海报视觉设计提示词工程师（Poster Designer Agent）。你的职责是：根据海报文案，写出能交给文生图模型生成一张活动海报的提示词（prompt）。
 
 # 输入
-海报文案（主标题/副标题/日期/时间/地点/主办/行动号召/联系方式/视觉主题/文化元素）、项目简报，以及可选的「人为提示词」「上一版提示词」和「用户修改指令」。
+海报文案（主标题/副标题/日期/时间/地点/主办/行动号召/联系方式/视觉主题/文化元素）、项目简报，以及可选的「人为提示词」和「修改意见」。
 
 # 输出 2 项（全部字符串）
 - imagePrompt 文生图提示词：用中文详细描述一张竖版（3:4）活动海报。必须包含：
@@ -22,7 +22,7 @@ const POSTER_DESIGNER_PROMPT = `# 角色
 2. 信息缺失时用 [待确认] 占位，不得自行编造。
 3. 活动主题、文化元素、配色方向一律以输入的海报文案和项目简报为准，不得写死任何具体节日或主题。
 4. 若提供了「人为提示词」，它优先级最高：必须优先遵循人为提示词的所有要求（配色、元素、构图、文字等），再补充海报文案的关键文字。
-5. 若提供了「用户修改指令」，在保留上一版 prompt 已确定风格/元素的基础上，只按指令做局部修改，不要推倒重来。
+5. 若提供了「修改意见」，它是用户对上一版海报不满意的点（例如「月亮太大」「背景太暗」「加两盏灯笼」）：在「海报文案 + 人为提示词」的基础上，针对这些点做针对性调整、解决这些不满意之处，但不要推倒重来。
 6. 若海报需要二维码、logo 等需要精确还原的图片元素，不要尝试让文生图模型精确画出（画不准会导致无法识别）；改为在 imagePrompt 里说明「在海报右下角留一块空白区域，稍后手动贴入二维码/logo」。
 
 # 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
@@ -38,23 +38,19 @@ export async function runPosterDesigner(input: {
   briefText: string;
   humanPrompt?: string;
   editInstruction?: string;
-  prevPrompt?: string;
 }): Promise<PosterDesignerResult> {
   const humanBlock = input.humanPrompt
     ? `\n\n人为提示词（优先级最高，必须优先遵循）：\n${input.humanPrompt}`
     : "";
-  const prevBlock = input.prevPrompt
-    ? `\n\n上一版提示词：\n${input.prevPrompt}`
-    : "";
   const editBlock = input.editInstruction
-    ? `\n\n用户修改指令：\n${input.editInstruction}`
+    ? `\n\n修改意见（用户对上一版不满意的点，需针对性解决）：\n${input.editInstruction}`
     : "";
 
   const text = await generateText({
     messages: [
       {
         role: "user",
-        content: `${POSTER_DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n海报文案：\n${input.posterText}${humanBlock}${prevBlock}${editBlock}\n\n请生成提示词并输出 JSON。`,
+        content: `${POSTER_DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n海报文案：\n${input.posterText}${humanBlock}${editBlock}\n\n请生成提示词并输出 JSON。`,
       },
     ],
     maxTokens: 8000,

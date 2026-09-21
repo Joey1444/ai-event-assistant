@@ -98,7 +98,13 @@ export function PosterImagePanel({
     if (!selected || !instruction.trim()) return;
     setError(null);
     startTransition(async () => {
-      const r = await editPosterImage(projectId, instruction.trim(), selected.id);
+      const r = await editPosterImage(
+        projectId,
+        instruction.trim(),
+        selected.id,
+        humanPrompt.trim() || undefined,
+        referenceImages.length > 0 ? referenceImages : undefined,
+      );
       if (r.ok) {
         applyResult(r.images);
         setInstruction("");
@@ -312,7 +318,7 @@ export function PosterImagePanel({
             <textarea
               value={instruction}
               onChange={(e) => setInstruction(e.target.value)}
-              placeholder="基于当前选中的版本修改，例如：把主标题改成新文案，或调整背景配色"
+              placeholder="说明对上一版不满意的地方，例如：月亮太大、背景太暗、加两盏灯笼"
               rows={2}
               className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
             />
@@ -323,7 +329,7 @@ export function PosterImagePanel({
                 disabled={isPending || !instruction.trim()}
                 className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2 disabled:opacity-50"
               >
-                {isPending ? "生成中…（约 20-60 秒）" : "基于此图修改"}
+                {isPending ? "生成中…（约 20-60 秒）" : "提交修改，重新生成"}
               </button>
             </div>
           </div>

@@ -678,6 +678,8 @@ export async function editPosterImage(
   projectId: string,
   instruction: string,
   sourceImageId?: string,
+  humanPrompt?: string,
+  referenceImages?: string[],
 ): Promise<PosterImageResult> {
   const parsed = editInstructionSchema.safeParse(instruction);
   if (!parsed.success) {
@@ -712,12 +714,12 @@ export async function editPosterImage(
     const designed = await runPosterDesigner({
       posterText: formatContentForQa(poster.content),
       briefText: formatBrief(project),
-      prevPrompt: source.prompt,
+      humanPrompt,
       editInstruction: parsed.data,
     });
     const image = await generateImage({
       prompt: designed.imagePrompt,
-      images: [source.imageDataUrl],
+      images: referenceImages,
       size: designed.size,
     });
 
