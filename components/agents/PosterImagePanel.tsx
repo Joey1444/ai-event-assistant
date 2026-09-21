@@ -218,8 +218,11 @@ export function PosterImagePanel({
           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
         />
         <div className="flex flex-wrap items-center gap-2">
-          <label className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2">
-            添加图片元素（如群二维码）
+          <label
+            className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2"
+            title="二维码、logo 等精确图形文生图还原度低，可能无法识别；建议留白后手动贴入"
+          >
+            添加参考图片元素（二维码等精确图形还原度低）
             <input
               type="file"
               accept="image/*"
