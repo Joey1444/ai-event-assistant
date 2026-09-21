@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# 本地下载的工具（cloudflared 隧道等，不进 git）
+cloudflared.exe
+
 # database
 *.db
 *.db-journal
