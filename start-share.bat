@@ -27,6 +27,9 @@ echo 注意：这个窗口和「项目网页」窗口都要一直开着，
 echo      电脑也不能关机/睡眠，链接才有效。
 echo      每次重新运行，链接会变成新的。
 echo.
+echo 如果链接打不开：先等 1 分钟再试；
+echo      还不行就关掉两个窗口，重新双击本脚本。
+echo.
 cloudflared.exe tunnel --url http://localhost:3000
 
 pause
