@@ -94,26 +94,26 @@ npm run dev
 
 应用默认只能在 `localhost:3000` 本机访问。想让**没装环境的人**（比如参与体验的老师）通过公网链接直接打开，可以用 [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)（cloudflared）把本地端口临时暴露出去。
 
-前提：应用已启动（`npm run dev`，监听 3000），且 CCSwitch 网关已运行。
+**分三步：**
+
+1. 启动应用（`npm run dev`），确认 `localhost:3000` 已监听；CCSwitch 网关保持运行。
+
+2. 下载并启动 cloudflared：
 
 ```bash
-# 需先安装 cloudflared（GitHub Releases 下载 cloudflared-windows-amd64.exe）。
-# 若 cloudflared 不在 PATH 里，把下面命令换成它的完整路径。
+# 下载 cloudflared（Windows amd64）。GitHub 直连可能很慢，可加 ghproxy 镜像前缀加速：
+curl -L -o cloudflared.exe "https://ghproxy.net/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
+
+# 启动隧道（若 cloudflared 不在 PATH，用完整路径 ./cloudflared.exe）
 cloudflared tunnel --url http://localhost:3000
 ```
 
-启动后，从输出里找到这行里的链接（形如 `https://xxx.trycloudflare.com`）：
-
-```text
-|  https://random-words.trycloudflare.com  |
-```
-
-把这个链接发给别人即可访问。
+3. 从 cloudflared 输出里找到形如 `https://xxx.trycloudflare.com` 的链接，发给别人即可打开。
 
 **注意**：
 
 - 这是**临时链接**，每次重启 cloudflared 都会生成全新的随机域名，旧链接随即失效。
-- 需**一直开着**这个窗口（以及应用、网关），链接才有效；关掉窗口即断链，电脑也要保持开机。
+- 需**一直开着**应用和 cloudflared 两个进程，链接才有效；电脑也不能关机或睡眠。
 - 免费快速隧道**无可用性保证**，且需每小时至少访问一次以保持存活，不适合长期或正式使用。
 - 一旦开启，应用即**对公网可见**，其中的报名信息（机构、联系人、预算等）他人也能看到，演示时注意。
 
