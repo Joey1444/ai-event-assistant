@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { projectTextFieldSchema } from "@/lib/validation";
 
 export async function createProject(formData: FormData) {
   const projectName = text(formData.get("projectName"));
@@ -9,6 +10,12 @@ export async function createProject(formData: FormData) {
 
   if (!projectName || !organization) {
     redirect("/projects/new?error=missing-required");
+  }
+  if (
+    !projectTextFieldSchema.safeParse(projectName).success ||
+    !projectTextFieldSchema.safeParse(organization).success
+  ) {
+    redirect("/projects/new?error=field-too-long");
   }
 
   const project = await prisma.project.create({
@@ -32,6 +39,12 @@ export async function updateProject(formData: FormData) {
   const organization = text(formData.get("organization"));
   if (!projectName || !organization) {
     redirect(`/projects/${id}/edit?error=missing-required`);
+  }
+  if (
+    !projectTextFieldSchema.safeParse(projectName).success ||
+    !projectTextFieldSchema.safeParse(organization).success
+  ) {
+    redirect(`/projects/${id}/edit?error=field-too-long`);
   }
 
   await prisma.project.update({

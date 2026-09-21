@@ -11,8 +11,9 @@ import {
   FACT_STATUS_LABELS,
   PLAN_SECTION_LABELS,
   POSTER_FIELD_LABELS,
+  type BudgetData,
 } from "@/lib/agents/types";
-import { toApprovalData, toFinalQaData } from "@/lib/serializers";
+import { toApprovalData, toBudgetData, toConceptData, toContentData, toFinalQaData, toPlanData } from "@/lib/serializers";
 import {
   STATUS_LABELS,
   STATUS_TONES,
@@ -76,11 +77,12 @@ export default async function ApprovalPage({
     (c) => c.variant === decision?.selectedConcept,
   );
   const selectedConceptName = selectedConcept
-    ? ((JSON.parse(selectedConcept.content) as { name?: string }).name ?? "")
+    ? toConceptData(selectedConcept).name
     : "";
-  const planData = plan ? (JSON.parse(plan.content) as Record<string, string>) : null;
-  const copyData = copy ? (JSON.parse(copy.content) as Record<string, string>) : null;
-  const posterData = poster ? (JSON.parse(poster.content) as Record<string, string>) : null;
+  const planData = plan ? toPlanData(plan)?.content ?? null : null;
+  const copyData = copy ? toContentData(copy)?.content ?? null : null;
+  const posterData = poster ? toContentData(poster)?.content ?? null : null;
+  const budgetData = toBudgetData(budget);
 
   return (
     <div className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
@@ -132,7 +134,7 @@ export default async function ApprovalPage({
       </Module>
 
       <Module title="💰 预算（AI 建议）">
-        {budget ? <BudgetView budget={budget} /> : <Empty />}
+        {budgetData ? <BudgetView budget={budgetData} /> : <Empty />}
       </Module>
 
       <Module title="🗓 时间安排（AI 建议）">
@@ -228,19 +230,10 @@ function FieldView({
   );
 }
 
-function BudgetView({
-  budget,
-}: {
-  budget: {
-    summary: string | null;
-    currency: string;
-    contingencyRate: number;
-    items: { category: string; item: string; quantity: number; unit: string; unitPrice: number }[];
-  };
-}) {
+function BudgetView({ budget }: { budget: BudgetData }) {
   const items = budget.items ?? [];
-  const total = items.reduce((s, i) => s + i.quantity * i.unitPrice, 0);
-  const contingency = total * (budget.contingencyRate ?? 0.1);
+  const total = budget.total;
+  const contingency = total * budget.contingencyRate;
   return (
     <div className="text-sm">
       <p className="whitespace-pre-wrap text-ink">{budget.summary || "—"}</p>

@@ -49,3 +49,6 @@ next-env.d.ts
 # Word / Office 临时文件
 ~$*
 ~*.tmp
+
+# Claude Code（只忽略本机专属配置；rules/agents/settings.json/launch.json 进 git 共享）
+.claude/settings.local.json
