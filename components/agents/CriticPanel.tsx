@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { runCritique } from "@/lib/agents/actions";
 import {
   CRITIQUE_SCORE_LABELS,
@@ -21,6 +22,7 @@ export function CriticPanel({
   const [critique, setCritique] = useState<CritiqueData | null>(savedCritique);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleRun() {
     setError(null);
@@ -28,6 +30,7 @@ export function CriticPanel({
       const r = await runCritique(projectId);
       if (r.ok) {
         setCritique(r.critique);
+        router.refresh();
       } else {
         setError(r.error);
       }

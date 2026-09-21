@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { generateBudget, saveBudgetVersion } from "@/lib/agents/actions";
 import {
   BUDGET_CATEGORY_LABELS,
@@ -30,6 +31,7 @@ export function BudgetPanel({
   const [draft, setDraft] = useState<BudgetItemData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   function copyBudget() {
@@ -51,8 +53,12 @@ export function BudgetPanel({
     setError(null);
     startTransition(async () => {
       const r = await generateBudget(projectId);
-      if (r.ok) setBudget(r.budget);
-      else setError(r.error);
+      if (r.ok) {
+        setBudget(r.budget);
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
     });
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { researchProject } from "@/lib/agents/actions";
 import { FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
@@ -34,6 +35,7 @@ export function ResearcherPanel({
   const [facts, setFacts] = useState<FactData[]>(savedFacts);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   async function handleRun() {
     setError(null);
@@ -43,6 +45,7 @@ export function ResearcherPanel({
       if (r.ok) {
         setItems(r.items);
         setFacts(r.facts);
+        router.refresh();
       } else {
         setError(r.error);
       }

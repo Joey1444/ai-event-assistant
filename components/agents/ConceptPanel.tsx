@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { generateConcepts } from "@/lib/agents/actions";
 import {
   CONCEPT_FIELD_LABELS,
@@ -23,6 +24,7 @@ export function ConceptPanel({
   );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleGenerate() {
     setError(null);
@@ -31,6 +33,7 @@ export function ConceptPanel({
       if (r.ok) {
         setConcepts(r.concepts);
         setSelected(r.concepts[0]?.variant ?? "A");
+        router.refresh();
       } else {
         setError(r.error);
       }

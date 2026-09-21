@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { generatePoster, savePosterVersion } from "@/lib/agents/actions";
 import {
   POSTER_FIELDS,
@@ -20,6 +21,7 @@ export function PosterPanel({
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   function copyAll() {
@@ -37,8 +39,12 @@ export function PosterPanel({
     setError(null);
     startTransition(async () => {
       const r = await generatePoster(projectId);
-      if (r.ok) setData(r.data);
-      else setError(r.error);
+      if (r.ok) {
+        setData(r.data);
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
     });
   }
 

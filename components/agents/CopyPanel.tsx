@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { generateCopy, saveCopyVersion } from "@/lib/agents/actions";
 import {
   COPY_FIELDS,
@@ -20,6 +21,7 @@ export function CopyPanel({
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   function copyAll() {
@@ -37,8 +39,12 @@ export function CopyPanel({
     setError(null);
     startTransition(async () => {
       const r = await generateCopy(projectId);
-      if (r.ok) setData(r.data);
-      else setError(r.error);
+      if (r.ok) {
+        setData(r.data);
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
     });
   }
 

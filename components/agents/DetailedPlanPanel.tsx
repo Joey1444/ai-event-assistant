@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { generatePlan, savePlanVersion } from "@/lib/agents/actions";
 import {
   PLAN_SECTION_LABELS,
@@ -27,6 +28,7 @@ export function DetailedPlanPanel({
   const [draft, setDraft] = useState<PlanData>({});
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   function copyAll() {
@@ -46,6 +48,7 @@ export function DetailedPlanPanel({
       const r = await generatePlan(projectId);
       if (r.ok) {
         setPlan(r.plan);
+        router.refresh();
       } else {
         setError(r.error);
       }

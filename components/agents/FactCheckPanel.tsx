@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { factCheckProject } from "@/lib/agents/actions";
 import { CONFIDENCE_LABELS, FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
@@ -22,6 +23,7 @@ export function FactCheckPanel({
   const [facts, setFacts] = useState<FactData[]>(savedFacts);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleRun() {
     setError(null);
@@ -29,6 +31,7 @@ export function FactCheckPanel({
       const r = await factCheckProject(projectId);
       if (r.ok) {
         setFacts(r.facts);
+        router.refresh();
       } else {
         setError(r.error);
       }
