@@ -6,10 +6,12 @@ import type {
   BudgetData,
   ConceptData,
   CritiqueData,
+  CritiqueScores,
   DecisionData,
-  DesignData,
+  PosterImageData,
   FactData,
   FinalQaRecord,
+  PlanData,
   PmAnalysisData,
   PmBlocker,
   QaFinding,
@@ -85,8 +87,34 @@ export function toConceptData(row: {
   direction: string;
   content: string;
 }): ConceptData {
-  const d = JSON.parse(row.content) as ConceptData;
-  return { ...d, variant: row.variant, direction: row.direction };
+  let d: Record<string, unknown> = {};
+  try {
+    d = JSON.parse(row.content) as Record<string, unknown>;
+  } catch {
+    // 畸形 JSON：退回空字段，避免页面崩溃
+  }
+  const s = (k: string) => String(d[k] ?? "");
+  return {
+    variant: row.variant,
+    direction: row.direction,
+    differentiator: s("differentiator"),
+    name: s("name"),
+    theme: s("theme"),
+    positioning: s("positioning"),
+    goals: s("goals"),
+    targetAudience: s("targetAudience"),
+    highlights: s("highlights"),
+    flow: s("flow"),
+    culturalElements: s("culturalElements"),
+    interaction: s("interaction"),
+    promotion: s("promotion"),
+    budgetRange: s("budgetRange"),
+    staffing: s("staffing"),
+    venue: s("venue"),
+    risks: s("risks"),
+    pros: s("pros"),
+    cons: s("cons"),
+  };
 }
 
 export function toCritiqueData(row: {
@@ -99,8 +127,14 @@ export function toCritiqueData(row: {
   recommendedConcept: string;
 } | null): CritiqueData | null {
   if (!row) return null;
+  let scores: CritiqueScores;
+  try {
+    scores = JSON.parse(row.scores) as CritiqueScores;
+  } catch {
+    return null;
+  }
   return {
-    scores: JSON.parse(row.scores),
+    scores,
     strengths: parseArr(row.strengths),
     weaknesses: parseArr(row.weaknesses),
     risks: parseArr(row.risks),
@@ -156,9 +190,15 @@ export function toPlanData(row: {
   createdAt: Date;
 } | null): ActivityPlanData | null {
   if (!row) return null;
+  let content: PlanData;
+  try {
+    content = JSON.parse(row.content) as PlanData;
+  } catch {
+    return null;
+  }
   return {
     version: row.version,
-    content: JSON.parse(row.content),
+    content,
     createdByAgent: row.createdByAgent,
     createdAt: row.createdAt.toISOString(),
   };
@@ -171,9 +211,15 @@ export function toContentData(row: {
   createdAt: Date;
 } | null): VersionedContentData | null {
   if (!row) return null;
+  let content: Record<string, string>;
+  try {
+    content = JSON.parse(row.content) as Record<string, string>;
+  } catch {
+    return null;
+  }
   return {
     version: row.version,
-    content: JSON.parse(row.content),
+    content,
     createdByAgent: row.createdByAgent,
     createdAt: row.createdAt.toISOString(),
   };
@@ -222,16 +268,23 @@ export function toBudgetData(row: {
   };
 }
 
-export function toDesignData(row: {
+export function toPosterImageData(row: {
+  id: string;
   version: number;
-  html: string;
+  imageDataUrl: string;
+  prompt: string;
+  editInstruction: string | null;
+  parentVersion: number | null;
   createdByAgent: string;
   createdAt: Date;
-} | null): DesignData | null {
-  if (!row) return null;
+}): PosterImageData {
   return {
+    id: row.id,
     version: row.version,
-    html: row.html,
+    imageDataUrl: row.imageDataUrl,
+    prompt: row.prompt,
+    editInstruction: row.editInstruction ?? "",
+    parentVersion: row.parentVersion,
     createdByAgent: row.createdByAgent,
     createdAt: row.createdAt.toISOString(),
   };

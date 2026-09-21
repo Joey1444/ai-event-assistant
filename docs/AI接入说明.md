@@ -72,15 +72,17 @@ npm run dev
 1. 在 cc-switch 界面里，把「当前 provider」从 DeepSeek 换成别的（Kimi、GLM、或以后的新模型）。
 2. 打开项目里的 `.env`，把 `AI_MODEL` 改成新模型的名字。
 
-你的 `Researcher / Strategist / Critic / Fact Checker`（以后会做）全部只调 `generateText()`，所以换模型对它们零影响。
+你的 `Researcher / Strategist / Critic / Fact Checker`（已实现）全部只调 `generateText()`，所以换模型对它们零影响。
+
+**文生图模型（海报图片）走另一条路**：它**不经过 cc-switch**，而是由你的 Next.js 服务器直接连第三方文生图服务（OpenAI 兼容 `/v1/images/generations`）。对应环境变量是 `IMAGE_API_BASE_URL` / `IMAGE_API_KEY` / `IMAGE_MODEL`（Key 填在服务端 `.env`，同样不要提交）。换文生图模型只改这三个变量。
 
 ## 八、关键文件速查
 
 | 文件 | 作用 |
 |---|---|
-| `.env` | 存 `AI_BASE_URL`（网关地址）、`AI_MODEL`（模型名）、`AI_API_KEY`（占位符） |
+| `.env` | 存 `AI_BASE_URL`（网关地址）、`AI_MODEL`（模型名）、`AI_API_KEY`（占位符）；文生图另存 `IMAGE_API_BASE_URL` / `IMAGE_API_KEY` / `IMAGE_MODEL` |
 | `lib/ai/config.ts` | 把这些环境变量读进来，统一管理 |
-| `lib/ai/provider.ts` | 唯一「发请求 + 收答案」的地方，对外只暴露 `generateText()` |
+| `lib/ai/provider.ts` | 唯一「发请求 + 收答案」的地方，对外暴露 `generateText()`（文本）与 `generateImage()`（文生图） |
 | `lib/ai/actions.ts` | 网页按钮触发的服务端函数 `testAi()` |
 | `app/ai-test/page.tsx` | `/ai-test` 页面 |
 | `components/AiTestPanel.tsx` | 「Test AI」按钮和结果显示 |

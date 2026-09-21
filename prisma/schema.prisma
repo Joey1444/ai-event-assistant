@@ -27,7 +27,7 @@ model Project {
   budgets       Budget[]
   copies        Copy[]
   posters       Poster[]
-  posterDesigns PosterDesign[]
+  posterImages  PosterImage[]
   finalQas      FinalQa[]
   approvals     Approval[]
 }
@@ -197,15 +197,18 @@ model Poster {
   createdAt      DateTime @default(now())
 }
 
-// 海报网页设计（Web Design Agent 生成，存完整 HTML）
-model PosterDesign {
-  id             String   @id @default(cuid())
-  projectId      String
-  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  version        Int      @default(1)
-  html           String
-  createdByAgent String
-  createdAt      DateTime @default(now())
+// 海报图片（Poster Designer agent 生成，文生图产物，保留历史版本并支持图生图迭代）
+model PosterImage {
+  id              String   @id @default(cuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  version         Int      @default(1)
+  imageDataUrl    String
+  prompt          String
+  editInstruction String?
+  parentVersion   Int?
+  createdByAgent  String
+  createdAt       DateTime @default(now())
 }
 
 // Final QA 结果（发布前最后一道 AI 检查）

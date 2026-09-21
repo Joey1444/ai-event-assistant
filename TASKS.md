@@ -1,7 +1,7 @@
 # 任务清单（TASKS）
 
 > 规则：始终取优先级最高、未勾选的一项开始。完成后勾选、更新 `PROGRESS.md`、提交，再取下一项。
-> 验收标准细节见 `PROJECT_SPEC.md`。
+> 验收标准细节见 `rules/PROJECT_SPEC.md`。
 
 ## Phase 0 — 补齐地基（先做）
 
@@ -11,9 +11,9 @@
 
 ## Phase 1 — 核心缺口（高价值）
 
-- [ ] **Researcher Agent**：自动联网调研，填充 `ResearchItem` / `Fact` 账本（README 标注「尚未实现」）
+- [x] **Researcher Agent**：自动联网调研，填充 `ResearchItem` / `Fact` 账本
   - 验收：走 `lib/ai/provider.ts`；产出入库；来源可追溯；无来源标 UNKNOWN；有独立面板入口
-- [ ] 逐个体检 10 个 Agent 的 JSON 解析是否防御性（规则 36）：注入畸形 JSON → 得到可读错误、页面不崩
+- [ ] 逐个体检 11 个 Agent 的 JSON 解析是否防御性（规则 36）：注入畸形 JSON → 得到可读错误、页面不崩
 - [ ] `Fact` 状态机落地校验：unverified → ai_checked → human_verified / rejected，AI 不得自行标 human_verified（规则 29）
 
 ## Phase 2 — 增强
@@ -21,11 +21,19 @@
 - [ ] 海报导出 PNG / PDF
 - [ ] 多套海报设计主题
 - [ ] 预算 / 文案 / 详细方案的历史版本对比界面
-- [ ] （可选）接入文生图模型
+- [x] 接入文生图模型（直连第三方 OpenAI 兼容 `/v1/images/generations` + posterDesigner agent + 历史版本对比 + 图生图修改）
+- [ ] 海报图片历史版本首屏只传最新 + 缩略图（当前全量 base64 会随版本数膨胀）
+- [ ] 文生图 action 鉴权 / 限流（对外部署前）
+- [ ] 文案一键复制按钮（`components/ui/CopyButton.tsx`，纯前端 `navigator.clipboard`）
+- [ ] 方案导出 Word / 预算导出 Excel（`lib/exportText.ts` + `lib/download.ts`）
+- [ ] 各面板加载进度与预计时间提示（「约 20~60 秒，请勿离开本页」）
+- [ ] 审批三按钮后果说明（批准=流程结束 / 驳回=打回重做 / 要求修改=退回改后再审）
+- [ ] 置信度大白话（high/medium/low → 「把握：高/中/低」）
 
 ## Phase 3 — 质量与测试
 
 - [ ] provider 层单测（config / generateText / classifyError）
+- [ ] 静态提示词进 system role（动态输入放 user，命中 prompt caching 省 token）
 - [ ] 各 Agent 解析器单测（用固定 JSON 样本测类型与取值范围校验）
 - [ ] 集成测试：agent → action → 落库 → 读回
 - [ ] E2E：创建项目 → 全流程 → 两道 Human Gate → 审批

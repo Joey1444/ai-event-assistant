@@ -15,7 +15,7 @@ import { DetailedPlanPanel } from "@/components/agents/DetailedPlanPanel";
 import { BudgetPanel } from "@/components/agents/BudgetPanel";
 import { CopyPanel } from "@/components/agents/CopyPanel";
 import { PosterPanel } from "@/components/agents/PosterPanel";
-import { PosterDesignPanel } from "@/components/agents/PosterDesignPanel";
+import { PosterImagePanel } from "@/components/agents/PosterImagePanel";
 import {
   toAnalysisData,
   toBudgetData,
@@ -23,9 +23,9 @@ import {
   toContentData,
   toCritiqueData,
   toDecisionData,
-  toDesignData,
   toFactData,
   toPlanData,
+  toPosterImageData,
 } from "@/lib/serializers";
 import {
   STATUS_LABELS,
@@ -89,9 +89,9 @@ export default async function ProjectDetailPage({
     where: { projectId: project.id },
     orderBy: { version: "desc" },
   });
-  const latestDesign = await prisma.posterDesign.findFirst({
+  const posterImages = await prisma.posterImage.findMany({
     where: { projectId: project.id },
-    orderBy: { version: "desc" },
+    orderBy: { version: "asc" },
   });
   const latestFinalQa = await prisma.finalQa.findFirst({
     where: { projectId: project.id },
@@ -233,9 +233,9 @@ export default async function ProjectDetailPage({
         latestPoster={toContentData(latestPoster)}
       />
 
-      <PosterDesignPanel
+      <PosterImagePanel
         projectId={project.id}
-        latestDesign={toDesignData(latestDesign)}
+        images={posterImages.map(toPosterImageData)}
       />
 
       <section className="mt-8">

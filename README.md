@@ -15,7 +15,7 @@
 1. **AI 永远不替人类做最终决定**——两道 Human Gate（选方向、最终批准）只能由用户点击。
 2. **不把 AI 假设当事实**——所有外部信息要么有来源，要么标 `UNKNOWN` / `ASSUMPTION` / `CONFLICT`，绝不凭常识断定。
 3. **不编造**——日期、地点、联系人、电话、费用、报名方式缺失时用 `[待确认]` 占位。
-4. 完整规则见 [AI_DEVELOPMENT_RULES.md](AI_DEVELOPMENT_RULES.md)。
+4. 完整规则见 [AI_DEVELOPMENT_RULES.md](rules/AI_DEVELOPMENT_RULES.md)。
 
 ## 技术栈
 
@@ -32,20 +32,9 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
 
 业务代码零 Provider 绑定；换模型只改 CCSwitch 配置和 `AI_MODEL`。
 
-## 已实现的 Agent（10 个 + 2 道人工关卡）
+## Agent 与人工关卡
 
-| Agent | 文件 | 产出 |
-|---|---|---|
-| PM（项目经理） | `lib/agents/pm.ts` | 主要矛盾 / 次要提醒 / 下一步 |
-| Strategist（策划师） | `lib/agents/strategist.ts` | 2~4 个方向不同的方案（维度驱动） |
-| Critic（评审） | `lib/agents/critic.ts` | 8 维评分 + 问题 + 推荐 |
-| Fact Checker（事实核查） | `lib/agents/factChecker.ts` | 外部事实 + FACT/ASSUMPTION/UNKNOWN/CONFLICT 分类 |
-| Planner（详细方案） | `lib/agents/planner.ts` | 16 章节正式方案 |
-| Budget（预算） | `lib/agents/budget.ts` | 10 类预算项 + 自动合计 |
-| Copywriter（文案） | `lib/agents/copywriter.ts` | 9 项宣传文案 |
-| Poster（海报内容） | `lib/agents/poster.ts` | 10 项海报字段 |
-| Web Design（海报设计） | `lib/agents/designer.ts` | 完整 HTML/CSS 海报 |
-| Final QA（最终质检） | `lib/agents/qa.ts` | PASS / WARNING / BLOCK |
+全部 Agent（名称、文件、输入、输出）以 `lib/agents/registry.ts` 为**唯一事实来源**，不在此重复；每个 Agent 的字段与规则见各 `lib/agents/*.ts` 的 prompt。流水线顺序见下方「完整工作流」。
 
 **两道人工关卡**：
 - **Human Gate 1**——「请选择活动方向」：用户在多个方案中点击选择（或全部驳回），系统绝不自动选。
@@ -56,6 +45,7 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
 ```
 创建项目
   → PM 分析（已知/未知/假设）
+  → 资料调研（联网检索，填充研究库 + 事实账本）
   → 生成多个方案（2~4 个）
   → AI 评审（打分 + 推荐）
   → 事实核验（外部事实分类）
@@ -63,7 +53,7 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
   → 生成 16 章节详细方案
   → 生成预算（10 类 + 自动合计）
   → 生成宣传文案（9 项）
-  → 生成海报内容 + HTML 海报设计
+  → 生成海报内容 + 海报图片（文生图，支持历史版本与图生图修改）
   → Final QA（PASS/WARNING/BLOCK）
   → 🧑 Human Gate 2：最终批准 / 驳回 / 要求修改
 ```
@@ -107,9 +97,9 @@ npm run dev
 前提：应用已启动（`npm run dev`，监听 3000），且 CCSwitch 网关已运行。
 
 ```bash
-# 本机 cloudflared 已装在下面这个路径；
-# 换机器未安装的话，从 GitHub Releases 下载 cloudflared-windows-amd64.exe 即可。
-"C:/Users/Lenovo/.claude/bin/cloudflared.exe" tunnel --url http://localhost:3000
+# 需先安装 cloudflared（GitHub Releases 下载 cloudflared-windows-amd64.exe）。
+# 若 cloudflared 不在 PATH 里，把下面命令换成它的完整路径。
+cloudflared tunnel --url http://localhost:3000
 ```
 
 启动后，从输出里找到这行里的链接（形如 `https://xxx.trycloudflare.com`）：
@@ -127,148 +117,34 @@ npm run dev
 - 免费快速隧道**无可用性保证**，且需每小时至少访问一次以保持存活，不适合长期或正式使用。
 - 一旦开启，应用即**对公网可见**，其中的报名信息（机构、联系人、预算等）他人也能看到，演示时注意。
 
-## 环境变量（.env）
+## 环境变量
 
-```bash
-DATABASE_URL="file:./dev.db"        # SQLite
-AI_BASE_URL=http://127.0.0.1:15721  # CCSwitch 网关地址
-AI_API_KEY=cc-switch-local          # 占位即可，真实 Key 由 CCSwitch 持有
-AI_MODEL=deepseek-v4-pro            # 当前模型
-```
+见 `.env.example`（每个变量都有注释，以它为准）。项目**不直接持有任何模型 Provider 的 Key**，也不要把真实 Key 写进前端、数据库或 `.env.example`。
 
-> 项目**不直接持有任何模型 Provider 的 Key**，也不要把 DeepSeek Key 写进前端、数据库或 `.env.example`。
+## 目录结构与数据模型
 
-## 目录结构
+- **目录结构**：见 `rules/CONTRIBUTING.md` 的「目录结构」（唯一来源）。
+- **数据模型**：见 `prisma/schema.prisma`（表名、字段、关系都在那里，不在此重复）。
 
-### 页面（`app/`）
+## 文档导航
 
-| 文件 | 功能 |
+| 文件 | 是什么 |
 |---|---|
-| `app/layout.tsx` | 根布局：中文 `<html>`、系统字体、全局标题 |
-| `app/globals.css` | 全局样式：Tailwind 4 + 中文字体栈 |
-| `app/page.tsx` | 首页：项目列表（名称 / 状态 / 更新时间）+ 新建入口 |
-| `app/projects/new/page.tsx` | 创建项目：11 字段表单 |
-| `app/projects/[id]/page.tsx` | 项目详情：挂载全部 Agent 面板 + 编辑/删除 |
-| `app/projects/[id]/edit/page.tsx` | 编辑项目：复用同一表单 |
-| `app/projects/[id]/approve/page.tsx` | 最终人工审批页（Human Gate 2） |
-| `app/ai-test/page.tsx` | AI 网关连通性测试（Test AI） |
-
-### AI Provider 层（`lib/ai/`）
-
-| 文件 | 功能 |
-|---|---|
-| `lib/ai/config.ts` | AI 配置：baseURL / apiKey / model / timeout / maxTokens，从 `.env` 读 |
-| `lib/ai/provider.ts` | 统一 `generateText()` + `checkAiHealth()` + `classifyError()`（错误分类成可读提示）。业务代码唯一调 AI 的入口 |
-| `lib/ai/actions.ts` | `testAi()` 服务端 action（供 /ai-test 页用） |
-
-### Agent 层（`lib/agents/`）
-
-| 文件 | 功能 |
-|---|---|
-| `lib/agents/types.ts` | 共享类型 + 各 Agent 字段标签/常量 |
-| `lib/agents/format.ts` | 格式化助手（DB 行 → Agent 输入文本） |
-| `lib/agents/registry.ts` | Agent 注册表（单一事实来源） |
-| `lib/agents/parse.ts` | 公共解析工具（`parseJsonObject` / `toBool` / `toStrArray` / `toNumber`） |
-| `lib/agents/actions.ts` | 所有 Agent 的服务端 action（`analyzeProject` / `generateConcepts` / `runCritique` / `factCheckProject` / `selectConcept` / `generatePlan` / `generateBudget` / `generateCopy` / `generatePoster` / `generateDesign` / `runFinalQa` / `submitApproval`） |
-| `lib/agents/pm.ts` | PM Agent：主要矛盾 / 次要提醒 / 下一步 |
-| `lib/agents/strategist.ts` | Strategist Agent：2~4 个方向方案（维度驱动 + differentiator） |
-| `lib/agents/critic.ts` | Critic Agent：8 维评分 + 优点/缺点/风险 + 推荐 |
-| `lib/agents/factChecker.ts` | Fact Checker Agent：外部事实 + FACT/ASSUMPTION/UNKNOWN/CONFLICT 分类 |
-| `lib/agents/planner.ts` | Planner Agent：16 章节正式活动方案 |
-| `lib/agents/budget.ts` | Budget Agent：10 类预算项 + 摘要 + 成本风险 |
-| `lib/agents/copywriter.ts` | Copywriter Agent：9 项宣传文案 |
-| `lib/agents/poster.ts` | Poster Agent：10 项海报内容字段 |
-| `lib/agents/designer.ts` | Web Design Agent：生成完整 HTML/CSS 海报 |
-| `lib/agents/qa.ts` | Final QA Agent：PASS / WARNING / BLOCK |
-
-### 数据与状态（`lib/`）
-
-| 文件 | 功能 |
-|---|---|
-| `lib/db.ts` | Prisma 客户端单例（开发环境热重载防重复创建） |
-| `lib/workflow.ts` | 下一步引导（`getNextAction` 判断当前该做什么） |
-| `lib/status.ts` | 项目状态常量 + 中文标签 + 徽章颜色 |
-| `lib/serializers.ts` | 序列化助手（DB 行 → 前端数据对象） |
-| `lib/actions.ts` | 项目 CRUD 服务端 action（`createProject` / `updateProject` / `deleteProject`） |
-
-### UI 组件（`components/`）
-
-**设计系统原语（`ui/`）**
-
-| 文件 | 功能 |
-|---|---|
-| `components/ui/Button.tsx` | 按钮（primary / secondary / danger） |
-| `components/ui/Card.tsx` | 卡片容器 |
-| `components/ui/Section.tsx` | 区块（标题 + 内容） |
-| `components/ui/Field.tsx` | 表单字段（label + input） |
-| `components/ui/Badge.tsx` | 状态/标记徽章 |
-
-**项目组件（`projects/`）**
-
-| 文件 | 功能 |
-|---|---|
-| `components/projects/ProjectForm.tsx` | 创建/编辑共用的项目表单 |
-| `components/projects/DeleteProjectButton.tsx` | 二次确认删除按钮 |
-| `components/projects/WorkflowStepper.tsx` | 工作流步骤条 |
-| `components/projects/NextActionBar.tsx` | 详情页「下一步」引导条 |
-
-**Agent 面板（`agents/`）**
-
-| 文件 | 功能 |
-|---|---|
-| `components/agents/PmAnalysisPanel.tsx` | PM 分析面板 |
-| `components/agents/ConceptPanel.tsx` | 方案面板（生成 + 查看多个方案） |
-| `components/agents/CriticPanel.tsx` | AI 评审面板（8 维评分 + 推荐） |
-| `components/agents/FactCheckPanel.tsx` | 事实核验面板 |
-| `components/agents/HumanDecisionGate.tsx` | 人工选择方向（Human Gate 1） |
-| `components/agents/DetailedPlanPanel.tsx` | 详细方案面板（编辑/重新生成/保存版本） |
-| `components/agents/BudgetPanel.tsx` | 预算面板（自动合计 + 编辑） |
-| `components/agents/CopyPanel.tsx` | 文案面板 |
-| `components/agents/PosterPanel.tsx` | 海报内容面板 |
-| `components/agents/PosterDesignPanel.tsx` | 网页海报设计面板（iframe 渲染 HTML） |
-| `components/agents/FinalQaPanel.tsx` | Final QA 面板 |
-| `components/agents/ApprovalPanel.tsx` | 最终审批三按钮（APPROVE / REJECT / REQUEST CHANGES） |
-| `components/AiTestPanel.tsx` | Test AI 按钮（网关测试） |
-
-### 数据库（`prisma/`）
-
-| 文件 | 功能 |
-|---|---|
-| `prisma/schema.prisma` | 数据模型（18 张表，见下节） |
-| `prisma/dev.db` | SQLite 数据库文件（由 `prisma db push` 生成） |
-
-### 根目录文件
-
-| 文件 | 功能 |
-|---|---|
-| `README.md` | 本文件 |
-| `AI_DEVELOPMENT_RULES.md` | 开发铁律（25 条 + 13 条补充） |
-| `CONTRIBUTING.md` | 工程规范（目录结构 / 命名 / 如何新增 Agent） |
-| `PROJECT_SPEC.md` | 验收标准（Definition of Done + 反幻觉 / AI 调用验收） |
+| `rules/AI_DEVELOPMENT_RULES.md` | 开发铁律（AI 开发必须遵守） |
+| `rules/CONTRIBUTING.md` | 工程规范（目录结构 / 命名 / 文档规范 / 如何新增 Agent） |
+| `rules/PROJECT_SPEC.md` | 验收标准（怎么算做完） |
 | `TASKS.md` | 按优先级排序的待办清单 |
 | `PROGRESS.md` | 进度记录（当前状态 + 变更日志） |
-| `verify.sh` | 迭代验证闸门（typecheck + lint + build） |
-| `AGENTS.md` | Next.js 自动生成的 AI 说明（**勿手改**，会被 `next dev` 重新生成） |
-| `CLAUDE.md` | 自治开发循环 + 引用 `AGENTS.md` / `AI_DEVELOPMENT_RULES.md` / `CONTRIBUTING.md` 等 |
-| `.env` / `.env.example` | 环境变量（数据库 + AI 网关） |
-| `.npmrc` | 固定官方 npm 源 |
-| `docs/AI接入说明.md` | AI 网关接入说明 |
-| `docs/提示词说明.md` | 各 Agent 的角色 / 输入 / 输出 / 规则文档 |
-| `package.json` / `tsconfig.json` / `next.config.ts` / `postcss.config.mjs` / `eslint.config.mjs` | 工程配置 |
-
-## 数据模型
-
-核心表：`Project`、`ProjectBrief`、`PmAnalysis`、`ResearchItem`（研究库）、`Fact`（事实账本）、`Concept`（方案）、`Critique`（评审）、`Decision`（人工决策）、`ActivityPlan`（详细方案）、`Budget`/`BudgetItem`（预算）、`Copy`（文案）、`Poster`（海报内容）、`PosterDesign`（海报 HTML）、`FinalQa`、`Approval`（最终审批）。
+| `CLAUDE.md` | 给 Claude Code 的说明（自治循环 + 命令 + 架构大图） |
 
 ## 已知说明 / 踩坑记录
 
 - **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。各 Agent 的 `max_tokens` 已统一设为 50000，provider 层也会检测 `stop_reason=max_tokens` 截断并提示。
 - **`next build`/`next dev` 在 Claude 沙箱里跑会报 EXDEV**（写 `%APPDATA%\nextjs-nodejs` 失败），你自己的终端里无此问题。
 - **杀毒/清理程序可能清空 `node_modules`**：若报「`next` 不是内部或外部命令」，重跑 `npm install` 即可。
-- **「资料研究（Researcher）」尚未实现**：`ResearchItem` 表已建好，但自动联网调研的 Agent 是后续步骤；当前研究库和事实账本为空时，各 Agent 会把所有外部信息严格标为 `UNKNOWN`/`ASSUMPTION`。
+- **Researcher（资料调研）已实现**：联网检索（Tavily）填充 `ResearchItem` / `Fact`，来源可追溯；未配置 `TAVILY_API_KEY` 时研究库与事实账本为空，各 Agent 会把外部信息严格标为 `UNKNOWN`/`ASSUMPTION`。
 
 ## 下一步可做的事
 
-- 实现 Researcher Agent（自动联网调研，填充 ResearchItem / Fact 账本）
-- 海报导出 PNG / PDF、多套设计主题、接入文生图模型
+- 海报图片导出 PNG / PDF、多套设计主题
 - 预算、文案等模块的历史版本对比界面

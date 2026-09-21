@@ -359,15 +359,19 @@ export const POSTER_FIELD_LABELS: Record<string, string> = {
   culturalElements: "文化元素",
 };
 
-export type DesignData = {
+export type PosterImageData = {
+  id: string;
   version: number;
-  html: string;
+  imageDataUrl: string;
+  prompt: string;
+  editInstruction: string;
+  parentVersion: number | null;
   createdByAgent: string;
   createdAt: string;
 };
 
-export type DesignResult =
-  | { ok: true; design: DesignData }
+export type PosterImageResult =
+  | { ok: true; images: PosterImageData[] }
   | { ok: false; error: string };
 
 export type QaFinding = {

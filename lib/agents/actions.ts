@@ -1,16 +1,22 @@
 "use server";
 
 import { prisma } from "@/lib/db";
-import { classifyError } from "@/lib/ai/provider";
+import { classifyError, generateImage } from "@/lib/ai/provider";
+import {
+  approvalDecisionSchema,
+  budgetItemsSchema,
+  contentSchema,
+  editInstructionSchema,
+} from "@/lib/validation";
 import {
   parseBlockers,
   toApprovalData,
   toBudgetData,
   toContentData,
   toDecisionData,
-  toDesignData,
   toFinalQaData,
   toPlanData,
+  toPosterImageData,
 } from "@/lib/serializers";
 import { runPmAnalysis } from "./pm";
 import { runStrategist } from "./strategist";
@@ -20,7 +26,7 @@ import { runPlanner } from "./planner";
 import { runBudget } from "./budget";
 import { runCopywriter } from "./copywriter";
 import { runPoster } from "./poster";
-import { runDesigner } from "./designer";
+import { runPosterDesigner } from "./posterDesigner";
 import { runQa } from "./qa";
 import { runResearcher, type ResearchResult } from "./researcher";
 import {
@@ -40,13 +46,13 @@ import type {
   ContentResult,
   CritiqueResult,
   DecisionResult,
-  DesignResult,
   FactCheckResult,
   FinalQaResult,
   GenerateBudgetResult,
   GenerateConceptsResult,
   GeneratePlanResult,
   PlanData,
+  PosterImageResult,
   SaveBudgetResult,
   SavePlanVersionResult,
 } from "./types";
@@ -60,18 +66,20 @@ export async function analyzeProject(projectId: string): Promise<AnalyzeResult> 
 
   try {
     const analysis = await runPmAnalysis(formatBrief(project));
-    await prisma.pmAnalysis.deleteMany({ where: { projectId } });
-    await prisma.pmAnalysis.create({
-      data: {
-        projectId,
-        summary: analysis.summary,
-        blockers: JSON.stringify(analysis.blockers),
-        minorGaps: JSON.stringify(analysis.minorGaps),
-        assumptions: JSON.stringify(analysis.assumptions),
-        nextStep: analysis.nextStep,
-        canStart: analysis.canStart,
-      },
-    });
+    await prisma.$transaction([
+      prisma.pmAnalysis.deleteMany({ where: { projectId } }),
+      prisma.pmAnalysis.create({
+        data: {
+          projectId,
+          summary: analysis.summary,
+          blockers: JSON.stringify(analysis.blockers),
+          minorGaps: JSON.stringify(analysis.minorGaps),
+          assumptions: JSON.stringify(analysis.assumptions),
+          nextStep: analysis.nextStep,
+          canStart: analysis.canStart,
+        },
+      }),
+    ]);
     return { ok: true, analysis };
   } catch (err) {
     return { ok: false, error: classifyError(err) };
@@ -106,23 +114,20 @@ export async function researchProject(
       return { ok: false, error: "未从检索结果中提取到有效资料，请稍后重试" };
     }
 
-    await prisma.researchItem.deleteMany({ where: { projectId } });
-    for (const item of result.items) {
-      await prisma.researchItem.create({
-        data: {
+    await prisma.$transaction([
+      prisma.researchItem.deleteMany({ where: { projectId } }),
+      prisma.fact.deleteMany({ where: { projectId } }),
+      prisma.researchItem.createMany({
+        data: result.items.map((item) => ({
           projectId,
           title: item.title,
           content: item.content,
           source: item.source || null,
           sourceUrl: item.sourceUrl || null,
-        },
-      });
-    }
-
-    await prisma.fact.deleteMany({ where: { projectId } });
-    for (const f of result.facts) {
-      await prisma.fact.create({
-        data: {
+        })),
+      }),
+      prisma.fact.createMany({
+        data: result.facts.map((f) => ({
           projectId,
           claim: f.claim,
           evidence: f.evidence || null,
@@ -132,9 +137,9 @@ export async function researchProject(
           status: f.status,
           reason: f.reason || null,
           requiresHumanVerification: f.requiresHumanVerification,
-        },
-      });
-    }
+        })),
+      }),
+    ]);
 
     return { ok: true, ...result };
   } catch (err) {
@@ -173,17 +178,17 @@ export async function generateConcepts(
       factsText: formatFacts(project.facts),
     });
 
-    await prisma.concept.deleteMany({ where: { projectId } });
-    for (const c of concepts) {
-      await prisma.concept.create({
-        data: {
+    await prisma.$transaction([
+      prisma.concept.deleteMany({ where: { projectId } }),
+      prisma.concept.createMany({
+        data: concepts.map((c) => ({
           projectId,
           variant: c.variant,
           direction: c.direction,
           content: JSON.stringify(c),
-        },
-      });
-    }
+        })),
+      }),
+    ]);
     return { ok: true, concepts };
   } catch (err) {
     return { ok: false, error: classifyError(err) };
@@ -213,19 +218,21 @@ export async function runCritique(projectId: string): Promise<CritiqueResult> {
       conceptsText: formatConceptsText(project.concepts),
     });
 
-    await prisma.critique.deleteMany({ where: { projectId } });
-    await prisma.critique.create({
-      data: {
-        projectId,
-        scores: JSON.stringify(critique.scores),
-        strengths: JSON.stringify(critique.strengths),
-        weaknesses: JSON.stringify(critique.weaknesses),
-        risks: JSON.stringify(critique.risks),
-        criticalIssues: JSON.stringify(critique.criticalIssues),
-        recommendation: critique.recommendation,
-        recommendedConcept: critique.recommendedConcept,
-      },
-    });
+    await prisma.$transaction([
+      prisma.critique.deleteMany({ where: { projectId } }),
+      prisma.critique.create({
+        data: {
+          projectId,
+          scores: JSON.stringify(critique.scores),
+          strengths: JSON.stringify(critique.strengths),
+          weaknesses: JSON.stringify(critique.weaknesses),
+          risks: JSON.stringify(critique.risks),
+          criticalIssues: JSON.stringify(critique.criticalIssues),
+          recommendation: critique.recommendation,
+          recommendedConcept: critique.recommendedConcept,
+        },
+      }),
+    ]);
     return { ok: true, critique };
   } catch (err) {
     return { ok: false, error: classifyError(err) };
@@ -257,10 +264,10 @@ export async function factCheckProject(
       factsText: formatFacts(project.facts),
     });
 
-    await prisma.fact.deleteMany({ where: { projectId } });
-    for (const f of facts) {
-      await prisma.fact.create({
-        data: {
+    await prisma.$transaction([
+      prisma.fact.deleteMany({ where: { projectId } }),
+      prisma.fact.createMany({
+        data: facts.map((f) => ({
           projectId,
           claim: f.claim,
           evidence: f.evidence,
@@ -270,9 +277,9 @@ export async function factCheckProject(
           status: f.status,
           reason: f.reason,
           requiresHumanVerification: f.requiresHumanVerification,
-        },
-      });
-    }
+        })),
+      }),
+    ]);
     return { ok: true, facts };
   } catch (err) {
     return { ok: false, error: classifyError(err) };
@@ -387,12 +394,17 @@ export async function savePlanVersion(
   projectId: string,
   content: PlanData,
 ): Promise<SavePlanVersionResult> {
+  const parsed = contentSchema.safeParse(content);
+  if (!parsed.success) {
+    return { ok: false, error: "方案内容格式不正确" };
+  }
+
   const version = await nextPlanVersion(projectId);
   const plan = await prisma.activityPlan.create({
     data: {
       projectId,
       version,
-      content: JSON.stringify(content),
+      content: JSON.stringify(parsed.data),
       createdByAgent: "user",
     },
   });
@@ -457,6 +469,11 @@ export async function saveBudgetVersion(
   projectId: string,
   items: BudgetItemData[],
 ): Promise<SaveBudgetResult> {
+  const parsed = budgetItemsSchema.safeParse(items);
+  if (!parsed.success) {
+    return { ok: false, error: "预算数据格式不正确，请检查数量和单价是否为有效数字" };
+  }
+
   const latest = await prisma.budget.findFirst({
     where: { projectId },
     orderBy: { version: "desc" },
@@ -471,9 +488,9 @@ export async function saveBudgetVersion(
       costRisks: latest?.costRisks ?? "[]",
       currency: latest?.currency ?? "KES",
       contingencyRate: latest?.contingencyRate ?? 0.1,
-      total: items.reduce((s, i) => s + i.quantity * i.unitPrice, 0),
+      total: parsed.data.reduce((s, i) => s + i.quantity * i.unitPrice, 0),
       createdByAgent: "user",
-      items: { create: items },
+      items: { create: parsed.data },
     },
     include: { items: true },
   });
@@ -530,12 +547,17 @@ export async function saveCopyVersion(
   projectId: string,
   content: Record<string, string>,
 ): Promise<ContentResult> {
+  const parsed = contentSchema.safeParse(content);
+  if (!parsed.success) {
+    return { ok: false, error: "文案内容格式不正确" };
+  }
+
   const version = await nextContentVersion(projectId, "copy");
   const copy = await prisma.copy.create({
     data: {
       projectId,
       version,
-      content: JSON.stringify(content),
+      content: JSON.stringify(parsed.data),
       createdByAgent: "user",
     },
   });
@@ -583,12 +605,17 @@ export async function savePosterVersion(
   projectId: string,
   content: Record<string, string>,
 ): Promise<ContentResult> {
+  const parsed = contentSchema.safeParse(content);
+  if (!parsed.success) {
+    return { ok: false, error: "海报内容格式不正确" };
+  }
+
   const version = await nextContentVersion(projectId, "poster");
   const poster = await prisma.poster.create({
     data: {
       projectId,
       version,
-      content: JSON.stringify(content),
+      content: JSON.stringify(parsed.data),
       createdByAgent: "user",
     },
   });
@@ -612,13 +639,13 @@ async function nextContentVersion(
   return (latest?.version ?? 0) + 1;
 }
 
-export async function generateDesign(projectId: string): Promise<DesignResult> {
+export async function generatePosterImage(
+  projectId: string,
+): Promise<PosterImageResult> {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: {
       brief: true,
-      researchItems: true,
-      facts: true,
       plans: { orderBy: { version: "desc" } },
       posters: { orderBy: { version: "desc" } },
     },
@@ -626,55 +653,123 @@ export async function generateDesign(projectId: string): Promise<DesignResult> {
   if (!project) return { ok: false, error: "项目不存在" };
   const plan = project.plans[0];
   if (!plan) return { ok: false, error: "还没有详细活动方案，请先生成详细方案。" };
+  const poster = project.posters[0];
+  if (!poster) return { ok: false, error: "还没有海报内容，请先生成海报。" };
 
   try {
-    const html = await runDesigner({
-      planText: formatPlanText(plan),
+    const designed = await runPosterDesigner({
+      posterText: formatContentForQa(poster.content),
       briefText: formatBrief(project),
-      researchText: formatResearch(project.researchItems),
-      factsText: formatFacts(project.facts),
-      posterText: project.posters[0]
-        ? formatContentForQa(project.posters[0].content)
-        : "（无海报内容）",
+    });
+    const image = await generateImage({
+      prompt: designed.imagePrompt,
+      size: designed.size,
     });
 
-    const version = await nextDesignVersion(projectId);
-    const design = await prisma.posterDesign.create({
+    const version = await nextPosterImageVersion(projectId);
+    await prisma.posterImage.create({
       data: {
         projectId,
         version,
-        html,
-        createdByAgent: "designer-agent",
+        imageDataUrl: image.dataUrl,
+        prompt: designed.imagePrompt,
+        editInstruction: null,
+        parentVersion: null,
+        createdByAgent: "poster-designer-agent",
       },
     });
-    return { ok: true, design: toDesignData(design)! };
+
+    return { ok: true, images: await listPosterImages(projectId) };
   } catch (err) {
     return { ok: false, error: classifyError(err) };
   }
 }
 
-export async function saveDesignVersion(
+export async function editPosterImage(
   projectId: string,
-  html: string,
-): Promise<DesignResult> {
-  const version = await nextDesignVersion(projectId);
-  const design = await prisma.posterDesign.create({
-    data: {
-      projectId,
-      version,
-      html,
-      createdByAgent: "user",
+  instruction: string,
+  sourceImageId?: string,
+): Promise<PosterImageResult> {
+  const parsed = editInstructionSchema.safeParse(instruction);
+  if (!parsed.success) {
+    return { ok: false, error: "修改指令不能为空，且不超过 2000 字" };
+  }
+
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: {
+      brief: true,
+      plans: { orderBy: { version: "desc" } },
+      posters: { orderBy: { version: "desc" } },
     },
   });
-  return { ok: true, design: toDesignData(design)! };
+  if (!project) return { ok: false, error: "项目不存在" };
+  const plan = project.plans[0];
+  if (!plan) return { ok: false, error: "还没有详细活动方案，请先生成详细方案。" };
+  const poster = project.posters[0];
+  if (!poster) return { ok: false, error: "还没有海报内容，请先生成海报。" };
+
+  const source = sourceImageId
+    ? await prisma.posterImage.findFirst({
+        where: { id: sourceImageId, projectId },
+      })
+    : await prisma.posterImage.findFirst({
+        where: { projectId },
+        orderBy: { version: "desc" },
+      });
+  if (!source) return { ok: false, error: "还没有海报图片，请先生成第一张海报。" };
+
+  try {
+    const designed = await runPosterDesigner({
+      posterText: formatContentForQa(poster.content),
+      briefText: formatBrief(project),
+      prevPrompt: source.prompt,
+      editInstruction: parsed.data,
+    });
+    const image = await generateImage({
+      prompt: designed.imagePrompt,
+      initImage: stripDataUrlPrefix(source.imageDataUrl),
+      size: designed.size,
+    });
+
+    const version = await nextPosterImageVersion(projectId);
+    await prisma.posterImage.create({
+      data: {
+        projectId,
+        version,
+        imageDataUrl: image.dataUrl,
+        prompt: designed.imagePrompt,
+        editInstruction: parsed.data,
+        parentVersion: source.version,
+        createdByAgent: "poster-designer-agent",
+      },
+    });
+
+    return { ok: true, images: await listPosterImages(projectId) };
+  } catch (err) {
+    return { ok: false, error: classifyError(err) };
+  }
 }
 
-async function nextDesignVersion(projectId: string): Promise<number> {
-  const latest = await prisma.posterDesign.findFirst({
+async function nextPosterImageVersion(projectId: string): Promise<number> {
+  const latest = await prisma.posterImage.findFirst({
     where: { projectId },
     orderBy: { version: "desc" },
   });
   return (latest?.version ?? 0) + 1;
+}
+
+async function listPosterImages(projectId: string) {
+  const rows = await prisma.posterImage.findMany({
+    where: { projectId },
+    orderBy: { version: "asc" },
+  });
+  return rows.map(toPosterImageData);
+}
+
+function stripDataUrlPrefix(dataUrl: string): string {
+  const idx = dataUrl.indexOf(",");
+  return idx >= 0 ? dataUrl.slice(idx + 1) : dataUrl;
 }
 
 export async function runFinalQa(projectId: string): Promise<FinalQaResult> {
@@ -690,7 +785,6 @@ export async function runFinalQa(projectId: string): Promise<FinalQaResult> {
       budgets: { orderBy: { version: "desc" }, include: { items: true } },
       copies: { orderBy: { version: "desc" } },
       posters: { orderBy: { version: "desc" } },
-      posterDesigns: { orderBy: { version: "desc" } },
     },
   });
   if (!project) return { ok: false, error: "项目不存在" };
@@ -716,7 +810,6 @@ export async function runFinalQa(projectId: string): Promise<FinalQaResult> {
       posterText: project.posters[0]
         ? formatContentForQa(project.posters[0].content)
         : "（无海报）",
-      htmlText: project.posterDesigns[0]?.html ?? "（无海报设计）",
     });
 
     const version = await nextFinalQaVersion(projectId);
@@ -744,17 +837,20 @@ export async function submitApproval(
   const project = await prisma.project.findUnique({ where: { id: projectId } });
   if (!project) return { ok: false, error: "项目不存在" };
 
+  const decisionOk = approvalDecisionSchema.safeParse(decision);
+  if (!decisionOk.success) return { ok: false, error: "无效的审批决策" };
+
   const approval = await prisma.approval.create({
     data: {
       projectId,
-      decision,
+      decision: decisionOk.data,
       approvedBy: "user",
       approvalNote: note ?? null,
     },
   });
   await prisma.project.update({
     where: { id: projectId },
-    data: { status: decision },
+    data: { status: decisionOk.data },
   });
 
   return { ok: true, approval: toApprovalData(approval)! };

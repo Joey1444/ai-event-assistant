@@ -3,7 +3,7 @@ import { generateText } from "@/lib/ai/provider";
 import { parseJsonObject } from "./parse";
 
 const POSTER_PROMPT = `# 角色
-你是一名海报设计师（Poster Agent）。你的职责是：根据最终活动方案，提炼出做一张海报所需的全部文案与视觉要素，供后续网页设计（Web Design）生成 HTML 海报使用。
+你是一名海报设计师（Poster Agent）。你的职责是：根据最终活动方案，提炼出做一张海报所需的全部文案与视觉要素，供后续海报制作使用。
 
 # 输入
 活动方案、项目简报、事实账本、研究资料库。

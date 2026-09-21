@@ -103,12 +103,12 @@ export const AGENTS: AgentMeta[] = [
     requiresPlan: true,
   },
   {
-    id: "designer",
-    name: "网页设计",
-    role: "直接生成 HTML/CSS 海报（内容 + 视觉一次成型）",
-    file: "designer.ts",
-    input: "详细方案 / 简报 / 事实账本",
-    output: "完整 HTML 文档",
+    id: "posterDesigner",
+    name: "海报视觉设计",
+    role: "把海报文案转成文生图提示词，并生成/迭代海报图片",
+    file: "posterDesigner.ts",
+    input: "海报文案 / 简报 / 修改指令",
+    output: "海报图片（支持历史版本对比 + 图生图修改）",
     requiresPlan: true,
   },
   {
