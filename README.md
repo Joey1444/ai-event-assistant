@@ -94,7 +94,9 @@ npm run dev
 
 应用默认只能在 `localhost:3000` 本机访问。想让**没装环境的人**（比如参与体验的老师）通过公网链接直接打开，可以用 [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)（cloudflared）把本地端口临时暴露出去。
 
-**分三步：**
+**最简单的方式（推荐）**：先双击打开 CCSwitch，再双击项目里的 `start-share.bat`，脚本会自动启动网页 + 建立公网隧道，把窗口里出现的 `https://xxx.trycloudflare.com` 链接发给别人即可。
+
+**手动分三步：**
 
 1. 启动应用（`npm run dev`），确认 `localhost:3000` 已监听；CCSwitch 网关保持运行。
 
