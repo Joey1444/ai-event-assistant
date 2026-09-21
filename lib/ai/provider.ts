@@ -97,7 +97,7 @@ function extractText(data: {
 
 export type GenerateImageOptions = {
   prompt: string;
-  initImage?: string; // 图生图：上一张图的 data URL（data:image/...;base64,...）
+  images?: string[]; // 参考图（data URL），可多张，作为 content 里的 image 输入
   size?: string;
   model?: string;
   timeoutMs?: number;
@@ -111,7 +111,7 @@ export type GenerateImageResult = {
 // baseURL 填到 api 版本段为止（如 https://maas.qianwenaiapi.com/api/v1），代码拼 /services/aigc/multimodal-generation/generation。
 export async function generateImage({
   prompt,
-  initImage,
+  images,
   size,
   model,
   timeoutMs,
@@ -137,9 +137,11 @@ export async function generateImage({
     });
   }
 
-  // DashScope 原生：content 数组里放 text（提示词）与可选的 image（图生图底图）
+  // DashScope 原生：content 数组里放 image（参考图，可多张）与 text（提示词）
   const content: Array<{ text?: string; image?: string }> = [];
-  if (initImage) content.push({ image: initImage });
+  if (images) {
+    for (const img of images) content.push({ image: img });
+  }
   content.push({ text: prompt });
 
   const body: Record<string, unknown> = {

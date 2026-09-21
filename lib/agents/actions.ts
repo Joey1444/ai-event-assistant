@@ -532,7 +532,7 @@ export async function generateCopy(projectId: string): Promise<ContentResult> {
       factsText: formatFacts(project.facts),
     });
 
-    const version = await nextContentVersion(projectId, "copy");
+    const version = await nextContentVersion(projectId);
     const copy = await prisma.copy.create({
       data: {
         projectId,
@@ -556,7 +556,7 @@ export async function saveCopyVersion(
     return { ok: false, error: "文案内容格式不正确" };
   }
 
-  const version = await nextContentVersion(projectId, "copy");
+  const version = await nextContentVersion(projectId);
   const copy = await prisma.copy.create({
     data: {
       projectId,
@@ -568,7 +568,19 @@ export async function saveCopyVersion(
   return { ok: true, data: toContentData(copy)! };
 }
 
-export async function generatePoster(projectId: string): Promise<ContentResult> {
+async function nextContentVersion(projectId: string): Promise<number> {
+  const latest = await prisma.copy.findFirst({
+    where: { projectId },
+    orderBy: { version: "desc" },
+  });
+  return (latest?.version ?? 0) + 1;
+}
+
+export async function generatePosterImage(
+  projectId: string,
+  humanPrompt?: string,
+  referenceImages?: string[],
+): Promise<PosterImageResult> {
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     include: {
@@ -576,97 +588,41 @@ export async function generatePoster(projectId: string): Promise<ContentResult> 
       researchItems: true,
       facts: true,
       plans: { orderBy: { version: "desc" } },
-    },
-  });
-  if (!project) return { ok: false, error: "项目不存在" };
-  const plan = project.plans[0];
-  if (!plan) return { ok: false, error: "还没有详细活动方案，请先生成详细方案。" };
-
-  try {
-    const content = await runPoster({
-      planText: formatPlanText(plan),
-      briefText: formatBrief(project),
-      researchText: formatResearch(project.researchItems),
-      factsText: formatFacts(project.facts),
-    });
-
-    const version = await nextContentVersion(projectId, "poster");
-    const poster = await prisma.poster.create({
-      data: {
-        projectId,
-        version,
-        content: JSON.stringify(content),
-        createdByAgent: "poster-agent",
-      },
-    });
-    return { ok: true, data: toContentData(poster)! };
-  } catch (err) {
-    return { ok: false, error: classifyError(err) };
-  }
-}
-
-export async function savePosterVersion(
-  projectId: string,
-  content: Record<string, string>,
-): Promise<ContentResult> {
-  const parsed = contentSchema.safeParse(content);
-  if (!parsed.success) {
-    return { ok: false, error: "海报内容格式不正确" };
-  }
-
-  const version = await nextContentVersion(projectId, "poster");
-  const poster = await prisma.poster.create({
-    data: {
-      projectId,
-      version,
-      content: JSON.stringify(parsed.data),
-      createdByAgent: "user",
-    },
-  });
-  return { ok: true, data: toContentData(poster)! };
-}
-
-async function nextContentVersion(
-  projectId: string,
-  kind: "copy" | "poster",
-): Promise<number> {
-  const latest =
-    kind === "copy"
-      ? await prisma.copy.findFirst({
-          where: { projectId },
-          orderBy: { version: "desc" },
-        })
-      : await prisma.poster.findFirst({
-          where: { projectId },
-          orderBy: { version: "desc" },
-        });
-  return (latest?.version ?? 0) + 1;
-}
-
-export async function generatePosterImage(
-  projectId: string,
-): Promise<PosterImageResult> {
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    include: {
-      brief: true,
-      plans: { orderBy: { version: "desc" } },
       posters: { orderBy: { version: "desc" } },
     },
   });
   if (!project) return { ok: false, error: "项目不存在" };
   const plan = project.plans[0];
   if (!plan) return { ok: false, error: "还没有详细活动方案，请先生成详细方案。" };
-  const poster = project.posters[0];
-  if (!poster) return { ok: false, error: "还没有海报内容，请先生成海报。" };
 
   try {
+    // 海报文案不存在时，先自动生成
+    let poster = project.posters[0];
+    if (!poster) {
+      const content = await runPoster({
+        planText: formatPlanText(plan),
+        briefText: formatBrief(project),
+        researchText: formatResearch(project.researchItems),
+        factsText: formatFacts(project.facts),
+      });
+      poster = await prisma.poster.create({
+        data: {
+          projectId,
+          version: 1,
+          content: JSON.stringify(content),
+          createdByAgent: "poster-agent",
+        },
+      });
+    }
+
     const designed = await runPosterDesigner({
       posterText: formatContentForQa(poster.content),
       briefText: formatBrief(project),
+      humanPrompt,
     });
     const image = await generateImage({
       prompt: designed.imagePrompt,
+      images: referenceImages,
       size: designed.size,
     });
 
@@ -732,7 +688,7 @@ export async function editPosterImage(
     });
     const image = await generateImage({
       prompt: designed.imagePrompt,
-      initImage: source.imageDataUrl,
+      images: [source.imageDataUrl],
       size: designed.size,
     });
 

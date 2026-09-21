@@ -6,7 +6,7 @@ const POSTER_DESIGNER_PROMPT = `# 角色
 你是一名海报视觉设计提示词工程师（Poster Designer Agent）。你的职责是：根据海报文案，写出能交给文生图模型生成一张活动海报的提示词（prompt）。
 
 # 输入
-海报文案（主标题/副标题/日期/时间/地点/主办/行动号召/联系方式/视觉主题/文化元素）、项目简报，以及可选的「上一版提示词」和「用户修改指令」。
+海报文案（主标题/副标题/日期/时间/地点/主办/行动号召/联系方式/视觉主题/文化元素）、项目简报，以及可选的「人为提示词」「上一版提示词」和「用户修改指令」。
 
 # 输出 2 项（全部字符串）
 - imagePrompt 文生图提示词：用中文详细描述一张竖版（3:4）活动海报。必须包含：
@@ -21,7 +21,8 @@ const POSTER_DESIGNER_PROMPT = `# 角色
 1. 主标题、日期、时间、地点、主办机构、联系方式等文字必须来自海报文案，逐字照抄，不得改写或编造。
 2. 信息缺失时用 [待确认] 占位，不得自行编造。
 3. 活动主题、文化元素、配色方向一律以输入的海报文案和项目简报为准，不得写死任何具体节日或主题。
-4. 若提供了「用户修改指令」，在保留上一版 prompt 已确定风格/元素的基础上，只按指令做局部修改，不要推倒重来。
+4. 若提供了「人为提示词」，它优先级最高：必须优先遵循人为提示词的所有要求（配色、元素、构图、文字等），再补充海报文案的关键文字。
+5. 若提供了「用户修改指令」，在保留上一版 prompt 已确定风格/元素的基础上，只按指令做局部修改，不要推倒重来。
 
 # 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
 {"imagePrompt":"...","size":"1024*1536"}`;
@@ -34,9 +35,13 @@ export type PosterDesignerResult = {
 export async function runPosterDesigner(input: {
   posterText: string;
   briefText: string;
+  humanPrompt?: string;
   editInstruction?: string;
   prevPrompt?: string;
 }): Promise<PosterDesignerResult> {
+  const humanBlock = input.humanPrompt
+    ? `\n\n人为提示词（优先级最高，必须优先遵循）：\n${input.humanPrompt}`
+    : "";
   const prevBlock = input.prevPrompt
     ? `\n\n上一版提示词：\n${input.prevPrompt}`
     : "";
@@ -48,7 +53,7 @@ export async function runPosterDesigner(input: {
     messages: [
       {
         role: "user",
-        content: `${POSTER_DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n海报文案：\n${input.posterText}${prevBlock}${editBlock}\n\n请生成提示词并输出 JSON。`,
+        content: `${POSTER_DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n海报文案：\n${input.posterText}${humanBlock}${prevBlock}${editBlock}\n\n请生成提示词并输出 JSON。`,
       },
     ],
     maxTokens: 8000,

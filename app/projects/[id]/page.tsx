@@ -14,7 +14,6 @@ import { HumanDecisionGate } from "@/components/agents/HumanDecisionGate";
 import { DetailedPlanPanel } from "@/components/agents/DetailedPlanPanel";
 import { BudgetPanel } from "@/components/agents/BudgetPanel";
 import { CopyPanel } from "@/components/agents/CopyPanel";
-import { PosterPanel } from "@/components/agents/PosterPanel";
 import { PosterImagePanel } from "@/components/agents/PosterImagePanel";
 import {
   toAnalysisData,
@@ -230,13 +229,9 @@ export default async function ProjectDetailPage({
         latestCopy={toContentData(latestCopy)}
       />
 
-      <PosterPanel
-        projectId={project.id}
-        latestPoster={toContentData(latestPoster)}
-      />
-
       <PosterImagePanel
         projectId={project.id}
+        posterContent={toContentData(latestPoster)?.content ?? null}
         images={posterImages.map(toPosterImageData)}
       />
 

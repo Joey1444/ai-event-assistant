@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ChangeEvent } from "react";
 import { generatePosterImage, editPosterImage } from "@/lib/agents/actions";
-import type { PosterImageData } from "@/lib/agents/types";
+import {
+  POSTER_FIELDS,
+  POSTER_FIELD_LABELS,
+  type PosterImageData,
+} from "@/lib/agents/types";
 
 export function PosterImagePanel({
   projectId,
+  posterContent,
   images: initialImages,
 }: {
   projectId: string;
+  posterContent: Record<string, string> | null;
   images: PosterImageData[];
 }) {
   const [images, setImages] = useState<PosterImageData[]>(initialImages);
@@ -17,6 +23,8 @@ export function PosterImagePanel({
       ? initialImages[initialImages.length - 1].id
       : null,
   );
+  const [humanPrompt, setHumanPrompt] = useState("");
+  const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [instruction, setInstruction] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -31,10 +39,29 @@ export function PosterImagePanel({
   function handleGenerate() {
     setError(null);
     startTransition(async () => {
-      const r = await generatePosterImage(projectId);
+      const r = await generatePosterImage(
+        projectId,
+        humanPrompt.trim() || undefined,
+        referenceImages.length > 0 ? referenceImages : undefined,
+      );
       if (r.ok) applyResult(r.images);
       else setError(r.error);
     });
+  }
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    for (const file of files) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result;
+        if (typeof dataUrl === "string") {
+          setReferenceImages((prev) => [...prev, dataUrl]);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    e.target.value = "";
   }
 
   function handleEdit() {
@@ -76,6 +103,76 @@ export function PosterImagePanel({
           {error}
         </div>
       ) : null}
+
+      {/* 海报文案（文生图输入参考，只读） */}
+      <div className="mt-3">
+        <div className="text-xs font-medium text-ink-soft">海报文案（小莫自动提炼，作为文生图输入）</div>
+        {posterContent ? (
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {POSTER_FIELDS.map((key) => (
+              <div key={key} className="rounded-lg border border-border bg-paper-2 px-3 py-2">
+                <div className="text-xs font-medium text-ink-soft">
+                  {POSTER_FIELD_LABELS[key]}
+                </div>
+                <div className="mt-0.5 text-sm text-ink">
+                  {posterContent[key] || "—"}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="mt-2 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-3 text-sm text-ink-soft">
+            还没有海报文案。点击「生成海报图片」时会自动生成。
+          </div>
+        )}
+      </div>
+
+      {/* 人为提示词（优先级高于小莫自动生成）+ 图片元素 */}
+      <div className="mt-3 space-y-1.5">
+        <label className="block text-sm font-medium text-ink">
+          人为提示词（可选，优先级高于小莫自动生成的提示词）
+        </label>
+        <textarea
+          value={humanPrompt}
+          onChange={(e) => setHumanPrompt(e.target.value)}
+          placeholder="补充或覆盖文生图提示词，例如：月亮再大一些、背景用更深蓝、加两盏灯笼"
+          rows={2}
+          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2">
+            添加图片元素（如群二维码）
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              className="hidden"
+            />
+          </label>
+          {referenceImages.map((img, i) => (
+            <div key={i} className="relative">
+              {/* base64 data URL 无法被 next/image 优化，用原生 img */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={img}
+                alt={`元素 ${i + 1}`}
+                className="h-14 w-14 rounded-lg border border-border object-cover"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  setReferenceImages((prev) => prev.filter((_, idx) => idx !== i))
+                }
+                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-cinnabar text-xs text-paper"
+                aria-label={`移除元素 ${i + 1}`}
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {selected ? (
         <div className="mt-3 space-y-3">
@@ -152,7 +249,7 @@ export function PosterImagePanel({
         </div>
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          还没有海报图片。生成海报内容后，点击「生成海报图片」用文生图模型出图。
+          还没有海报图片。点击「生成海报图片」，小莫会用海报文案（可加人为提示词和图片元素）生成第一张海报。
         </div>
       )}
     </section>
