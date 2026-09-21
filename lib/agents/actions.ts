@@ -728,7 +728,7 @@ export async function editPosterImage(
     });
     const image = await generateImage({
       prompt: designed.imagePrompt,
-      initImage: stripDataUrlPrefix(source.imageDataUrl),
+      initImage: source.imageDataUrl,
       size: designed.size,
     });
 
@@ -765,11 +765,6 @@ async function listPosterImages(projectId: string) {
     orderBy: { version: "asc" },
   });
   return rows.map(toPosterImageData);
-}
-
-function stripDataUrlPrefix(dataUrl: string): string {
-  const idx = dataUrl.indexOf(",");
-  return idx >= 0 ? dataUrl.slice(idx + 1) : dataUrl;
 }
 
 export async function runFinalQa(projectId: string): Promise<FinalQaResult> {

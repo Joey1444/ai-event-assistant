@@ -74,7 +74,7 @@ npm run dev
 
 你的 `Researcher / Strategist / Critic / Fact Checker`（已实现）全部只调 `generateText()`，所以换模型对它们零影响。
 
-**文生图模型（海报图片）走另一条路**：它**不经过 cc-switch**，而是由你的 Next.js 服务器直接连第三方文生图服务（OpenAI 兼容 `/v1/images/generations`）。对应环境变量是 `IMAGE_API_BASE_URL` / `IMAGE_API_KEY` / `IMAGE_MODEL`（Key 填在服务端 `.env`，同样不要提交）。换文生图模型只改这三个变量。
+**文生图模型（海报图片）走另一条路**：它**不经过 cc-switch**，而是由你的 Next.js 服务器直接连第三方文生图服务（DashScope 原生 API）。对应环境变量是 `IMAGE_API_BASE_URL` / `IMAGE_API_KEY` / `IMAGE_MODEL`（Key 填在服务端 `.env`，同样不要提交）。换文生图模型只改这三个变量。
 
 ## 八、关键文件速查
 

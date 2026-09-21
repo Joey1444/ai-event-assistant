@@ -21,7 +21,7 @@
 - [ ] 海报导出 PNG / PDF
 - [ ] 多套海报设计主题
 - [ ] 预算 / 文案 / 详细方案的历史版本对比界面
-- [x] 接入文生图模型（直连第三方 OpenAI 兼容 `/v1/images/generations` + posterDesigner agent + 历史版本对比 + 图生图修改）
+- [x] 接入文生图模型（直连第三方 DashScope 原生 API + posterDesigner agent + 历史版本对比 + 图生图修改）
 - [ ] 海报图片历史版本首屏只传最新 + 缩略图（当前全量 base64 会随版本数膨胀）
 - [ ] 文生图 action 鉴权 / 限流（对外部署前）
 - [ ] 文案一键复制按钮（`components/ui/CopyButton.tsx`，纯前端 `navigator.clipboard`）

@@ -1,5 +1,5 @@
 // AI Provider 抽象层：业务代码只调用 generateText() / generateImage()，不关心底层实现。
-// 文本模型经 CCSwitch 网关（Anthropic 兼容 /v1/messages）；文生图直连第三方（OpenAI 兼容 /v1/images/generations）。
+// 文本模型经 CCSwitch 网关（Anthropic 兼容 /v1/messages）；文生图直连第三方（DashScope 原生 API）。
 import "server-only";
 import { aiConfig, imageConfig } from "./config";
 
@@ -97,7 +97,7 @@ function extractText(data: {
 
 export type GenerateImageOptions = {
   prompt: string;
-  initImage?: string; // 图生图：上一张图的裸 base64（不含 data: 前缀）
+  initImage?: string; // 图生图：上一张图的 data URL（data:image/...;base64,...）
   size?: string;
   model?: string;
   timeoutMs?: number;
@@ -107,8 +107,8 @@ export type GenerateImageResult = {
   dataUrl: string;
 };
 
-// 文生图 / 图生图：直连第三方 OpenAI 兼容 /images/generations（不走 CCSwitch）。
-// baseURL 需填到版本段为止（含 /v1 或 /compatible-mode/v1），代码只拼 /images/generations。
+// 文生图 / 图生图：直连 DashScope 原生 API（通义万相 wan 系列）。
+// baseURL 填到 api 版本段为止（如 https://maas.qianwenaiapi.com/api/v1），代码拼 /services/aigc/multimodal-generation/generation。
 export async function generateImage({
   prompt,
   initImage,
@@ -137,30 +137,33 @@ export async function generateImage({
     });
   }
 
+  // DashScope 原生：content 数组里放 text（提示词）与可选的 image（图生图底图）
+  const content: Array<{ text?: string; image?: string }> = [];
+  if (initImage) content.push({ image: initImage });
+  content.push({ text: prompt });
+
   const body: Record<string, unknown> = {
     model: m,
-    prompt,
-    n: 1,
-    response_format: "b64_json",
+    input: { messages: [{ role: "user", content }] },
+    parameters: {},
   };
-  if (size) body.size = size;
-  if (initImage) {
-    // 图生图：按 OpenAI gpt-image-1 语义；若你的服务字段不同，改这里即可。
-    body.image = [{ type: "input_image", b64_json: initImage }];
-  }
+  if (size) (body.parameters as Record<string, unknown>).size = size;
 
   const timeout = timeoutMs ?? imageConfig.timeoutMs;
   let res: Response;
   try {
-    res = await fetch(`${baseURL.replace(/\/+$/, "")}/images/generations`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${apiKey}`,
+    res = await fetch(
+      `${baseURL.replace(/\/+$/, "")}/services/aigc/multimodal-generation/generation`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(timeout),
       },
-      body: JSON.stringify(body),
-      signal: AbortSignal.timeout(timeout),
-    });
+    );
   } catch (err) {
     const e = err as Error & { cause?: { code?: string } };
     const code = e?.cause?.code ?? "";
@@ -176,16 +179,41 @@ export async function generateImage({
   }
 
   const data = (await res.json()) as {
-    data?: Array<{ b64_json?: string }>;
+    output?: {
+      choices?: Array<{ message?: { content?: Array<{ image?: string }> } }>;
+    };
   };
-  const first = data.data?.[0];
-  const b64 = first?.b64_json;
-  if (!b64 || typeof b64 !== "string" || b64.length === 0) {
+  const image = data.output?.choices?.[0]?.message?.content?.find(
+    (c) => typeof c.image === "string" && c.image.length > 0,
+  )?.image;
+  if (!image) {
     throw new AiError({ kind: "unknown", message: "文生图服务未返回图片，请稍后重试" });
   }
 
-  const mime = sniffImageMime(b64);
-  return { dataUrl: `data:${mime};base64,${b64}` };
+  return { dataUrl: await imageToDataUrl(image, timeout) };
+}
+
+// 把 API 返回的 image（data URL 或 URL）统一转成经过魔数 + 大小校验的 data URL。
+async function imageToDataUrl(image: string, timeoutMs: number): Promise<string> {
+  let base64: string;
+  if (image.startsWith("data:image/")) {
+    const idx = image.indexOf(";base64,");
+    if (idx < 0) {
+      throw new AiError({ kind: "unknown", message: "文生图返回的图片格式无法识别" });
+    }
+    base64 = image.slice(idx + ";base64,".length);
+  } else if (image.startsWith("http://") || image.startsWith("https://")) {
+    const imgRes = await fetch(image, { signal: AbortSignal.timeout(timeoutMs) });
+    if (!imgRes.ok) {
+      throw new AiError({ kind: "unknown", message: "下载文生图结果失败" });
+    }
+    base64 = Buffer.from(await imgRes.arrayBuffer()).toString("base64");
+  } else {
+    throw new AiError({ kind: "unknown", message: "文生图返回了无法识别的图片" });
+  }
+
+  const mime = sniffImageMime(base64);
+  return `data:${mime};base64,${base64}`;
 }
 
 // 从 base64 前几个字节嗅探图片类型，只放行 png/jpeg/webp（拒绝 svg 等可执行内容）。
