@@ -576,6 +576,35 @@ async function nextContentVersion(projectId: string): Promise<number> {
   return (latest?.version ?? 0) + 1;
 }
 
+export async function savePosterContent(
+  projectId: string,
+  content: Record<string, string>,
+): Promise<ContentResult> {
+  const parsed = contentSchema.safeParse(content);
+  if (!parsed.success) {
+    return { ok: false, error: "海报内容格式不正确" };
+  }
+
+  const version = await nextPosterVersion(projectId);
+  const poster = await prisma.poster.create({
+    data: {
+      projectId,
+      version,
+      content: JSON.stringify(parsed.data),
+      createdByAgent: "user",
+    },
+  });
+  return { ok: true, data: toContentData(poster)! };
+}
+
+async function nextPosterVersion(projectId: string): Promise<number> {
+  const latest = await prisma.poster.findFirst({
+    where: { projectId },
+    orderBy: { version: "desc" },
+  });
+  return (latest?.version ?? 0) + 1;
+}
+
 export async function generatePosterImage(
   projectId: string,
   humanPrompt?: string,

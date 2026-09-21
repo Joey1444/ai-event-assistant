@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useTransition, type ChangeEvent } from "react";
-import { generatePosterImage, editPosterImage } from "@/lib/agents/actions";
+import { useRouter } from "next/navigation";
+import {
+  generatePosterImage,
+  editPosterImage,
+  savePosterContent,
+} from "@/lib/agents/actions";
 import {
   POSTER_FIELDS,
   POSTER_FIELD_LABELS,
@@ -10,7 +15,7 @@ import {
 
 export function PosterImagePanel({
   projectId,
-  posterContent,
+  posterContent: initialPosterContent,
   images: initialImages,
 }: {
   projectId: string;
@@ -23,11 +28,17 @@ export function PosterImagePanel({
       ? initialImages[initialImages.length - 1].id
       : null,
   );
+  const [posterContent, setPosterContent] = useState<Record<string, string> | null>(
+    initialPosterContent,
+  );
+  const [editingPoster, setEditingPoster] = useState(false);
+  const [posterDraft, setPosterDraft] = useState<Record<string, string>>({});
   const [humanPrompt, setHumanPrompt] = useState("");
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [instruction, setInstruction] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   const selected = images.find((img) => img.id === selectedId) ?? null;
 
@@ -62,6 +73,25 @@ export function PosterImagePanel({
       reader.readAsDataURL(file);
     }
     e.target.value = "";
+  }
+
+  function startEditPoster() {
+    setPosterDraft(posterContent ?? {});
+    setEditingPoster(true);
+  }
+
+  function handleSavePoster() {
+    setError(null);
+    startTransition(async () => {
+      const r = await savePosterContent(projectId, posterDraft);
+      if (r.ok) {
+        setPosterContent(r.data.content);
+        setEditingPoster(false);
+        router.refresh();
+      } else {
+        setError(r.error);
+      }
+    });
   }
 
   function handleEdit() {
@@ -104,10 +134,58 @@ export function PosterImagePanel({
         </div>
       ) : null}
 
-      {/* 海报文案（文生图输入参考，只读） */}
+      {/* 海报文案（作为文生图输入，可编辑） */}
       <div className="mt-3">
-        <div className="text-xs font-medium text-ink-soft">海报文案（小莫自动提炼，作为文生图输入）</div>
-        {posterContent ? (
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-medium text-ink-soft">海报文案（作为文生图输入，可编辑）</div>
+          {posterContent && !editingPoster ? (
+            <button
+              type="button"
+              onClick={startEditPoster}
+              className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-paper-2"
+            >
+              编辑
+            </button>
+          ) : null}
+          {editingPoster ? (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleSavePoster}
+                disabled={isPending}
+                className="rounded-lg bg-ink px-3 py-1 text-xs font-medium text-paper hover:bg-gold disabled:opacity-50"
+              >
+                {isPending ? "保存中…" : "保存"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingPoster(false)}
+                className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-paper-2"
+              >
+                取消
+              </button>
+            </div>
+          ) : null}
+        </div>
+        {editingPoster ? (
+          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {POSTER_FIELDS.map((key) => (
+              <div key={key} className="rounded-lg border border-border bg-paper-2 px-3 py-2">
+                <label className="block text-xs font-medium text-ink-soft">
+                  {POSTER_FIELD_LABELS[key]}
+                </label>
+                <textarea
+                  value={posterDraft[key] ?? ""}
+                  onChange={(e) =>
+                    setPosterDraft((d) => ({ ...d, [key]: e.target.value }))
+                  }
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1 text-sm text-ink focus:border-gold focus:outline-none"
+                />
+              </div>
+            ))}
+          </div>
+        ) : posterContent ? (
           <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {POSTER_FIELDS.map((key) => (
               <div key={key} className="rounded-lg border border-border bg-paper-2 px-3 py-2">
