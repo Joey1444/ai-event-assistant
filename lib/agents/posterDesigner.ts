@@ -53,7 +53,7 @@ export async function runPosterDesigner(input: {
         content: `${POSTER_DESIGNER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n海报文案：\n${input.posterText}${humanBlock}${editBlock}\n\n请生成提示词并输出 JSON。`,
       },
     ],
-    maxTokens: 8000,
+    maxTokens: 50000,
     timeoutMs: 300000,
   });
   return parseFields(text);
