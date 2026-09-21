@@ -40,14 +40,14 @@ export function CriticPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">AI 评审</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">小莫评审</h2>
         <button
           type="button"
           onClick={handleRun}
           disabled={isPending}
           className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
         >
-          {isPending ? "评审中…（约 20-60 秒）" : critique ? "重新评审" : "AI 评审"}
+          {isPending ? "评审中…（约 20-60 秒）" : critique ? "重新评审" : "小莫评审"}
         </button>
       </div>
 
@@ -61,7 +61,7 @@ export function CriticPanel({
         <CritiqueView critique={critique} />
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          还没有评审结果。生成方案后，点击「AI 评审」让评审专家给三个方案打分并找问题。
+          还没有评审结果。生成方案后，点击「小莫评审」让评审专家给三个方案打分并找问题。
         </div>
       )}
     </section>
@@ -110,7 +110,7 @@ function CritiqueView({ critique }: { critique: CritiqueData }) {
           </span>
         </div>
         <p className="mt-2 text-xs font-medium text-ink-soft">
-          AI 推荐，不代表最终决定。
+          小莫推荐，不代表最终决定。
         </p>
       </div>
     </div>

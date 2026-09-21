@@ -132,7 +132,7 @@ export function CopyPanel({
         <div className="mt-3 space-y-3">
           <div className="text-xs text-ink-soft">
             版本 {data.version} ·{" "}
-            {data.createdByAgent === "user" ? "用户编辑" : "AI 生成"} ·{" "}
+            {data.createdByAgent === "user" ? "用户编辑" : "小莫生成"} ·{" "}
             {formatDate(data.createdAt)}
           </div>
           {editing ? (

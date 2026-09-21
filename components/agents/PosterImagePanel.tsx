@@ -91,7 +91,7 @@ export function PosterImagePanel({
 
           <div className="text-xs text-ink-soft">
             版本 {selected.version} ·{" "}
-            {selected.createdByAgent === "user" ? "用户编辑" : "AI 生成"} ·{" "}
+            {selected.createdByAgent === "user" ? "用户编辑" : "小莫生成"} ·{" "}
             {formatDate(selected.createdAt)}
             {selected.parentVersion != null
               ? ` · 基于版本 ${selected.parentVersion}`

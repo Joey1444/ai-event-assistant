@@ -88,7 +88,7 @@ export function HumanDecisionGate({
           <div className="mt-3 flex flex-wrap gap-3 text-sm">
             {critic ? (
               <span className="rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
-                AI 推荐：方案 {critic.recommendedConcept}
+                小莫推荐：方案 {critic.recommendedConcept}
               </span>
             ) : null}
             <span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold">
@@ -126,7 +126,7 @@ export function HumanDecisionGate({
                     </div>
                     {recommended ? (
                       <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-                        AI 推荐 ✓
+                        小莫推荐 ✓
                       </span>
                     ) : null}
                   </div>

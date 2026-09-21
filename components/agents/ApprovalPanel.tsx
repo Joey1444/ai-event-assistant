@@ -39,7 +39,7 @@ export function ApprovalPanel({
     <section className="mt-8 rounded-xl border border-ink bg-card p-6">
       <h2 className="text-lg font-bold text-ink">最终批准</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        最终审批只能由你（用户）完成，AI 不能代替你决定。
+        最终审批只能由你（用户）完成，小莫不能代替你决定。
       </p>
 
       {savedApproval ? (

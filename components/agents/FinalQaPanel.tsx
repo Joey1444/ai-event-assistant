@@ -100,7 +100,7 @@ export function FinalQaPanel({
       )}
 
       <p className="mt-3 text-xs font-medium text-ink-soft">
-        这是 AI 质量检查，不代表最终批准。
+        这是小莫质量检查，不代表最终批准。
       </p>
     </section>
   );

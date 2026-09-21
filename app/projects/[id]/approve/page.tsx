@@ -103,7 +103,7 @@ export default async function ApprovalPage({
         {project.projectName}
       </h2>
       <p className="mt-1 text-sm text-ink-soft">
-        这是最终人工审批。AI 只做检查，最终批准只有你能决定。
+        这是最终人工审批。小莫只做检查，最终批准只有你能决定。
       </p>
 
       <section className="mt-8">
@@ -129,15 +129,15 @@ export default async function ApprovalPage({
         </div>
       </section>
 
-      <Module title="📋 最终活动方案（AI 建议）">
+      <Module title="📋 最终活动方案（小莫建议）">
         {planData ? <FieldView data={planData} labels={PLAN_SECTION_LABELS} /> : <Empty />}
       </Module>
 
-      <Module title="💰 预算（AI 建议）">
+      <Module title="💰 预算（小莫建议）">
         {budgetData ? <BudgetView budget={budgetData} /> : <Empty />}
       </Module>
 
-      <Module title="🗓 时间安排（AI 建议）">
+      <Module title="🗓 时间安排（小莫建议）">
         {planData ? (
           <div className="whitespace-pre-wrap text-sm text-ink">
             {planData.dayOfSchedule || planData.flow || "—"}
@@ -147,11 +147,11 @@ export default async function ApprovalPage({
         )}
       </Module>
 
-      <Module title="✍️ 宣传文案（AI 建议）">
+      <Module title="✍️ 宣传文案（小莫建议）">
         {copyData ? <FieldView data={copyData} labels={COPY_FIELD_LABELS} /> : <Empty />}
       </Module>
 
-      <Module title="🎨 海报（AI 建议）">
+      <Module title="🎨 海报（小莫建议）">
         {posterData ? <FieldView data={posterData} labels={POSTER_FIELD_LABELS} /> : <Empty />}
       </Module>
 

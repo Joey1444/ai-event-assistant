@@ -107,6 +107,7 @@ export default async function ProjectDetailPage({
 
   const nextAction = getNextAction({
     id: project.id,
+    pmAnalyses: latestAnalysis ? [latestAnalysis] : [],
     researchItems,
     concepts,
     critiques: latestCritique ? [latestCritique] : [],
@@ -167,6 +168,7 @@ export default async function ProjectDetailPage({
       </section>
 
       <PmAnalysisPanel
+        id="panel-pm"
         projectId={project.id}
         savedAnalysis={toAnalysisData(latestAnalysis)}
       />

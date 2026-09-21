@@ -1,19 +1,23 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { analyzeProject } from "@/lib/agents/actions";
 import type { PmAnalysisData } from "@/lib/agents/types";
 
 export function PmAnalysisPanel({
   projectId,
   savedAnalysis,
+  id,
 }: {
   projectId: string;
   savedAnalysis: PmAnalysisData | null;
+  id?: string;
 }) {
   const [analysis, setAnalysis] = useState<PmAnalysisData | null>(savedAnalysis);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleRun() {
     setError(null);
@@ -21,6 +25,7 @@ export function PmAnalysisPanel({
       const r = await analyzeProject(projectId);
       if (r.ok) {
         setAnalysis(r.analysis);
+        router.refresh();
       } else {
         setError(r.error);
       }
@@ -28,7 +33,7 @@ export function PmAnalysisPanel({
   }
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">项目经理分析</h2>
         <button
@@ -91,10 +96,10 @@ function AnalysisView({ analysis }: { analysis: PmAnalysisData }) {
 
       <ListSection title="其它提醒（次要）" items={analysis.minorGaps} tone="muted" />
       <ListSection
-        title="AI 的猜测（未经确认）"
+        title="小莫的猜测（未经确认）"
         items={analysis.assumptions}
         tone="muted"
-        hint="AI 在信息不全时的推测，不是事实，你确认后再往下走"
+        hint="小莫在信息不全时的推测，不是事实，你确认后再往下走"
       />
 
       <div className="rounded-lg border border-border bg-card px-4 py-3">

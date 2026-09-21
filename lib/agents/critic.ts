@@ -55,7 +55,21 @@ export async function runCritic(input: {
 
 function parseCritique(text: string): CritiqueData {
   const parsed = parseJsonObject(text);
-  const scores = (parsed.scores ?? {}) as Record<string, unknown>;
+  const rawScores = parsed.scores;
+
+  // 兼容：模型可能把 scores 输出成数组（每项是一个维度），统一转成对象再取
+  const scores: Record<string, unknown> = {};
+  if (Array.isArray(rawScores)) {
+    for (const item of rawScores) {
+      if (item && typeof item === "object") {
+        for (const [k, v] of Object.entries(item as Record<string, unknown>)) {
+          scores[k] = v;
+        }
+      }
+    }
+  } else if (rawScores && typeof rawScores === "object") {
+    Object.assign(scores, rawScores);
+  }
 
   return {
     scores: {
@@ -78,9 +92,19 @@ function parseCritique(text: string): CritiqueData {
 }
 
 function scoreItem(value: unknown): ScoreItem {
+  // 兼容：维度值可能是纯数字、字符串数字、或 {score, reason} 对象
+  if (typeof value === "number") {
+    return { score: clampScore(value), reason: "" };
+  }
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n)) return { score: clampScore(n), reason: "" };
+  }
   const o = (value ?? {}) as Record<string, unknown>;
-  let score = Number(o.score);
-  if (!Number.isFinite(score)) score = 0;
-  score = Math.max(0, Math.min(10, Math.round(score)));
-  return { score, reason: String(o.reason ?? "") };
+  return { score: clampScore(Number(o.score)), reason: String(o.reason ?? "") };
+}
+
+function clampScore(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(10, Math.round(n)));
 }

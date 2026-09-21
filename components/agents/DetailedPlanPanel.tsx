@@ -163,7 +163,7 @@ export function DetailedPlanPanel({
         <div className="mt-3 space-y-3">
           <div className="text-xs text-ink-soft">
             版本 {plan.version} ·{" "}
-            {plan.createdByAgent === "user" ? "用户编辑" : "AI 生成"} ·{" "}
+            {plan.createdByAgent === "user" ? "用户编辑" : "小莫生成"} ·{" "}
             {formatDate(plan.createdAt)}
           </div>
           {PLAN_SECTIONS.map((key) => (

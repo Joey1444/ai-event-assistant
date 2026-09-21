@@ -79,6 +79,10 @@ export async function analyzeProject(projectId: string): Promise<AnalyzeResult> 
           canStart: analysis.canStart,
         },
       }),
+      prisma.project.update({
+        where: { id: projectId },
+        data: { status: "PM_ANALYSIS" },
+      }),
     ]);
     return { ok: true, analysis };
   } catch (err) {

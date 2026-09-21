@@ -1,6 +1,7 @@
 // 项目状态（顺序即推进顺序）
 export const PROJECT_STATUSES = [
   "DRAFT",
+  "PM_ANALYSIS",
   "RESEARCH",
   "CONCEPT",
   "REVIEW",
@@ -17,9 +18,10 @@ export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
   DRAFT: "草稿",
+  PM_ANALYSIS: "项目经理分析",
   RESEARCH: "调研",
   CONCEPT: "方案构思",
-  REVIEW: "AI 评审",
+  REVIEW: "小莫评审",
   HUMAN_DECISION: "待选择方向",
   HUMAN_DECISION_COMPLETED: "已选择方向",
   PLANNING: "方案制定",
@@ -35,6 +37,7 @@ export const STATUS_TONES: Record<
   "dark" | "muted" | "green" | "amber" | "red"
 > = {
   DRAFT: "muted",
+  PM_ANALYSIS: "dark",
   RESEARCH: "dark",
   CONCEPT: "dark",
   REVIEW: "dark",

@@ -122,7 +122,7 @@ function FactCard({ fact }: { fact: FactData }) {
       {fact.confidence ? (
         <div
           className="mt-1 text-xs text-ink-soft"
-          title="AI 对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
+          title="小莫对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
         >
           置信度：{CONFIDENCE_LABELS[fact.confidence] ?? fact.confidence}
         </div>

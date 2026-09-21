@@ -3,6 +3,7 @@ import { STATUS_LABELS } from "@/lib/status";
 // 工作流正向推进的 10 个阶段（不含 REJECTED / REVISION_REQUIRED 两个终态）
 const FLOW = [
   "DRAFT",
+  "PM_ANALYSIS",
   "RESEARCH",
   "CONCEPT",
   "REVIEW",

@@ -162,7 +162,7 @@ export function BudgetPanel({
         <div className="mt-3 space-y-3">
           <div className="text-xs text-ink-soft">
             版本 {budget.version} ·{" "}
-            {budget.createdByAgent === "user" ? "用户编辑" : "AI 生成"} ·{" "}
+            {budget.createdByAgent === "user" ? "用户编辑" : "小莫生成"} ·{" "}
             {formatDate(budget.createdAt)}
           </div>
 
@@ -211,7 +211,7 @@ export function BudgetPanel({
                       {item.confidence ? (
                         <div
                           className="mt-0.5 text-xs text-ink-soft"
-                          title="AI 对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
+                          title="小莫对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
                         >
                           置信度：{CONFIDENCE_LABELS[item.confidence] ?? item.confidence}
                         </div>
