@@ -103,7 +103,7 @@ export default async function ProjectDetailPage({
   });
 
   const status = project.status as ProjectStatus;
-  const decisionCompleted = project.status === "HUMAN_DECISION_COMPLETED";
+  const decisionCompleted = !!latestDecision && !latestDecision.rejected;
 
   const nextAction = getNextAction({
     id: project.id,
