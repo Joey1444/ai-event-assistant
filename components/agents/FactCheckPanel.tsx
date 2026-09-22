@@ -62,6 +62,8 @@ export function FactCheckPanel({
             : f,
         ),
       );
+      // 刷新服务端数据，让顶部「下一步」的待核验计数实时更新
+      router.refresh();
       return { ok: true };
     }
     return { ok: false, error: r.error };
