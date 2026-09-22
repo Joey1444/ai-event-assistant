@@ -7,8 +7,8 @@ import { researchProject } from "@/lib/agents/actions";
 import { FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
 const STATUS_STYLES: Record<string, string> = {
-  FACT: "bg-green-100 text-green-800",
-  USER_PROVIDED: "bg-blue-100 text-blue-700",
+  FACT: "bg-ok-soft text-ok",
+  USER_PROVIDED: "bg-info-soft text-info",
   ASSUMPTION: "bg-gold-soft text-gold",
   UNKNOWN: "bg-paper-2 text-ink-soft",
   CONFLICT: "bg-cinnabar-soft text-cinnabar",

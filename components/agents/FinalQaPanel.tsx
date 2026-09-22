@@ -5,13 +5,13 @@ import { runFinalQa } from "@/lib/agents/actions";
 import { RESULT_LABELS, type FinalQaRecord } from "@/lib/agents/types";
 
 const RESULT_STYLES: Record<string, string> = {
-  PASS: "bg-green-100 text-green-800",
+  PASS: "bg-ok-soft text-ok",
   WARNING: "bg-gold-soft text-gold",
   BLOCK: "bg-cinnabar-soft text-cinnabar",
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  pass: "bg-green-100 text-green-800",
+  pass: "bg-ok-soft text-ok",
   warning: "bg-gold-soft text-gold",
   block: "bg-cinnabar-soft text-cinnabar",
 };

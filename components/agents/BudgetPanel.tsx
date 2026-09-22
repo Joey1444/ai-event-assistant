@@ -14,8 +14,8 @@ import {
 
 const SOURCE_STYLES: Record<string, string> = {
   ASSUMPTION: "bg-gold-soft text-gold",
-  USER_PROVIDED: "bg-green-100 text-green-800",
-  SOURCE_BASED: "bg-blue-100 text-blue-700",
+  USER_PROVIDED: "bg-ok-soft text-ok",
+  SOURCE_BASED: "bg-info-soft text-info",
 };
 
 export function BudgetPanel({

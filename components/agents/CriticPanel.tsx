@@ -128,7 +128,7 @@ function ListSection({
   tone?: "default" | "green" | "amber" | "muted" | "red";
 }) {
   const titleColor = {
-    green: "text-green-600",
+    green: "text-ok",
     amber: "text-gold",
     muted: "text-ink-soft",
     red: "text-cinnabar",
@@ -156,7 +156,7 @@ function ListSection({
 }
 
 function scoreColor(score: number): string {
-  if (score >= 8) return "font-semibold text-green-600";
+  if (score >= 8) return "font-semibold text-ok";
   if (score >= 5) return "font-semibold text-gold";
   return "font-semibold text-cinnabar";
 }

@@ -68,7 +68,7 @@ export function WorkflowStepper({
                 <span
                   className={
                     "ml-0.5 h-2 w-2 shrink-0 rounded-full " +
-                    (aiHealthy ? "bg-green-500" : "bg-cinnabar")
+                    (aiHealthy ? "bg-ok" : "bg-cinnabar")
                   }
                   title={aiHealthy ? "AI 已连接" : "AI 未连接"}
                 />

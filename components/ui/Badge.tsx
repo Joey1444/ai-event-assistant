@@ -5,7 +5,7 @@ type Tone = "dark" | "muted" | "green" | "amber" | "red";
 const tones: Record<Tone, string> = {
   dark: "bg-ink text-paper",
   muted: "bg-paper-2 text-ink-soft",
-  green: "bg-green-100 text-green-800",
+  green: "bg-ok-soft text-ok",
   amber: "bg-gold-soft text-gold",
   red: "bg-cinnabar-soft text-cinnabar",
 };

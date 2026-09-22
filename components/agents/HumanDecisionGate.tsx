@@ -75,7 +75,7 @@ export function HumanDecisionGate({
           请先生成方案（上方「活动方案」→ 生成方案），然后在这里选择方向。
         </div>
       ) : alreadySelected ? (
-        <div className="mt-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+        <div className="mt-3 rounded-lg border border-ok-soft bg-ok-soft px-4 py-3 text-sm text-ok">
           ✅ 已选择方案 {decision?.selectedConcept}
           {selectedConcept ? ` · ${selectedConcept.direction}` : ""}
           {decision?.decisionNote ? `（备注：${decision.decisionNote}）` : ""}
@@ -126,7 +126,7 @@ export function HumanDecisionGate({
                       方案 {c.variant} · {c.direction}
                     </div>
                     {recommended ? (
-                      <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                      <span className="rounded-full bg-ok-soft px-2.5 py-0.5 text-xs font-medium text-ok">
                         小莫推荐 ✓
                       </span>
                     ) : null}

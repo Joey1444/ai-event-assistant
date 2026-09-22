@@ -7,8 +7,8 @@ import { factCheckProject } from "@/lib/agents/actions";
 import { CONFIDENCE_LABELS, FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
 const STATUS_STYLES: Record<string, string> = {
-  FACT: "bg-green-100 text-green-800",
-  USER_PROVIDED: "bg-blue-100 text-blue-700",
+  FACT: "bg-ok-soft text-ok",
+  USER_PROVIDED: "bg-info-soft text-info",
   ASSUMPTION: "bg-gold-soft text-gold",
   UNKNOWN: "bg-paper-2 text-ink-soft",
   CONFLICT: "bg-cinnabar-soft text-cinnabar",
@@ -56,6 +56,14 @@ export function FactCheckPanel({
       (STATUS_ORDER[a.status] ?? 5) - (STATUS_ORDER[b.status] ?? 5),
   );
 
+  // 按状态分组（sortedFacts 已按严谨度排序），用于列表分组标题
+  const groupedFacts: { status: string; items: FactData[] }[] = [];
+  for (const f of sortedFacts) {
+    const last = groupedFacts[groupedFacts.length - 1];
+    if (last && last.status === f.status) last.items.push(f);
+    else groupedFacts.push({ status: f.status, items: [f] });
+  }
+
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
@@ -78,29 +86,29 @@ export function FactCheckPanel({
 
       {facts.length > 0 ? (
         <>
-          <div className="mt-3 rounded-lg border border-gold bg-gold-soft px-4 py-3">
-            <div className="text-sm font-semibold text-gold">
-              需要人工确认的关键事实（{critical.length}）
-            </div>
-            {critical.length > 0 ? (
-              <ul className="mt-2 list-disc pl-5 text-sm text-ink">
-                {critical.map((f, i) => (
-                  <li key={i} className="mt-1">
-                    {f.claim}
-                    <span className="ml-2 text-xs text-ink-soft">
-                      [{FACT_STATUS_LABELS[f.status] ?? f.status}]
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-1 text-sm text-ink-soft">（无）</p>
-            )}
+          <div className="mt-3 rounded-lg border border-cinnabar-soft bg-cinnabar-soft px-4 py-3 text-sm">
+            <span className="font-semibold text-cinnabar">
+              {critical.length > 0
+                ? `还有 ${critical.length} 条需要人工确认`
+                : "无需人工确认"}
+            </span>
+            <span className="text-ink-soft">
+              {critical.length > 0 ? "（下方列表里带边框高亮的条目）" : ""}
+            </span>
           </div>
 
-          <div className="mt-3 space-y-3">
-            {sortedFacts.map((f, i) => (
-              <FactCard key={i} fact={f} />
+          <div className="mt-3 space-y-4">
+            {groupedFacts.map((g, gi) => (
+              <div key={gi}>
+                <div className="mb-2 text-xs font-medium text-ink-soft">
+                  {FACT_STATUS_LABELS[g.status] ?? g.status}（{g.items.length}）
+                </div>
+                <div className="space-y-3">
+                  {g.items.map((f, i) => (
+                    <FactCard key={i} fact={f} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </>
@@ -116,7 +124,11 @@ export function FactCheckPanel({
 function FactCard({ fact }: { fact: FactData }) {
   const badge = STATUS_STYLES[fact.status] ?? "bg-paper-2 text-ink-soft";
   return (
-    <div className="rounded-lg border border-border bg-card px-4 py-3">
+    <div
+      className={`rounded-lg border bg-card px-4 py-3 ${
+        fact.requiresHumanVerification ? "border-cinnabar" : "border-border"
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="text-sm font-medium text-ink">{fact.claim}</div>
         <span
@@ -147,7 +159,7 @@ function FactCard({ fact }: { fact: FactData }) {
         <div className="mt-1 text-xs text-ink-soft">理由：{fact.reason}</div>
       ) : null}
       {fact.requiresHumanVerification ? (
-        <div className="mt-1.5 text-xs font-medium text-gold">
+        <div className="mt-1.5 text-xs font-medium text-cinnabar">
           ⚠️ 需要人工核验
         </div>
       ) : null}

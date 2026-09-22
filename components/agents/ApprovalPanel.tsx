@@ -66,7 +66,7 @@ export function ApprovalPanel({
                 type="button"
                 onClick={() => handle("APPROVED")}
                 disabled={isPending}
-                className="rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
+                className="rounded-lg bg-ok px-5 py-2.5 text-sm font-semibold text-paper hover:opacity-90 disabled:opacity-50"
               >
                 批准
               </button>

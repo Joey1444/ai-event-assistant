@@ -26,7 +26,7 @@ export function NextActionBar({ action }: { action: NextAction }) {
     <div className="sticky top-0 z-10 mt-5 flex items-center justify-between gap-4 rounded-xl border border-gold bg-gold-soft px-5 py-3.5">
       <div className="flex min-w-0 items-center gap-2">
         {done ? (
-          <span className="font-serif text-base font-semibold text-green-800">
+          <span className="font-serif text-base font-semibold text-ok">
             ✓ 全部完成
           </span>
         ) : (

@@ -31,7 +31,7 @@ export function AiTestPanel({ initialStatus }: { initialStatus: string }) {
         <span
           className={
             "rounded-full px-2.5 py-0.5 text-xs font-medium " +
-            (connected ? "bg-green-100 text-green-800" : "bg-cinnabar-soft text-cinnabar")
+            (connected ? "bg-ok-soft text-ok" : "bg-cinnabar-soft text-cinnabar")
           }
         >
           {status === "CONNECTED" ? "已连接" : "未连接"}
