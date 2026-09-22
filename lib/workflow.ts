@@ -14,6 +14,7 @@ export function getNextAction(project: {
   concepts?: unknown[];
   critiques?: unknown[];
   decisions?: unknown[];
+  facts?: unknown[];
   plans?: unknown[];
   budgets?: unknown[];
   copies?: unknown[];
@@ -37,6 +38,9 @@ export function getNextAction(project: {
   }
   if (!has(project.decisions)) {
     return { text: "选择活动方向", href: "#panel-decision" };
+  }
+  if (!has(project.facts)) {
+    return { text: "核验所选方向的事实", href: "#panel-facts" };
   }
   if (!has(project.plans)) {
     return { text: "生成正式活动方案", href: "#panel-plan" };

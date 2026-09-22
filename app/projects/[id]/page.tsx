@@ -118,6 +118,7 @@ export default async function ProjectDetailPage({
     concepts,
     critiques: latestCritique ? [latestCritique] : [],
     decisions: latestDecision && !latestDecision.rejected ? [latestDecision] : [],
+    facts: checkFacts,
     plans: latestPlan ? [latestPlan] : [],
     budgets: latestBudget ? [latestBudget] : [],
     copies: latestCopy ? [latestCopy] : [],
@@ -219,19 +220,18 @@ export default async function ProjectDetailPage({
               savedCritique={toCritiqueData(latestCritique)}
             />
 
-            <FactCheckPanel
-              id="panel-facts"
-              projectId={project.id}
-              savedFacts={checkFacts.map(toFactData)}
-            />
-
             <HumanDecisionGate
               id="panel-decision"
               projectId={project.id}
               concepts={concepts.map(toConceptData)}
               critic={toCritiqueData(latestCritique)}
-              facts={checkFacts.map(toFactData)}
               decision={toDecisionData(latestDecision)}
+            />
+
+            <FactCheckPanel
+              id="panel-facts"
+              projectId={project.id}
+              savedFacts={checkFacts.map(toFactData)}
             />
 
             <DetailedPlanPanel

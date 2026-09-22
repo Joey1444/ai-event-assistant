@@ -253,17 +253,21 @@ export async function factCheckProject(
       researchItems: true,
       facts: true,
       concepts: { orderBy: { createdAt: "asc" } },
+      decisions: { orderBy: { createdAt: "desc" } },
     },
   });
   if (!project) return { ok: false, error: "项目不存在" };
-  if (project.concepts.length === 0) {
-    return { ok: false, error: "还没有生成方案，请先运行「活动方案」生成方案。" };
+  const selectedVariant = project.decisions[0]?.selectedConcept;
+  if (!selectedVariant) {
+    return { ok: false, error: "还没有选择活动方向，请先在「选择方向」里选择方案。" };
   }
+  const selected = project.concepts.find((c) => c.variant === selectedVariant);
+  if (!selected) return { ok: false, error: "找不到所选方案，请重新生成方案。" };
 
   try {
     const facts = await runFactChecker({
       briefText: formatBrief(project),
-      conceptsText: formatConceptsText(project.concepts),
+      conceptsText: formatConceptsText([selected]),
       researchText: formatResearch(project.researchItems),
       factsText: formatFacts(project.facts),
     });

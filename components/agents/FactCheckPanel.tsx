@@ -135,7 +135,7 @@ export function FactCheckPanel({
         </>
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          还没有核验结果。生成方案后，点击「事实核验」让核查员找出方案里的外部事实并判断真伪。
+          还没有核验结果。选择活动方向后，点击「事实核验」让核查员核验所选方案的外部事实。
         </div>
       )}
     </section>

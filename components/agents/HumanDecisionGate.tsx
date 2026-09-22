@@ -11,21 +11,18 @@ import {
   type CritiqueData,
   type CritiqueScores,
   type DecisionData,
-  type FactData,
 } from "@/lib/agents/types";
 
 export function HumanDecisionGate({
   projectId,
   concepts,
   critic,
-  facts,
   decision,
   id,
 }: {
   projectId: string;
   concepts: ConceptData[];
   critic: CritiqueData | null;
-  facts: FactData[];
   decision: DecisionData | null;
   id?: string;
 }) {
@@ -34,9 +31,6 @@ export function HumanDecisionGate({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const riskFacts = facts.filter(
-    (f) => f.status === "UNKNOWN" || f.status === "CONFLICT",
-  );
   const alreadySelected = decision && !decision.rejected;
   const selectedConcept = concepts.find(
     (c) => c.variant === decision?.selectedConcept,
@@ -86,16 +80,13 @@ export function HumanDecisionGate({
         </div>
       ) : (
         <>
-          <div className="mt-3 flex flex-wrap gap-3 text-sm">
-            {critic ? (
+          {critic ? (
+            <div className="mt-3 flex flex-wrap gap-3 text-sm">
               <span className="rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
                 小莫推荐：方案 {critic.recommendedConcept}
               </span>
-            ) : null}
-            <span className="rounded-full bg-gold-soft px-3 py-1 text-xs font-medium text-gold">
-              事实风险：{riskFacts.length} 条事实待核验（未知/冲突）
-            </span>
-          </div>
+            </div>
+          ) : null}
 
           {critic ? (
             <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-lg border border-border bg-card px-4 py-3 sm:grid-cols-4">

@@ -48,15 +48,6 @@ export const AGENTS: AgentMeta[] = [
     requiresPlan: false,
   },
   {
-    id: "factChecker",
-    name: "事实核查",
-    role: "找出外部事实并分类 FACT/ASSUMPTION/UNKNOWN/CONFLICT",
-    file: "factChecker.ts",
-    input: "三方案 / 简报 / 研究 / 事实账本",
-    output: "事实列表 + 分类 + 是否需人工核验",
-    requiresPlan: false,
-  },
-  {
     id: "humanGate1",
     name: "人工选择方向",
     role: "用户在多个方案中点击选择（系统不自动选）",
@@ -65,6 +56,15 @@ export const AGENTS: AgentMeta[] = [
     output: "Decision 记录",
     requiresPlan: false,
     humanGate: true,
+  },
+  {
+    id: "factChecker",
+    name: "事实核查",
+    role: "找出外部事实并分类 FACT/ASSUMPTION/UNKNOWN/CONFLICT",
+    file: "factChecker.ts",
+    input: "所选方案 / 简报 / 研究 / 事实账本",
+    output: "事实列表 + 分类 + 是否需人工核验",
+    requiresPlan: false,
   },
   {
     id: "planner",
