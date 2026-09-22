@@ -43,9 +43,9 @@ lib/
 
 ## 提示词规范
 
-- 统一骨架：`# 角色` / `# 输入` / `# 输出` / `# 规则`。
+- 统一骨架：XML 标签分段 `<角色>` / `<任务>` / `<输出>` / `<规则>`（复杂 Agent 再加 `<思考>`，少数加 `<示例>`）；静态指令进 system、动态输入进 user。
 - 反幻觉：绝不编造；无来源标 `UNKNOWN`/`[待确认]`；推测标 `ASSUMPTION`；冲突标 `CONFLICT`。
-- 复杂 Agent 的 `maxTokens` 用 16000，简单 Agent 用 8000（`deepseek-v4-pro` 是推理模型，token 给少了会截断）。
+- 所有 Agent 统一 `maxTokens: 300000`（`deepseek-v4-pro` 是推理模型，token 给少了会截断，统一给足）。
 - 反幻觉与 maxTokens 的完整铁律见 `rules/AI_DEVELOPMENT_RULES.md`（唯一权威），本处只做「写提示词」的速记提醒。
 
 ## 序列化规范

@@ -33,7 +33,7 @@
 ## Phase 3 — 质量与测试
 
 - [ ] provider 层单测（config / generateText / classifyError）
-- [ ] 静态提示词进 system role（动态输入放 user，命中 prompt caching 省 token）
+- [x] 静态提示词进 system role（动态输入放 user，命中 prompt caching 省 token）
 - [ ] 各 Agent 解析器单测（用固定 JSON 样本测类型与取值范围校验）
 - [ ] 集成测试：agent → action → 落库 → 读回
 - [ ] E2E：创建项目 → 全流程 → 两道 Human Gate → 审批

@@ -4,26 +4,31 @@ import { searchWeb } from "@/lib/ai/tavily";
 import { parseJsonObject } from "./parse";
 import type { FactData } from "./types";
 
-const RESEARCHER_PROMPT = `# 角色
-你是一名严谨的资料研究员（Researcher）。你的职责是：根据联网检索到的资料，提取与本次活动策划相关的研究条目与事实，供后续方案生成与事实核验使用。
+const RESEARCHER_PROMPT = `<角色>
+你是一名严谨的资料研究员，根据联网检索到的资料，提取与本次活动策划相关的研究条目与事实，供后续方案生成与事实核验使用。
+</角色>
 
-# 输入
-项目简报 + 联网检索到的资料片段（每条带标题、来源 URL、正文摘要）。
+<任务>
+读入项目简报与联网检索资料，产出研究条目与事实（带来源），落入研究库与事实账本。
+</任务>
 
-# 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
+<输出>
+只输出一个合法的 JSON 对象，不要 Markdown 代码块围栏、不要解释文字。每个字段都必须出现；查不到相关内容就输出空数组 []，不要硬凑。
+
 {"items":[{"title":"...","content":"...","source":"...","sourceUrl":"..."}],"facts":[{"claim":"...","evidence":"...","source":"...","sourceUrl":"...","confidence":"high|medium|low","status":"FACT|ASSUMPTION|UNKNOWN|CONFLICT","reason":"..."}]}
 
-字段含义：
 - items：研究条目（保留对策划有用的资料要点，如场地信息、价格、规定、文化背景等）。
 - facts：从资料里提取的具体事实（场地容量、日期、价格、规定等），供事实账本使用。
-- facts 的 status：资料明确支持的判 FACT；推测判 ASSUMPTION；无法确认判 UNKNOWN；矛盾判 CONFLICT。
+- facts 的 status：资料明确支持判 FACT；推测判 ASSUMPTION；无法确认判 UNKNOWN；矛盾判 CONFLICT。
 - confidence 必须与 status 匹配：FACT→high/medium；ASSUMPTION→medium/low；UNKNOWN→low。
+</输出>
 
-# 硬性规则
+<规则>
 1. 只基于「检索到的资料」提取，绝不凭常识编造；资料里没有的，不得写进 facts。
-2. 每条 fact 必须带 source / sourceUrl（来自哪条资料）。
-3. 查不到相关内容就输出空数组，不要硬凑。
-4. 提高信息密度：一条资料片段应尽量作证多个事实，优先提取能支撑多条 fact 的资料，避免内容重复冗余。`;
+2. 允许说不知道：查不到、无法确认的，输出空数组或标 UNKNOWN，不要猜一个合理值。
+3. 每条 fact 必须带 source / sourceUrl（来自哪条资料）；没有来源的 claim 不得出现。
+4. 提高信息密度：一条资料片段应尽量作证多个事实，优先提取能支撑多条 fact 的资料，避免内容重复冗余。
+</规则>`;
 
 export type ResearchItemData = {
   title: string;
@@ -59,9 +64,10 @@ export async function runResearcher(input: {
 
   const text = await generateText({
     messages: [
+      { role: "system", content: RESEARCHER_PROMPT },
       {
         role: "user",
-        content: `${RESEARCHER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n检索到的资料：\n${researchText}\n\n请提取研究条目与事实并输出 JSON。`,
+        content: `项目简报：\n${input.briefText}\n\n检索到的资料：\n${researchText}`,
       },
     ],
     maxTokens: 300000,

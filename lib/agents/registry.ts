@@ -87,10 +87,10 @@ export const AGENTS: AgentMeta[] = [
   {
     id: "copywriter",
     name: "文案策划师",
-    role: "产出 9 种不同用途与语气的宣传文案",
+    role: "产出 4 种不同用途与语气的宣传文案",
     file: "copywriter.ts",
     input: "详细方案 / 简报 / 事实账本",
-    output: "9 项文案",
+    output: "4 项文案",
     requiresPlan: true,
   },
   {

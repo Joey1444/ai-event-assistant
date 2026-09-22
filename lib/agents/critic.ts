@@ -3,36 +3,45 @@ import { generateText } from "@/lib/ai/provider";
 import type { CritiqueData, ScoreItem } from "./types";
 import { parseJsonObject, toStrArray } from "./parse";
 
-const CRITIC_PROMPT = `# 角色
-你是一名严格的评审专家（Critic）。你的唯一职责是给三个活动方案「找问题」，而不是重新写方案，也不是替用户做决定。
+const CRITIC_PROMPT = `<角色>
+你是一名严格的评审专家，给多个活动方案「找问题」并评分。你只评审、不重写方案、不替用户做最终决定。
+</角色>
 
-# 输入
-多个方案、项目简报、研究资料库、事实账本。
+<任务>
+读入多个方案、项目简报、研究资料库、事实账本，产出 8 维评分 + 优缺点 + 风险 + 推荐（AI 建议，不代表最终决定）。
+</任务>
 
-# 评分（8 个维度，每项 0-10 分整数，用统一标尺）
-分数标尺：9-10 优秀；7-8 良好；5-6 一般；3-4 较差；0-2 严重问题。
+<输出>
+只输出一个合法的 JSON 对象，不要 Markdown 代码块围栏、不要解释文字。每个字段都必须出现。
+
+{"scores":{"strategicFit":{"score":8,"reason":"..."},"culturalQuality":{"score":8,"reason":"..."},"audienceAppeal":{"score":8,"reason":"..."},"feasibility":{"score":8,"reason":"..."},"budget":{"score":8,"reason":"..."},"risk":{"score":8,"reason":"..."},"originality":{"score":8,"reason":"..."},"communicationValue":{"score":8,"reason":"..."}},"strengths":[],"weaknesses":[],"risks":[],"criticalIssues":[],"recommendation":"...","recommendedConcept":"B"}
+
+评分 8 个维度（每项 score 是 0-10 整数，reason 是一句话理由，说清扣分点或得分点）：
 - strategicFit 战略契合度：是否贴合项目目的与机构定位
 - culturalQuality 文化质量：文化内容是否准确、得体、有深度
 - audienceAppeal 受众吸引力：目标人群是否会感兴趣、愿意参加
 - feasibility 可行性：场地/人力/时间是否现实可落地
 - budget 预算合理性：预算与活动规模是否匹配
-- risk 风险（反向计分：分数越高=风险越低=越安全）
+- risk 风险（反向计分：分数越高=风险越低）
 - originality 原创性：是否有新意，还是老套
 - communicationValue 传播价值：对外宣传、品牌沉淀的价值
+- 分数标尺：9-10 优秀；7-8 良好；5-6 一般；3-4 较差；0-2 严重问题。
 
-每项输出 score（0-10 整数）和 reason（一句话理由，说清扣分点或得分点）。
-
-# 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要任何解释文字）
-{"scores":{"strategicFit":{"score":8,"reason":"..."},"culturalQuality":{"score":8,"reason":"..."},"audienceAppeal":{"score":8,"reason":"..."},"feasibility":{"score":8,"reason":"..."},"budget":{"score":8,"reason":"..."},"risk":{"score":8,"reason":"..."},"originality":{"score":8,"reason":"..."},"communicationValue":{"score":8,"reason":"..."}},"strengths":[],"weaknesses":[],"risks":[],"criticalIssues":[],"recommendation":"...","recommendedConcept":"B"}
-
-字段含义：
-- strengths / weaknesses / risks：整体层面的字符串数组（可点名具体是哪个 Concept）。
-- criticalIssues：严重问题，尤其要主动寻找这 8 类——不现实的预算、不合理的人数、文化错误、没有证据的事实、执行困难、时间冲突、资源不足、潜在风险。
+- strengths / weaknesses / risks：整体层面的字符串数组（可点名具体是哪个 Concept）。没有就填空数组 []。
+- criticalIssues：严重问题数组，尤其主动寻找这 8 类——不现实的预算、不合理的人数、文化错误、没有证据的事实、执行困难、时间冲突、资源不足、潜在风险。
 - recommendation：一段评审总结，说清各方案的取舍。
-- recommendedConcept：填你要推荐的方案的 variant 值（如 "A"、"B"、"C" 等，按方案实际编号；若无明确推荐填空字符串）——这是 AI 建议，不代表最终决定。
+- recommendedConcept：填推荐的方案 variant 值（如 "A"、"B"、"C"），这是 AI 建议、不代表最终决定；无明确推荐填空字符串 ""。
+</输出>
 
-# 事实规则
-如果某个方案把未经事实账本验证的信息当作事实，必须在 criticalIssues 里指出。`;
+<规则>
+1. 事实可信度分层：事实账本里每条事实带 [状态]——USER_PROVIDED（用户提供，含已人工核验）与 FACT（有来源确认）可信；ASSUMPTION 是假设；UNKNOWN 与 CONFLICT 未确认/矛盾。若某个方案把未经账本验证的信息当作确定事实，必须在 criticalIssues 里指出。
+2. 允许说不知道：拿不准的维度，据实给低分并说明理由，不要给一个没有依据的高分。
+3. 只评审不重写：不要替用户修改方案，也不要替用户做最终决定。
+</规则>
+
+<思考>
+先在内部推理（逐方案核对事实来源、权衡各维度），但不要输出推理过程；最终只输出 <输出> 里定义的 JSON 对象。
+</思考>`;
 
 export async function runCritic(input: {
   briefText: string;
@@ -42,9 +51,10 @@ export async function runCritic(input: {
 }): Promise<CritiqueData> {
   const text = await generateText({
     messages: [
+      { role: "system", content: CRITIC_PROMPT },
       {
         role: "user",
-        content: `${CRITIC_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n三个方案：\n${input.conceptsText}\n\n请评审并输出 JSON。`,
+        content: `项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n方案：\n${input.conceptsText}`,
       },
     ],
     maxTokens: 300000,

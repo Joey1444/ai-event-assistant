@@ -4,7 +4,7 @@ import "server-only";
 import { aiConfig, imageConfig } from "./config";
 
 export type ChatMessage = {
-  role: "user" | "assistant";
+  role: "system" | "user" | "assistant";
   content: string;
 };
 

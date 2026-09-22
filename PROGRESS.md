@@ -12,6 +12,7 @@
 ## 变更日志
 
 <!-- 每轮追加一行：`- [日期] 内容（提交 hash）` -->
+- [2026-09-22] 重构 11 个 Agent 提示词（对齐 `docs/数据模型与数据流.md` + 高星项目写法）：`provider.ts` 加 system role、静态指令进 system/动态输入进 user；提示词改 XML 标签六段式 + 反幻觉四件套 + 事实可信度分层（USER_PROVIDED/FACT 可信、UNKNOWN/CONFLICT 标待确认）+ 复杂 Agent 加思考段；修正规则文档 maxTokens 统一 300000；修正 registry copywriter 文案数量 9→4
 - [2026-09-22] 沉淀 `docs/数据模型与数据流.md`（表关系结构 + 提示词数据流，遵循「只写结构原则、链接代码」规范）
 - [2026-09-22] 表关系/数据流审查（3 个审查 agent 因余额不足 402 失败，改本会话自查）+ 两处修复：事实核验改为软提醒（「下一步」提示还有 N 条待人工核验，不硬拦）；重新生成方案清空旧 Decision（修复 selectedConcept 软引用静默失效）；其余中低优先级项（Fact 无显式 kind、软引用、无鉴权、注入风险）记录待办
 - [2026-09-22] 流水线重排 + 表格对齐：事实核验移到选方向之后（只核验选中方案，不再同时管 3 个方向，`factCheckProject` 要求先有 Decision）；侧边栏锚点定位加 `scroll-margin-top`；预算表格数字加 `tabular-nums` 等宽对齐 + 单价列去冗余币种
