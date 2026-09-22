@@ -234,40 +234,32 @@ export default async function ProjectDetailPage({
               decision={toDecisionData(latestDecision)}
             />
 
-            <div className="max-h-[70vh] overflow-y-auto">
-              <DetailedPlanPanel
-                id="panel-plan"
-                projectId={project.id}
-                decisionCompleted={decisionCompleted}
-                selectedVariant={latestDecision?.selectedConcept ?? null}
-                latestPlan={toPlanData(latestPlan)}
-              />
-            </div>
+            <DetailedPlanPanel
+              id="panel-plan"
+              projectId={project.id}
+              decisionCompleted={decisionCompleted}
+              selectedVariant={latestDecision?.selectedConcept ?? null}
+              latestPlan={toPlanData(latestPlan)}
+            />
 
-            <div className="max-h-[70vh] overflow-y-auto">
-              <BudgetPanel
-                id="panel-budget"
-                projectId={project.id}
-                latestBudget={toBudgetData(latestBudget)}
-              />
-            </div>
+            <BudgetPanel
+              id="panel-budget"
+              projectId={project.id}
+              latestBudget={toBudgetData(latestBudget)}
+            />
 
-            <div className="max-h-[70vh] overflow-y-auto">
-              <CopyPanel
-                id="panel-copy"
-                projectId={project.id}
-                latestCopy={toContentData(latestCopy)}
-              />
-            </div>
+            <CopyPanel
+              id="panel-copy"
+              projectId={project.id}
+              latestCopy={toContentData(latestCopy)}
+            />
 
-            <div className="max-h-[70vh] overflow-y-auto">
-              <PosterImagePanel
-                id="panel-poster"
-                projectId={project.id}
-                posterContent={toContentData(latestPoster)?.content ?? null}
-                images={posterImages.map(toPosterImageData)}
-              />
-            </div>
+            <PosterImagePanel
+              id="panel-poster"
+              projectId={project.id}
+              posterContent={toContentData(latestPoster)?.content ?? null}
+              images={posterImages.map(toPosterImageData)}
+            />
 
             <section id="approve" className="mt-8">
               <Link

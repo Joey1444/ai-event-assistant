@@ -30,6 +30,7 @@ export function DetailedPlanPanel({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
+  const [showAll, setShowAll] = useState(false);
 
   function copyAll() {
     if (!plan) return;
@@ -166,7 +167,7 @@ export function DetailedPlanPanel({
             {plan.createdByAgent === "user" ? "用户编辑" : "小莫生成"} ·{" "}
             {formatDate(plan.createdAt)}
           </div>
-          {PLAN_SECTIONS.map((key) => (
+          {(showAll ? PLAN_SECTIONS : PLAN_SECTIONS.slice(0, 4)).map((key) => (
             <div
               key={key}
               className="rounded-lg border border-border bg-card px-4 py-3"
@@ -179,6 +180,15 @@ export function DetailedPlanPanel({
               </div>
             </div>
           ))}
+          {PLAN_SECTIONS.length > 4 ? (
+            <button
+              type="button"
+              onClick={() => setShowAll((v) => !v)}
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink hover:bg-paper-2"
+            >
+              {showAll ? "收起" : `查看全部（共 ${PLAN_SECTIONS.length} 章节）`}
+            </button>
+          ) : null}
         </div>
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
