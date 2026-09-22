@@ -303,7 +303,7 @@ export function PosterImagePanel({
           <textarea
             value={humanPrompt}
             onChange={(e) => setHumanPrompt(e.target.value)}
-            placeholder="例如：右下角预留正方形空白区域，用于放置二维码 / Logo"
+            placeholder="例如：语言为英语，右下角预留正方形空白区域放置二维码"
             rows={2}
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
           />
