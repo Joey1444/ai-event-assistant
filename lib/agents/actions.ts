@@ -313,6 +313,7 @@ export async function verifyFact(
     data: {
       verification,
       humanNote: note?.trim() ? note.trim() : null,
+      ...(verification === "verified" ? { status: "USER_PROVIDED" } : {}),
     },
   });
   return { ok: true };

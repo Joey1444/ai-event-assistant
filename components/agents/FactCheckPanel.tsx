@@ -51,7 +51,14 @@ export function FactCheckPanel({
       setFacts((prev) =>
         prev.map((f) =>
           f.id === factId
-            ? { ...f, verification, humanNote: note.trim() || undefined }
+            ? {
+                ...f,
+                verification,
+                humanNote: note.trim() || undefined,
+                ...(verification === "verified"
+                  ? { status: "USER_PROVIDED" }
+                  : {}),
+              }
             : f,
         ),
       );
