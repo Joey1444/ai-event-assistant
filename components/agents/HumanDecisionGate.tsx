@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { rejectAllConcepts, selectConcept } from "@/lib/agents/actions";
 import {
   CRITIQUE_SCORE_LABELS,
@@ -67,7 +68,7 @@ export function HumanDecisionGate({
 
   return (
     <section id={id} className="mt-8">
-      <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">8. 请选择活动方向</h2>
+      <StepHeading id="decision" />
 
       {concepts.length === 0 ? (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">

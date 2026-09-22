@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { analyzeProject } from "@/lib/agents/actions";
 import type { PmAnalysisData } from "@/lib/agents/types";
 
@@ -35,7 +36,7 @@ export function PmAnalysisPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">3. 项目经理分析</h2>
+        <StepHeading id="pm" />
         <button
           type="button"
           onClick={handleRun}

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { generateConcepts } from "@/lib/agents/actions";
 import {
   CONCEPT_FIELD_LABELS,
@@ -45,7 +46,7 @@ export function ConceptPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">5. 活动方案</h2>
+        <StepHeading id="concept" />
         <button
           type="button"
           onClick={handleGenerate}

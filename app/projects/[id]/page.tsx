@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { DeleteProjectButton } from "@/components/projects/DeleteProjectButton";
 import { WorkflowStepper } from "@/components/projects/WorkflowStepper";
 import { NextActionBar } from "@/components/projects/NextActionBar";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { PmAnalysisPanel } from "@/components/agents/PmAnalysisPanel";
 import { ResearcherPanel } from "@/components/agents/ResearcherPanel";
 import { ConceptPanel } from "@/components/agents/ConceptPanel";
@@ -152,9 +153,7 @@ export default async function ProjectDetailPage({
             <NextActionBar action={nextAction} />
 
             <section id="ai-connect" className="mt-8">
-              <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-                1. AI 连接
-              </h2>
+              <StepHeading id="ai" />
               <AiTestPanel
                 initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"}
               />
@@ -162,9 +161,7 @@ export default async function ProjectDetailPage({
 
             <section id="project-detail" className="mt-8">
               <div className="flex items-center justify-between">
-                <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-                  2. 项目详情
-                </h2>
+                <StepHeading id="detail" />
                 <div className="flex items-center gap-2">
                   <Link
                     href={`/projects/${project.id}/edit`}

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { generatePlan, savePlanVersion } from "@/lib/agents/actions";
 import {
   PLAN_SECTION_LABELS,
@@ -77,7 +78,7 @@ export function DetailedPlanPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">9. 详细活动方案</h2>
+        <StepHeading id="plan" />
         {decisionCompleted ? (
           <div className="flex gap-2">
             {editing ? (
@@ -140,7 +141,7 @@ export function DetailedPlanPanel({
 
       {!decisionCompleted ? (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          请先在「请选择活动方向」选择方案 A/B/C，然后才能生成详细方案。
+          请先在「选择方向」选择方案 A/B/C，然后才能生成详细方案。
         </div>
       ) : editing ? (
         <div className="mt-3 space-y-4">

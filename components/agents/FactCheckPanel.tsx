@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { factCheckProject } from "@/lib/agents/actions";
 import { CONFIDENCE_LABELS, FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
@@ -58,7 +59,7 @@ export function FactCheckPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">7. 事实核验</h2>
+        <StepHeading id="factcheck" />
         <button
           type="button"
           onClick={handleRun}

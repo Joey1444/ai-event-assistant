@@ -364,7 +364,7 @@ export async function generatePlan(
 
   const selectedVariant = project.decisions[0]?.selectedConcept;
   if (!selectedVariant) {
-    return { ok: false, error: "还没有选择活动方向，请先在「请选择活动方向」选择方案。" };
+    return { ok: false, error: "还没有选择活动方向，请先在「选择方向」选择方案。" };
   }
 
   const selected = project.concepts.find((c) => c.variant === selectedVariant);

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { runCritique } from "@/lib/agents/actions";
 import {
   CRITIQUE_SCORE_LABELS,
@@ -40,7 +41,7 @@ export function CriticPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">6. 小莫评审</h2>
+        <StepHeading id="critic" />
         <button
           type="button"
           onClick={handleRun}

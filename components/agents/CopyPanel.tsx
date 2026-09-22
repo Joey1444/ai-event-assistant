@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { generateCopy, saveCopyVersion } from "@/lib/agents/actions";
 import {
   COPY_FIELDS,
@@ -71,7 +72,7 @@ export function CopyPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">11. 宣传文案</h2>
+        <StepHeading id="copy" />
         <div className="flex gap-2">
           {editing ? (
             <>

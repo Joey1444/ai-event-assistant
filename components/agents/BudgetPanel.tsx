@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import { generateBudget, saveBudgetVersion } from "@/lib/agents/actions";
 import {
   BUDGET_CATEGORY_LABELS,
@@ -99,7 +100,7 @@ export function BudgetPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">10. 预算</h2>
+        <StepHeading id="budget" />
         <div className="flex gap-2">
           {editing ? (
             <>

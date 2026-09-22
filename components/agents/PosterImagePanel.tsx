@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { StepHeading } from "@/components/projects/StepHeading";
 import {
   generatePosterImage,
   editPosterImage,
@@ -119,9 +120,7 @@ export function PosterImagePanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-          12. 海报图片
-        </h2>
+        <StepHeading id="poster" />
         <button
           type="button"
           onClick={handleGenerate}
