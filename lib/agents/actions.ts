@@ -184,6 +184,7 @@ export async function generateConcepts(
 
     await prisma.$transaction([
       prisma.concept.deleteMany({ where: { projectId } }),
+      prisma.decision.deleteMany({ where: { projectId } }),
       prisma.concept.createMany({
         data: concepts.map((c) => ({
           projectId,

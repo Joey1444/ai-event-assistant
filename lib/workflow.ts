@@ -14,7 +14,7 @@ export function getNextAction(project: {
   concepts?: unknown[];
   critiques?: unknown[];
   decisions?: unknown[];
-  facts?: unknown[];
+  facts?: { requiresHumanVerification?: boolean; verification?: string | null }[];
   plans?: unknown[];
   budgets?: unknown[];
   copies?: unknown[];
@@ -23,6 +23,9 @@ export function getNextAction(project: {
   approvals?: unknown[];
 }): NextAction {
   const has = (arr?: unknown[]): boolean => !!arr && arr.length > 0;
+  const unverifiedFacts = (project.facts ?? []).filter(
+    (f) => f.requiresHumanVerification && !f.verification,
+  ).length;
 
   if (!has(project.pmAnalyses)) {
     return { text: "先做项目经理分析", href: "#panel-pm" };
@@ -41,6 +44,9 @@ export function getNextAction(project: {
   }
   if (!has(project.facts)) {
     return { text: "核验所选方向的事实", href: "#panel-facts" };
+  }
+  if (unverifiedFacts > 0) {
+    return { text: `还有 ${unverifiedFacts} 条事实待人工核验`, href: "#panel-facts" };
   }
   if (!has(project.plans)) {
     return { text: "生成正式活动方案", href: "#panel-plan" };
