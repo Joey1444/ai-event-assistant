@@ -36,7 +36,7 @@ Next.js 16（App Router）+ TypeScript + Tailwind CSS 4；Prisma 6 + SQLite（�
      → Planner → Budget → Copywriter → Poster → (PosterDesigner 可选) → QA → 🧑Gate2 审批
 ```
 
-- **AI 唯一入口**：文本模型统一走 `lib/ai/provider.ts` 的 `generateText()`，经 CCSwitch 网关（`AI_BASE_URL`，本机 127.0.0.1:15721）转发到 `AI_MODEL`；文生图走 `generateImage()`，直连第三方 DashScope 原生 API（`IMAGE_API_BASE_URL` / `IMAGE_API_KEY` / `IMAGE_MODEL`）。业务代码 / Agent 禁止直接 fetch 模型端点或写死 Provider。
+- **AI 唯一入口**：文本模型统一走 `lib/ai/provider.ts` 的 `generateText()`，直连 DeepSeek 官方 API（`AI_BASE_URL` / `AI_API_KEY` / `AI_MODEL`）；文生图走 `generateImage()`，直连第三方 DashScope 原生 API（`IMAGE_API_BASE_URL` / `IMAGE_API_KEY` / `IMAGE_MODEL`）。业务代码 / Agent 禁止直接 fetch 模型端点或写死 Provider。
 - **联网调研**：Researcher Agent 走 `lib/ai/tavily.ts`（`TAVILY_API_KEY`）做实时检索，产出入库 ResearchItem / Fact，无来源标 UNKNOWN。
 - **Agent 分层**：`lib/agents/<name>.ts` 只写「prompt + 解析」纯函数；读库 → 调 agent → 落库在 `lib/agents/actions.ts`；展示面板在 `components/agents/<name>Panel.tsx`；`registry.ts` 是 Agent 元数据的单一事实来源。序列化一律走 `lib/serializers.ts`。
 - **Human Gate**：AI 只提议不拍板；选方向（Gate 1）与最终审批（Gate 2）只能真人点击，决定落库并成为后续输入。

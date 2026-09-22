@@ -16,10 +16,10 @@ export default async function AiTestPage() {
       <h1 className="mt-4 font-serif text-3xl font-bold text-ink">
         AI Gateway Status
       </h1>
-      <p className="mt-1 text-ink-soft">通过 CCSwitch 网关访问模型</p>
+      <p className="mt-1 text-ink-soft">直连 DeepSeek 官方 API</p>
 
       <dl className="mt-6 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-        <Row label="Provider" value="CCSwitch" />
+        <Row label="Provider" value="DeepSeek" />
         <Row label="Base URL" value={safeHostname(aiConfig.baseURL)} />
         <Row label="Model" value={aiConfig.model} />
       </dl>

@@ -29,7 +29,7 @@
 - 唯一入口：`lib/ai/provider.ts` 的 `generateText()`；业务代码 / Agent 不得直接 fetch 模型端点
 - 必须显式设置 `max_tokens` 与 `timeout`（简单 Agent ≥ 8000，复杂 Agent ≥ 12000–16000）
 - 模型输出 JSON 必须防御性解析：字段做类型与取值范围校验，失败给可读错误提示而非页面崩溃
-- 业务代码不得出现 DeepSeek / OpenAI / Claude 等具体 Provider 专属逻辑；换模型只改 CCSwitch 配置与 `AI_MODEL`
+- 业务代码不得出现 DeepSeek / OpenAI / Claude 等具体 Provider 专属逻辑；换模型只改 `AI_BASE_URL` / `AI_MODEL`
 
 ## 各待办任务的验收（对应 TASKS.md）
 

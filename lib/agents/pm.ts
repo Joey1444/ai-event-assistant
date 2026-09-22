@@ -35,7 +35,7 @@ export async function runPmAnalysis(briefText: string): Promise<PmAnalysisData> 
         content: `${PM_ROLE_PROMPT}\n\n以下是项目简报：\n${briefText}\n\n请分析并输出 JSON。`,
       },
     ],
-    maxTokens: 50000,
+    maxTokens: 300000,
     timeoutMs: 300000,
   });
   return parseAnalysisJson(text);

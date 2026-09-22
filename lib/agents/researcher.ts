@@ -63,7 +63,7 @@ export async function runResearcher(input: {
         content: `${RESEARCHER_PROMPT}\n\n项目简报：\n${input.briefText}\n\n检索到的资料：\n${researchText}\n\n请提取研究条目与事实并输出 JSON。`,
       },
     ],
-    maxTokens: 50000,
+    maxTokens: 300000,
     timeoutMs: 300000,
   });
 

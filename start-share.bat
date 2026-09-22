@@ -7,8 +7,6 @@ echo ============================================
 echo   Share this project with others
 echo ============================================
 echo.
-echo   Step 0: Open CCSwitch app FIRST !!!
-echo.
 echo   [1/3] Starting the website...
 start "Website - DO NOT CLOSE" cmd /k "npm run dev"
 

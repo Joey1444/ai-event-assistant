@@ -47,7 +47,7 @@ export async function runCritic(input: {
         content: `${CRITIC_PROMPT}\n\n项目简报：\n${input.briefText}\n\n研究资料库：\n${input.researchText}\n\n事实账本：\n${input.factsText}\n\n三个方案：\n${input.conceptsText}\n\n请评审并输出 JSON。`,
       },
     ],
-    maxTokens: 50000,
+    maxTokens: 300000,
     timeoutMs: 300000,
   });
   return parseCritique(text);

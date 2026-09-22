@@ -1,5 +1,5 @@
 // AI Provider 抽象层：业务代码只调用 generateText() / generateImage()，不关心底层实现。
-// 文本模型经 CCSwitch 网关（Anthropic 兼容 /v1/messages）；文生图直连第三方（DashScope 原生 API）。
+// 文本模型直连 DeepSeek（OpenAI 兼容 /chat/completions）；文生图直连第三方（DashScope 原生 API）。
 import "server-only";
 import { aiConfig, imageConfig } from "./config";
 
@@ -44,14 +44,21 @@ export async function generateText({
   const mt = maxTokens ?? aiConfig.maxTokens;
   const timeout = timeoutMs ?? aiConfig.timeoutMs;
 
+  if (!aiConfig.baseURL || !aiConfig.apiKey || !m) {
+    throw new AiError({
+      kind: "unknown",
+      message:
+        "未配置文本模型：请在 .env 里设置 AI_BASE_URL / AI_API_KEY / AI_MODEL",
+    });
+  }
+
   let res: Response;
   try {
-    res = await fetch(`${aiConfig.baseURL}/v1/messages`, {
+    res = await fetch(`${aiConfig.baseURL.replace(/\/+$/, "")}/chat/completions`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-api-key": aiConfig.apiKey,
-        "anthropic-version": "2023-06-01",
+        authorization: `Bearer ${aiConfig.apiKey}`,
       },
       body: JSON.stringify({ model: m, max_tokens: mt, messages }),
       signal: AbortSignal.timeout(timeout),
@@ -71,28 +78,18 @@ export async function generateText({
   }
 
   const data = (await res.json()) as {
-    content?: Array<{ type?: string; text?: string }>;
-    stop_reason?: string | null;
+    choices?: Array<{
+      message?: { content?: string };
+      finish_reason?: string | null;
+    }>;
   };
-  if (data.stop_reason === "max_tokens") {
+  if (data.choices?.[0]?.finish_reason === "length") {
     throw new AiError({
       kind: "truncated",
       message: "输出被截断（达到 max_tokens 上限）",
     });
   }
-  return extractText(data);
-}
-
-function extractText(data: {
-  content?: Array<{ type?: string; text?: string }>;
-}): string {
-  const content = data.content;
-  if (!Array.isArray(content)) return "";
-  return content
-    .filter((b) => b?.type === "text" && typeof b.text === "string")
-    .map((b) => b.text as string)
-    .join("")
-    .trim();
+  return data.choices?.[0]?.message?.content ?? "";
 }
 
 export type GenerateImageOptions = {
@@ -250,7 +247,7 @@ function sniffImageMime(base64: string): string {
   throw new AiError({ kind: "unknown", message: "文生图服务返回了不支持的图片格式" });
 }
 
-// 轻量健康检查：只要网关有响应（哪怕 404），就认为 CCSwitch 在运行
+// 轻量健康检查：只要网关有响应（哪怕 404），就认为 AI 服务在运行
 export async function checkAiHealth(): Promise<boolean> {
   try {
     await fetch(`${aiConfig.baseURL}/`, {

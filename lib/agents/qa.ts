@@ -56,7 +56,7 @@ export async function runQa(input: {
     messages: [
       { role: "user", content: `${QA_PROMPT}\n\n${content}\n\n请检查并输出 JSON。` },
     ],
-    maxTokens: 50000,
+    maxTokens: 300000,
     timeoutMs: 300000,
   });
   return parseQa(text);

@@ -21,16 +21,16 @@
 
 - **Next.js 16**（App Router）+ **TypeScript** + **Tailwind CSS 4**
 - **Prisma 6** + **SQLite**
-- **统一 AI Provider 层**（`lib/ai/provider.ts`），通过 **CCSwitch 网关**访问模型（当前为 DeepSeek `deepseek-v4-pro`）
+- **统一 AI Provider 层**（`lib/ai/provider.ts`），直连 **DeepSeek 官方 API**（`deepseek-v4-pro`）
 - 架构说明见 [docs/AI接入说明.md](docs/AI接入说明.md)
 
 架构链路：
 
 ```
-Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) → DeepSeek
+Web App → lib/ai/provider.ts (generateText) → DeepSeek API
 ```
 
-业务代码零 Provider 绑定；换模型只改 CCSwitch 配置和 `AI_MODEL`。
+业务代码零 Provider 绑定；换模型只改 `AI_BASE_URL` / `AI_MODEL`。
 
 ## Agent 与人工关卡
 
@@ -63,7 +63,6 @@ Web App → lib/ai/provider.ts (generateText) → CCSwitch (127.0.0.1:15721) →
 ### 环境要求
 
 - Node.js 22+
-- 已安装并**正在运行**的 [CCSwitch](https://github.com/cresseelia/ccswitch)（AI 网关，本机实测用 cc-switch 桌面版，监听 `127.0.0.1:15721`）
 
 ### 步骤
 
@@ -94,11 +93,11 @@ npm run dev
 
 应用默认只能在 `localhost:3000` 本机访问。想让**没装环境的人**（比如参与体验的老师）通过公网链接直接打开，可以用 [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)（cloudflared）把本地端口临时暴露出去。
 
-**最简单的方式（推荐）**：先双击打开 CCSwitch，再双击项目里的 `start-share.bat`，脚本会自动启动网页 + 建立公网隧道，把窗口里出现的 `https://xxx.trycloudflare.com` 链接发给别人即可。
+**最简单的方式（推荐）**：双击项目里的 `start-share.bat`，脚本会自动启动网页 + 建立公网隧道，把窗口里出现的 `https://xxx.trycloudflare.com` 链接发给别人即可。
 
 **手动分三步：**
 
-1. 启动应用（`npm run dev`），确认 `localhost:3000` 已监听；CCSwitch 网关保持运行。
+1. 启动应用（`npm run dev`），确认 `localhost:3000` 已监听。
 
 2. 下载并启动 cloudflared：
 
@@ -141,7 +140,7 @@ cloudflared tunnel --url http://localhost:3000
 
 ## 已知说明 / 踩坑记录
 
-- **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。各 Agent 的 `max_tokens` 已统一设为 50000，provider 层也会检测 `stop_reason=max_tokens` 截断并提示。
+- **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。各 Agent 的 `max_tokens` 已统一设为 300000，provider 层也会检测截断并提示。
 - **`next build`/`next dev` 在 Claude 沙箱里跑会报 EXDEV**（写 `%APPDATA%\nextjs-nodejs` 失败），你自己的终端里无此问题。
 - **杀毒/清理程序可能清空 `node_modules`**：若报「`next` 不是内部或外部命令」，重跑 `npm install` 即可。
 - **Researcher（资料调研）已实现**：联网检索（Tavily）填充 `ResearchItem` / `Fact`，来源可追溯；未配置 `TAVILY_API_KEY` 时研究库与事实账本为空，各 Agent 会把外部信息严格标为 `UNKNOWN`/`ASSUMPTION`。

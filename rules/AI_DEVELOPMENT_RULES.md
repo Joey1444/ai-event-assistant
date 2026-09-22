@@ -37,7 +37,7 @@
 
 26. 所有模型调用必须统一走 `lib/ai/provider.ts` 的 `generateText()`（文本）或 `generateImage()`（文生图）；业务代码和 Agent 不得直接 fetch 模型端点，也不得写死 Provider。
 27. Agent 一律用「角色 + Prompt + 工作流」实现，不实现自主多智能体互相通信。
-28. 业务代码中不得出现 DeepSeek / OpenAI / Claude 等具体 Provider 的专属逻辑或字段；文本模型换模型只改 CCSwitch 配置和 `AI_MODEL`，文生图换模型只改 `IMAGE_API_*` 配置。
+28. 业务代码中不得出现 DeepSeek / OpenAI / Claude 等具体 Provider 的专属逻辑或字段；文本模型换模型只改 `AI_BASE_URL` / `AI_MODEL`，文生图换模型只改 `IMAGE_API_*` 配置。
 
 ### B. 事实与真相
 
