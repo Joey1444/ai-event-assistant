@@ -29,3 +29,11 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
 }
+
+/* 侧边栏锚点定位时，给 sticky 的「下一步」顶栏留出空间，避免标题被遮挡 */
+[id^="panel-"],
+#ai-connect,
+#project-detail,
+#approve {
+  scroll-margin-top: 5rem;
+}
