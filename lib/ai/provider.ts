@@ -48,7 +48,7 @@ export async function generateText({
     throw new AiError({
       kind: "unknown",
       message:
-        "未配置文本模型：请在 .env 里设置 AI_BASE_URL / AI_API_KEY / AI_MODEL",
+        "未配置文本模型：请在 .env 里设置 EP_AI_BASE_URL / EP_AI_API_KEY / EP_AI_MODEL",
     });
   }
 
@@ -120,7 +120,7 @@ export async function generateImage({
     throw new AiError({
       kind: "unknown",
       message:
-        "未配置文生图服务：请在 .env 里设置 IMAGE_API_BASE_URL / IMAGE_API_KEY / IMAGE_MODEL",
+        "未配置文生图服务：请在 .env 里设置 EP_IMAGE_API_BASE_URL / EP_IMAGE_API_KEY / EP_IMAGE_MODEL",
     });
   }
 
@@ -130,7 +130,7 @@ export async function generateImage({
   if (!baseURL.startsWith("https://") && !isLocal) {
     throw new AiError({
       kind: "unknown",
-      message: "IMAGE_API_BASE_URL 必须是 https 地址（本机回环地址除外）",
+      message: "EP_IMAGE_API_BASE_URL 必须是 https 地址（本机回环地址除外）",
     });
   }
 

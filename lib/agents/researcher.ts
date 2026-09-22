@@ -52,7 +52,7 @@ export async function runResearcher(input: {
     }
   }
   if (snippets.length === 0) {
-    throw new Error("联网搜索无结果或失败，请检查 TAVILY_API_KEY 与网络");
+    throw new Error("联网搜索无结果或失败，请检查 EP_TAVILY_API_KEY 与网络");
   }
   const researchText = snippets.join("\n\n---\n\n");
 
