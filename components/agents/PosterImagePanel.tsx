@@ -298,12 +298,12 @@ export function PosterImagePanel({
 
         <div className="space-y-2 border-t border-border px-3 py-3">
           <label className="block text-sm font-medium text-ink">
-            人为提示词（可选，优先级高于小莫自动生成的提示词）
+            人工提示（可选，优先级高于小莫自动生成的海报文案）
           </label>
           <textarea
             value={humanPrompt}
             onChange={(e) => setHumanPrompt(e.target.value)}
-            placeholder="补充或覆盖文生图提示词，例如：月亮再大一些、背景用更深蓝、加两盏灯笼"
+            placeholder="例如：右下角预留正方形空白区域，用于放置二维码 / Logo"
             rows={2}
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
           />
@@ -343,7 +343,7 @@ export function PosterImagePanel({
             ))}
           </div>
           <p className="text-xs text-ink-soft">
-            参考图仅作构图/色彩参考；二维码、logo 等精确图形建议生成后手动贴入。
+            参考图仅参考构图色彩风格，二维码 / Logo 请预留空白，后期手动置入。
           </p>
           <div className="flex justify-end">
             <button
