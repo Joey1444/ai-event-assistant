@@ -225,30 +225,38 @@ export default async function ProjectDetailPage({
             decision={toDecisionData(latestDecision)}
           />
 
-          <DetailedPlanPanel
-            id="panel-plan"
-            projectId={project.id}
-            decisionCompleted={decisionCompleted}
-            selectedVariant={latestDecision?.selectedConcept ?? null}
-            latestPlan={toPlanData(latestPlan)}
-          />
+          <div className="max-h-[70vh] overflow-y-auto">
+            <DetailedPlanPanel
+              id="panel-plan"
+              projectId={project.id}
+              decisionCompleted={decisionCompleted}
+              selectedVariant={latestDecision?.selectedConcept ?? null}
+              latestPlan={toPlanData(latestPlan)}
+            />
+          </div>
 
-          <BudgetPanel
-            id="panel-budget"
-            projectId={project.id}
-            latestBudget={toBudgetData(latestBudget)}
-          />
+          <div className="max-h-[70vh] overflow-y-auto">
+            <BudgetPanel
+              id="panel-budget"
+              projectId={project.id}
+              latestBudget={toBudgetData(latestBudget)}
+            />
+          </div>
 
-          <CopyPanel
-            projectId={project.id}
-            latestCopy={toContentData(latestCopy)}
-          />
+          <div className="max-h-[70vh] overflow-y-auto">
+            <CopyPanel
+              projectId={project.id}
+              latestCopy={toContentData(latestCopy)}
+            />
+          </div>
 
-          <PosterImagePanel
-            projectId={project.id}
-            posterContent={toContentData(latestPoster)?.content ?? null}
-            images={posterImages.map(toPosterImageData)}
-          />
+          <div className="max-h-[70vh] overflow-y-auto">
+            <PosterImagePanel
+              projectId={project.id}
+              posterContent={toContentData(latestPoster)?.content ?? null}
+              images={posterImages.map(toPosterImageData)}
+            />
+          </div>
 
           <section className="mt-8">
             <Link

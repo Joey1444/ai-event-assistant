@@ -187,14 +187,13 @@ export function BudgetPanel({
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-lg border border-border bg-card">
+          <div className="overflow-x-auto rounded-lg border border-border bg-card">
             <table className="w-full text-sm">
               <thead className="bg-paper-2 text-left text-xs text-ink-soft">
                 <tr>
                   <th className="px-3 py-2">分类</th>
                   <th className="px-3 py-2">项目</th>
                   <th className="px-3 py-2 text-right">数量</th>
-                  <th className="px-3 py-2">单位</th>
                   <th className="px-3 py-2 text-right">单价</th>
                   <th className="px-3 py-2 text-right">小计</th>
                   <th className="px-3 py-2">来源</th>
@@ -222,22 +221,28 @@ export function BudgetPanel({
                         </div>
                       ) : null}
                     </td>
-                    <td className="px-3 py-2 text-right">
+                    <td className="whitespace-nowrap px-3 py-2 text-right">
                       {editing ? (
-                        <input
-                          type="number"
-                          step="any"
-                          value={item.quantity}
-                          onChange={(e) =>
-                            updateItem(idx, "quantity", Number(e.target.value))
-                          }
-                          className="w-20 rounded border border-border px-1.5 py-1 text-right text-sm"
-                        />
+                        <span className="inline-flex items-center gap-1">
+                          <input
+                            type="number"
+                            step="any"
+                            value={item.quantity}
+                            onChange={(e) =>
+                              updateItem(idx, "quantity", Number(e.target.value))
+                            }
+                            className="w-16 rounded border border-border px-1.5 py-1 text-right text-sm"
+                          />
+                          <span className="text-xs text-ink-soft">
+                            {item.unit}
+                          </span>
+                        </span>
                       ) : (
-                        item.quantity
+                        <>
+                          {item.quantity} {item.unit}
+                        </>
                       )}
                     </td>
-                    <td className="px-3 py-2">{item.unit}</td>
                     <td className="px-3 py-2 text-right">
                       {editing ? (
                         <input
@@ -258,7 +263,7 @@ export function BudgetPanel({
                     </td>
                     <td className="px-3 py-2">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${SOURCE_STYLES[item.source] ?? "bg-paper-2 text-ink-soft"}`}
+                        className={`inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ${SOURCE_STYLES[item.source] ?? "bg-paper-2 text-ink-soft"}`}
                       >
                         {BUDGET_SOURCE_LABELS[item.source] ?? item.source}
                       </span>
