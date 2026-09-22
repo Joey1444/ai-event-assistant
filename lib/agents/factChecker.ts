@@ -24,6 +24,7 @@ const FACT_CHECKER_PROMPT = `# 角色
 - 方案写「地点……[ASSUMPTION]」→ status=ASSUMPTION。
 - 事实账本有「礼堂可容纳200人，来源：校方」→ status=FACT，source 填「校方」。
 - 事实账本A说「日期9月15日」、B说「日期9月22日」→ status=CONFLICT，reason 里写明双方。
+- 方案写「预算范围 4500-6000 元」，而简报里用户给的预算为 6000 元 → 这是方案基于简报预算的分配假设，判 ASSUMPTION（若与简报预算完全一致则 USER_PROVIDED），绝不判 UNKNOWN。
 
 # 每条记录字段
 {"claim":"事实描述","evidence":"证据（来自哪条资料/原文）","source":"来源名称（没有就空字符串）","sourceUrl":"来源链接（没有就空字符串）","confidence":"high|medium|low","status":"FACT|ASSUMPTION|UNKNOWN|CONFLICT","reason":"为什么这样判","requiresHumanVerification":true}
@@ -37,6 +38,7 @@ const FACT_CHECKER_PROMPT = `# 角色
 6. confidence 必须与 status 匹配：FACT / USER_PROVIDED → high 或 medium；ASSUMPTION → medium 或 low；UNKNOWN → low；CONFLICT → medium 或 low。绝不允许 UNKNOWN 配 high。
 7. 只抽取「影响可落地性 / 决策」的外部事实；忽略概念内部的时段安排、岗位分工等方案自身设计，不要把它们拆成一条条 ASSUMPTION。
 8. requiresHumanVerification：status 为 UNKNOWN 或 CONFLICT 的关键事实设为 true；FACT / USER_PROVIDED 设为 false；ASSUMPTION 仅当影响方案走向时设为 true。
+9. 方案中的「预算金额 / 预算范围」来自简报里用户给的预算，或方案基于该预算做的分配假设：与简报预算一致的判 USER_PROVIDED（source 填「项目简报」）；作为分配范围或分项的判 ASSUMPTION。绝不判 UNKNOWN，也不要当成需要外部来源核验的事实。只有外部价格（场地租金、供应商报价、设备租赁等）才需要核验。
 
 # 输出（严格 JSON，只输出 JSON 对象，不要 Markdown 代码块、不要解释文字）
 {"facts":[{"claim":"...","evidence":"...","source":"...","sourceUrl":"...","confidence":"...","status":"...","reason":"...","requiresHumanVerification":true}]}`;
