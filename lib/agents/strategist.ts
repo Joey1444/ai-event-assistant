@@ -1,4 +1,4 @@
-// Event Strategist Agent：根据项目简报 + 研究资料库 + 事实账本，生成三个方向不同的方案
+// Event Strategist Agent：根据项目简报 + 研究资料库 + 事实账本，生成多个方向不同的方案
 import { generateText } from "@/lib/ai/provider";
 import type { ConceptData } from "./types";
 import { parseJsonObject } from "./parse";

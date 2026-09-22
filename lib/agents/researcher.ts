@@ -22,7 +22,8 @@ const RESEARCHER_PROMPT = `# 角色
 # 硬性规则
 1. 只基于「检索到的资料」提取，绝不凭常识编造；资料里没有的，不得写进 facts。
 2. 每条 fact 必须带 source / sourceUrl（来自哪条资料）。
-3. 查不到相关内容就输出空数组，不要硬凑。`;
+3. 查不到相关内容就输出空数组，不要硬凑。
+4. 提高信息密度：一条资料片段应尽量作证多个事实，优先提取能支撑多条 fact 的资料，避免内容重复冗余。`;
 
 export type ResearchItemData = {
   title: string;
@@ -43,7 +44,7 @@ export async function runResearcher(input: {
   const snippets: string[] = [];
   for (const q of input.queries) {
     try {
-      const results = await searchWeb(q, 3);
+      const results = await searchWeb(q, 2);
       for (const r of results) {
         snippets.push(`【标题】${r.title}\n【来源】${r.url}\n【内容】${r.content}`);
       }

@@ -313,24 +313,14 @@ export const COPY_FIELDS = [
   "formalTitle",
   "introZh",
   "introEn",
-  "posterHeadline",
-  "posterSubtitle",
   "socialMedia",
-  "whatsappInvite",
-  "formalInvite",
-  "mcOpening",
 ] as const;
 
 export const COPY_FIELD_LABELS: Record<string, string> = {
   formalTitle: "活动正式标题",
   introZh: "中文活动简介",
   introEn: "英文活动简介",
-  posterHeadline: "海报主标题",
-  posterSubtitle: "海报副标题",
   socialMedia: "社交媒体短文",
-  whatsappInvite: "WhatsApp 邀请文本",
-  formalInvite: "正式邀请文本",
-  mcOpening: "主持人开场词",
 };
 
 export const POSTER_FIELDS = [

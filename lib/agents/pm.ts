@@ -25,7 +25,8 @@ const PM_ROLE_PROMPT = `# 角色
 1. 绝不编造：简报没写的，一律不得当作事实。
 2. blockers 只放真正阻塞策划的硬条件；凡文案/海报阶段才用得到的信息一律进 minorGaps，不得进 blockers。
 3. 推测只能进 assumptions，绝不把推断写成事实。
-4. 缺关键条件（日期/地点/预算/人数/目的）时 canStart 必须为 false，并在 nextStep 里明确请用户补充。`;
+4. 缺关键条件（日期/地点/预算/人数/目的）时 canStart 必须为 false，并在 nextStep 里明确请用户补充。
+5. 提醒要全面但务实：只关注「现实中很可能发生、会明显影响活动」的问题；不要纠结极低概率的极端事件，除非简报里有明确依据。`;
 
 export async function runPmAnalysis(briefText: string): Promise<PmAnalysisData> {
   const text = await generateText({

@@ -40,6 +40,19 @@ export function FactCheckPanel({
 
   const critical = facts.filter((f) => f.requiresHumanVerification);
 
+  // 按严谨性从低到高排列：未知 → 冲突 → 假设 → 用户提供 → 已确认
+  const STATUS_ORDER: Record<string, number> = {
+    UNKNOWN: 0,
+    CONFLICT: 1,
+    ASSUMPTION: 2,
+    USER_PROVIDED: 3,
+    FACT: 4,
+  };
+  const sortedFacts = [...facts].sort(
+    (a, b) =>
+      (STATUS_ORDER[a.status] ?? 5) - (STATUS_ORDER[b.status] ?? 5),
+  );
+
   return (
     <section className="mt-8">
       <div className="flex items-center justify-between">
@@ -83,7 +96,7 @@ export function FactCheckPanel({
           </div>
 
           <div className="mt-3 space-y-3">
-            {facts.map((f, i) => (
+            {sortedFacts.map((f, i) => (
               <FactCard key={i} fact={f} />
             ))}
           </div>
