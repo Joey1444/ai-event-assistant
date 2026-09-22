@@ -1,34 +1,28 @@
 @echo off
-chcp 65001 >nul
-title 分享活动策划项目
+title Share Project
 
 cd /d "%~dp0"
 
-echo ==========================================
-echo   分享活动策划项目给别人
-echo ==========================================
+echo ============================================
+echo   Share this project with others
+echo ============================================
 echo.
-echo 提醒：请先双击打开 CCSwitch 这个软件！
-echo （它是电脑上的 AI 网关，不开的话 AI 功能用不了）
+echo   Step 0: Open CCSwitch app FIRST !!!
 echo.
+echo   [1/3] Starting the website...
+start "Website - DO NOT CLOSE" cmd /k "npm run dev"
 
-echo [1] 正在启动项目网页...
-start "项目网页 - 别关这个窗口" cmd /k "npm run dev"
-
-echo [2] 等网页起来（约 15 秒）...
+echo   [2/3] Waiting 15 seconds for the website...
 timeout /t 15 /nobreak >nul
 
-echo [3] 正在生成公网链接...
+echo   [3/3] Creating the public link...
 echo.
-echo 下面会出现一行 https://xxxx.trycloudflare.com 的链接，
-echo 复制它发给别人就能打开。
+echo   >>> A link like https://xxxx.trycloudflare.com will appear below <<<
+echo   >>> Copy it and send to others <<<
 echo.
-echo 注意：这个窗口和「项目网页」窗口都要一直开着，
-echo      电脑也不能关机/睡眠，链接才有效。
-echo      每次重新运行，链接会变成新的。
-echo.
-echo 如果链接打不开：先等 1 分钟再试；
-echo      还不行就关掉两个窗口，重新双击本脚本。
+echo   Keep BOTH windows open. Do NOT shut down or sleep the PC.
+echo   The link changes every time you rerun this script.
+echo   If it does not open: wait 1 minute, or close both windows and rerun.
 echo.
 cloudflared.exe tunnel --url http://localhost:3000
 
