@@ -66,6 +66,9 @@ export default async function ProjectDetailPage({
     where: { projectId: project.id },
     orderBy: { createdAt: "asc" },
   });
+  // 调研事实（checkedAt 为空，Researcher 产出）与核验事实（checkedAt 有值，FactChecker 产出）分开展示
+  const researchFacts = facts.filter((f) => f.checkedAt === null);
+  const checkFacts = facts.filter((f) => f.checkedAt !== null);
   const researchItems = await prisma.researchItem.findMany({
     where: { projectId: project.id },
     orderBy: { createdAt: "asc" },
@@ -201,7 +204,7 @@ export default async function ProjectDetailPage({
                 source: r.source ?? "",
                 sourceUrl: r.sourceUrl ?? "",
               }))}
-              savedFacts={facts.map(toFactData)}
+              savedFacts={researchFacts.map(toFactData)}
             />
 
             <ConceptPanel
@@ -219,7 +222,7 @@ export default async function ProjectDetailPage({
             <FactCheckPanel
               id="panel-facts"
               projectId={project.id}
-              savedFacts={facts.map(toFactData)}
+              savedFacts={checkFacts.map(toFactData)}
             />
 
             <HumanDecisionGate
@@ -227,7 +230,7 @@ export default async function ProjectDetailPage({
               projectId={project.id}
               concepts={concepts.map(toConceptData)}
               critic={toCritiqueData(latestCritique)}
-              facts={facts.map(toFactData)}
+              facts={checkFacts.map(toFactData)}
               decision={toDecisionData(latestDecision)}
             />
 

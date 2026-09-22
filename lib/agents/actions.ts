@@ -120,7 +120,7 @@ export async function researchProject(
 
     await prisma.$transaction([
       prisma.researchItem.deleteMany({ where: { projectId } }),
-      prisma.fact.deleteMany({ where: { projectId } }),
+      prisma.fact.deleteMany({ where: { projectId, checkedAt: null } }),
       prisma.researchItem.createMany({
         data: result.items.map((item) => ({
           projectId,
@@ -269,7 +269,7 @@ export async function factCheckProject(
     });
 
     await prisma.$transaction([
-      prisma.fact.deleteMany({ where: { projectId } }),
+      prisma.fact.deleteMany({ where: { projectId, checkedAt: { not: null } } }),
       prisma.fact.createMany({
         data: facts.map((f) => ({
           projectId,
@@ -281,6 +281,7 @@ export async function factCheckProject(
           status: f.status,
           reason: f.reason,
           requiresHumanVerification: f.requiresHumanVerification,
+          checkedAt: new Date(),
         })),
       }),
     ]);
