@@ -134,6 +134,7 @@ export type CritiqueResult =
   | { ok: false; error: string };
 
 export type FactData = {
+  id?: string;
   claim: string;
   evidence: string;
   source: string;
@@ -142,6 +143,8 @@ export type FactData = {
   status: string;
   reason: string;
   requiresHumanVerification: boolean;
+  verification?: string | null;
+  humanNote?: string;
 };
 
 export type FactCheckResult =

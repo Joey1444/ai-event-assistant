@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { StepHeading } from "@/components/projects/StepHeading";
-import { factCheckProject } from "@/lib/agents/actions";
+import { factCheckProject, verifyFact } from "@/lib/agents/actions";
 import { CONFIDENCE_LABELS, FACT_STATUS_LABELS, type FactData } from "@/lib/agents/types";
 
 const STATUS_STYLES: Record<string, string> = {
@@ -41,7 +41,28 @@ export function FactCheckPanel({
     });
   }
 
-  const critical = facts.filter((f) => f.requiresHumanVerification);
+  async function handleVerify(
+    factId: string,
+    verification: "verified" | "rejected",
+    note: string,
+  ): Promise<{ ok: boolean; error?: string }> {
+    const r = await verifyFact(projectId, factId, verification, note);
+    if (r.ok) {
+      setFacts((prev) =>
+        prev.map((f) =>
+          f.id === factId
+            ? { ...f, verification, humanNote: note.trim() || undefined }
+            : f,
+        ),
+      );
+      return { ok: true };
+    }
+    return { ok: false, error: r.error };
+  }
+
+  const critical = facts.filter(
+    (f) => f.requiresHumanVerification && !f.verification,
+  );
 
   // 按严谨性从低到高排列：未知 → 冲突 → 假设 → 用户提供 → 已确认
   const STATUS_ORDER: Record<string, number> = {
@@ -105,7 +126,7 @@ export function FactCheckPanel({
                 </div>
                 <div className="space-y-3">
                   {g.items.map((f, i) => (
-                    <FactCard key={i} fact={f} />
+                    <FactCard key={i} fact={f} onVerify={handleVerify} />
                   ))}
                 </div>
               </div>
@@ -121,12 +142,38 @@ export function FactCheckPanel({
   );
 }
 
-function FactCard({ fact }: { fact: FactData }) {
+function FactCard({
+  fact,
+  onVerify,
+}: {
+  fact: FactData;
+  onVerify: (
+    factId: string,
+    verification: "verified" | "rejected",
+    note: string,
+  ) => Promise<{ ok: boolean; error?: string }>;
+}) {
   const badge = STATUS_STYLES[fact.status] ?? "bg-paper-2 text-ink-soft";
+  const [note, setNote] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handle(verification: "verified" | "rejected") {
+    if (!fact.id) return;
+    setError(null);
+    setPending(true);
+    const r = await onVerify(fact.id, verification, note);
+    if (!r.ok) setError(r.error ?? "核验失败，请重试");
+    else setNote("");
+    setPending(false);
+  }
+
+  const needsVerify = fact.requiresHumanVerification && !fact.verification;
+
   return (
     <div
       className={`rounded-lg border bg-card px-4 py-3 ${
-        fact.requiresHumanVerification ? "border-cinnabar" : "border-border"
+        needsVerify ? "border-cinnabar" : "border-border"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -158,9 +205,48 @@ function FactCard({ fact }: { fact: FactData }) {
       {fact.reason ? (
         <div className="mt-1 text-xs text-ink-soft">理由：{fact.reason}</div>
       ) : null}
-      {fact.requiresHumanVerification ? (
-        <div className="mt-1.5 text-xs font-medium text-cinnabar">
-          ⚠️ 需要人工核验
+
+      {needsVerify ? (
+        <div className="mt-2 rounded-lg bg-paper-2 px-3 py-2">
+          <div className="text-xs font-medium text-cinnabar">⚠️ 需要人工核验</div>
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="补充说明（可选）"
+            className="mt-1.5 w-full rounded border border-border bg-card px-2 py-1 text-sm text-ink focus:border-gold focus:outline-none"
+          />
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => handle("verified")}
+              disabled={pending}
+              className="rounded-lg bg-ok px-3 py-1 text-xs font-medium text-paper hover:opacity-90 disabled:opacity-50"
+            >
+              确认
+            </button>
+            <button
+              type="button"
+              onClick={() => handle("rejected")}
+              disabled={pending}
+              className="rounded-lg border border-cinnabar px-3 py-1 text-xs font-medium text-cinnabar hover:bg-cinnabar-soft disabled:opacity-50"
+            >
+              驳回
+            </button>
+          </div>
+          {error ? (
+            <div className="mt-1 text-xs text-cinnabar">{error}</div>
+          ) : null}
+        </div>
+      ) : fact.verification ? (
+        <div
+          className={`mt-1.5 text-xs font-medium ${
+            fact.verification === "verified" ? "text-ok" : "text-cinnabar"
+          }`}
+        >
+          {fact.verification === "verified" ? "✅ 已人工确认" : "❌ 已人工驳回"}
+          {fact.humanNote ? (
+            <span className="text-ink-soft"> · {fact.humanNote}</span>
+          ) : null}
         </div>
       ) : null}
     </div>

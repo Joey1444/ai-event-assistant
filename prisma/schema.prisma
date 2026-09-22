@@ -90,6 +90,8 @@ model Fact {
   reason                    String?
   requiresHumanVerification Boolean   @default(false)
   checkedAt                 DateTime?
+  verification              String?
+  humanNote                 String?
   createdAt                 DateTime  @default(now())
 }
 

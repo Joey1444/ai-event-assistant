@@ -145,6 +145,7 @@ export function toCritiqueData(row: {
 }
 
 export function toFactData(row: {
+  id: string;
   claim: string;
   evidence: string | null;
   source: string | null;
@@ -153,8 +154,11 @@ export function toFactData(row: {
   status: string;
   reason: string | null;
   requiresHumanVerification: boolean;
+  verification: string | null;
+  humanNote: string | null;
 }): FactData {
   return {
+    id: row.id,
     claim: row.claim,
     evidence: row.evidence ?? "",
     source: row.source ?? "",
@@ -163,6 +167,8 @@ export function toFactData(row: {
     status: row.status,
     reason: row.reason ?? "",
     requiresHumanVerification: row.requiresHumanVerification,
+    verification: row.verification,
+    humanNote: row.humanNote ?? "",
   };
 }
 

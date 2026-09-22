@@ -291,6 +291,28 @@ export async function factCheckProject(
   }
 }
 
+// 人工核验事实：把需要人工确认的事实标记为「已确认」或「已驳回」，可附补充说明。
+export async function verifyFact(
+  projectId: string,
+  factId: string,
+  verification: "verified" | "rejected",
+  note?: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const fact = await prisma.fact.findFirst({
+    where: { id: factId, projectId },
+  });
+  if (!fact) return { ok: false, error: "事实不存在" };
+
+  await prisma.fact.update({
+    where: { id: factId },
+    data: {
+      verification,
+      humanNote: note?.trim() ? note.trim() : null,
+    },
+  });
+  return { ok: true };
+}
+
 export async function selectConcept(
   projectId: string,
   variant: string,
