@@ -39,7 +39,7 @@ export function PosterImagePanel({
   const [humanPrompt, setHumanPrompt] = useState("");
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [instruction, setInstruction] = useState("");
-  const [showPoster, setShowPoster] = useState(false);
+  const [showPoster, setShowPoster] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
