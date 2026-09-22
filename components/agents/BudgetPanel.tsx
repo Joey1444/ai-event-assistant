@@ -194,33 +194,37 @@ export function BudgetPanel({
                 <tr>
                   <th className="px-3 py-2">分类</th>
                   <th className="px-3 py-2">项目</th>
-                  <th className="px-3 py-2 text-right">数量</th>
-                  <th className="px-3 py-2 text-right">单价</th>
+                  <th className="px-3 py-2 text-right">数量 × 单价</th>
                   <th className="px-3 py-2 text-right">小计</th>
                   <th className="px-3 py-2">来源</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {displayItems.map((item, idx) => (
-                  <tr key={idx} className="align-top">
+                  <tr key={idx} className="align-middle">
                     <td className="px-3 py-2 text-xs text-ink-soft">
                       {BUDGET_CATEGORY_LABELS[item.category] ?? item.category}
                     </td>
                     <td className="px-3 py-2">
-                      <div>{item.item}</div>
-                      {item.confidence ? (
-                        <div
-                          className="mt-0.5 text-xs text-ink-soft"
-                          title="小莫对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
-                        >
-                          置信度：{CONFIDENCE_LABELS[item.confidence] ?? item.confidence}
-                        </div>
-                      ) : null}
-                      {item.notes ? (
-                        <div className="mt-0.5 text-xs text-ink-soft">
-                          {item.notes}
-                        </div>
-                      ) : null}
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span>{item.item}</span>
+                        {item.confidence ? (
+                          <span
+                            className="shrink-0 rounded bg-paper-2 px-1.5 py-0.5 text-[10px] font-medium text-ink-soft"
+                            title="小莫对自己判断的把握程度：高=很确定，中=基本确定，低=猜测，需要你核实"
+                          >
+                            {CONFIDENCE_LABELS[item.confidence] ?? item.confidence}
+                          </span>
+                        ) : null}
+                        {item.notes ? (
+                          <span
+                            className="shrink-0 cursor-help rounded bg-gold-soft px-1.5 py-0.5 text-[10px] font-medium text-gold"
+                            title={item.notes}
+                          >
+                            有备注
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="whitespace-nowrap px-3 py-2 text-right">
                       {editing ? (
@@ -232,31 +236,26 @@ export function BudgetPanel({
                             onChange={(e) =>
                               updateItem(idx, "quantity", Number(e.target.value))
                             }
-                            className="w-16 rounded border border-border px-1.5 py-1 text-right text-sm"
+                            className="w-14 rounded border border-border px-1.5 py-1 text-right text-sm"
                           />
                           <span className="text-xs text-ink-soft">
-                            {item.unit}
+                            {item.unit} ×
                           </span>
+                          <input
+                            type="number"
+                            step="any"
+                            value={item.unitPrice}
+                            onChange={(e) =>
+                              updateItem(idx, "unitPrice", Number(e.target.value))
+                            }
+                            className="w-20 rounded border border-border px-1.5 py-1 text-right text-sm"
+                          />
                         </span>
                       ) : (
                         <>
-                          {item.quantity} {item.unit}
+                          {item.quantity} {item.unit} ×{" "}
+                          {money(item.unitPrice, currency)}
                         </>
-                      )}
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      {editing ? (
-                        <input
-                          type="number"
-                          step="any"
-                          value={item.unitPrice}
-                          onChange={(e) =>
-                            updateItem(idx, "unitPrice", Number(e.target.value))
-                          }
-                          className="w-24 rounded border border-border px-1.5 py-1 text-right text-sm"
-                        />
-                      ) : (
-                        money(item.unitPrice, currency)
                       )}
                     </td>
                     <td className="px-3 py-2 text-right font-medium">

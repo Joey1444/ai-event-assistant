@@ -39,6 +39,7 @@ export function PosterImagePanel({
   const [humanPrompt, setHumanPrompt] = useState("");
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
   const [instruction, setInstruction] = useState("");
+  const [showPoster, setShowPoster] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -81,6 +82,7 @@ export function PosterImagePanel({
   function startEditPoster() {
     setPosterDraft(posterContent ?? {});
     setEditingPoster(true);
+    setShowPoster(true);
   }
 
   function handleSavePoster() {
@@ -119,21 +121,7 @@ export function PosterImagePanel({
 
   return (
     <section id={id} className="mt-8">
-      <div className="flex items-center justify-between">
-        <StepHeading id="poster" />
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={isPending}
-          className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
-        >
-          {isPending
-            ? "生成中…（约 20-60 秒）"
-            : images.length > 0
-              ? "重新生成"
-              : "生成海报图片"}
-        </button>
-      </div>
+      <StepHeading id="poster" />
 
       {error ? (
         <div className="mt-3 rounded-lg border border-cinnabar-soft bg-cinnabar-soft px-4 py-3 text-sm text-cinnabar">
@@ -141,127 +129,7 @@ export function PosterImagePanel({
         </div>
       ) : null}
 
-      {/* 海报文案（作为文生图输入，可编辑） */}
-      <div className="mt-3">
-        <div className="flex items-center justify-between">
-          <div className="text-xs font-medium text-ink-soft">海报文案（作为文生图输入，可编辑）</div>
-          {posterContent && !editingPoster ? (
-            <button
-              type="button"
-              onClick={startEditPoster}
-              className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-paper-2"
-            >
-              编辑
-            </button>
-          ) : null}
-          {editingPoster ? (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleSavePoster}
-                disabled={isPending}
-                className="rounded-lg bg-ink px-3 py-1 text-xs font-medium text-paper hover:bg-gold disabled:opacity-50"
-              >
-                {isPending ? "保存中…" : "保存"}
-              </button>
-              <button
-                type="button"
-                onClick={() => setEditingPoster(false)}
-                className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-paper-2"
-              >
-                取消
-              </button>
-            </div>
-          ) : null}
-        </div>
-        {editingPoster ? (
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {POSTER_FIELDS.map((key) => (
-              <div key={key} className="rounded-lg border border-border bg-paper-2 px-3 py-2">
-                <label className="block text-xs font-medium text-ink-soft">
-                  {POSTER_FIELD_LABELS[key]}
-                </label>
-                <textarea
-                  value={posterDraft[key] ?? ""}
-                  onChange={(e) =>
-                    setPosterDraft((d) => ({ ...d, [key]: e.target.value }))
-                  }
-                  rows={2}
-                  className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1 text-sm text-ink focus:border-gold focus:outline-none"
-                />
-              </div>
-            ))}
-          </div>
-        ) : posterContent ? (
-          <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {POSTER_FIELDS.map((key) => (
-              <div key={key} className="rounded-lg border border-border bg-paper-2 px-3 py-2">
-                <div className="text-xs font-medium text-ink-soft">
-                  {POSTER_FIELD_LABELS[key]}
-                </div>
-                <div className="mt-0.5 text-sm text-ink">
-                  {posterContent[key] || "—"}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="mt-2 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-3 text-sm text-ink-soft">
-            还没有海报文案。点击「生成海报图片」时会自动生成。
-          </div>
-        )}
-      </div>
-
-      {/* 人为提示词（优先级高于小莫自动生成）+ 图片元素 */}
-      <div className="mt-3 space-y-1.5">
-        <label className="block text-sm font-medium text-ink">
-          人为提示词（可选，优先级高于小莫自动生成的提示词）
-        </label>
-        <textarea
-          value={humanPrompt}
-          onChange={(e) => setHumanPrompt(e.target.value)}
-          placeholder="补充或覆盖文生图提示词，例如：月亮再大一些、背景用更深蓝、加两盏灯笼"
-          rows={2}
-          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
-        />
-        <div className="flex flex-wrap items-center gap-2">
-          <label
-            className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2"
-            title="二维码、logo 等精确图形文生图还原度低，可能无法识别；建议留白后手动贴入"
-          >
-            添加参考图片元素（二维码等精确图形还原度低）
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
-          {referenceImages.map((img, i) => (
-            <div key={i} className="relative">
-              {/* base64 data URL 无法被 next/image 优化，用原生 img */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={img}
-                alt={`元素 ${i + 1}`}
-                className="h-14 w-14 rounded-lg border border-border object-cover"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setReferenceImages((prev) => prev.filter((_, idx) => idx !== i))
-                }
-                className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-cinnabar text-xs text-paper"
-                aria-label={`移除元素 ${i + 1}`}
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
+      {/* 生成结果（主） */}
       {selected ? (
         <div className="mt-3 space-y-3">
           <div className="overflow-hidden rounded-xl border border-border bg-card p-4">
@@ -302,7 +170,6 @@ export function PosterImagePanel({
                     img.id === selectedId ? "border-gold" : "border-border"
                   }`}
                 >
-                  {/* base64 data URL 无法被 next/image 优化，用原生 img */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={img.imageDataUrl}
@@ -337,9 +204,163 @@ export function PosterImagePanel({
         </div>
       ) : (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
-          还没有海报图片。点击「生成海报图片」，小莫会用海报文案（可加人为提示词和图片元素）生成第一张海报。
+          还没有海报图片。在下方「生成输入」里点击「生成海报图片」，小莫会用海报文案（可加人为提示词和图片元素）生成第一张海报。
         </div>
       )}
+
+      {/* 生成输入（次要） */}
+      <div className="mt-3 rounded-lg border border-border bg-card">
+        <div className="flex items-center justify-between px-3 py-2">
+          <button
+            type="button"
+            onClick={() => setShowPoster((v) => !v)}
+            className="flex items-center gap-1 text-xs font-medium text-ink-soft hover:text-ink"
+          >
+            海报文案
+            <span className="text-[10px]">{showPoster ? "▾" : "▸"}</span>
+          </button>
+          {posterContent && !editingPoster ? (
+            <button
+              type="button"
+              onClick={startEditPoster}
+              className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-paper-2"
+            >
+              编辑
+            </button>
+          ) : null}
+          {editingPoster ? (
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleSavePoster}
+                disabled={isPending}
+                className="rounded-lg bg-ink px-3 py-1 text-xs font-medium text-paper hover:bg-gold disabled:opacity-50"
+              >
+                {isPending ? "保存中…" : "保存"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditingPoster(false)}
+                className="rounded-lg border border-border px-3 py-1 text-xs font-medium text-ink hover:bg-paper-2"
+              >
+                取消
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {showPoster || editingPoster ? (
+          <div className="border-t border-border px-3 py-2">
+            {editingPoster ? (
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {POSTER_FIELDS.map((key) => (
+                  <div
+                    key={key}
+                    className="rounded-lg border border-border bg-paper-2 px-3 py-2"
+                  >
+                    <label className="block text-xs font-medium text-ink-soft">
+                      {POSTER_FIELD_LABELS[key]}
+                    </label>
+                    <textarea
+                      value={posterDraft[key] ?? ""}
+                      onChange={(e) =>
+                        setPosterDraft((d) => ({ ...d, [key]: e.target.value }))
+                      }
+                      rows={2}
+                      className="mt-1 w-full rounded-lg border border-border bg-card px-2 py-1 text-sm text-ink focus:border-gold focus:outline-none"
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : posterContent ? (
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {POSTER_FIELDS.map((key) => (
+                  <div
+                    key={key}
+                    className="rounded-lg border border-border bg-paper-2 px-3 py-2"
+                  >
+                    <div className="text-xs font-medium text-ink-soft">
+                      {POSTER_FIELD_LABELS[key]}
+                    </div>
+                    <div className="mt-0.5 text-sm text-ink">
+                      {posterContent[key] || "—"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-border bg-paper-2 px-4 py-3 text-sm text-ink-soft">
+                还没有海报文案。点击「生成海报图片」时会自动生成。
+              </div>
+            )}
+          </div>
+        ) : null}
+
+        <div className="space-y-2 border-t border-border px-3 py-3">
+          <label className="block text-sm font-medium text-ink">
+            人为提示词（可选，优先级高于小莫自动生成的提示词）
+          </label>
+          <textarea
+            value={humanPrompt}
+            onChange={(e) => setHumanPrompt(e.target.value)}
+            placeholder="补充或覆盖文生图提示词，例如：月亮再大一些、背景用更深蓝、加两盏灯笼"
+            rows={2}
+            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <label
+              className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2"
+              title="二维码、logo 等精确图形文生图还原度低，可能无法识别；建议留白后手动贴入"
+            >
+              添加参考图片元素（二维码等精确图形还原度低）
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </label>
+            {referenceImages.map((img, i) => (
+              <div key={i} className="relative">
+                {/* base64 data URL 无法被 next/image 优化，用原生 img */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={img}
+                  alt={`元素 ${i + 1}`}
+                  className="h-14 w-14 rounded-lg border border-border object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setReferenceImages((prev) =>
+                      prev.filter((_, idx) => idx !== i),
+                    )
+                  }
+                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-cinnabar text-xs text-paper"
+                  aria-label={`移除元素 ${i + 1}`}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={isPending}
+              className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper hover:bg-gold disabled:opacity-50"
+            >
+              {isPending
+                ? "生成中…（约 20-60 秒）"
+                : images.length > 0
+                  ? "重新生成"
+                  : "生成海报图片"}
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
