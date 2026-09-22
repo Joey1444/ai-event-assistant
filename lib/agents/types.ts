@@ -213,7 +213,6 @@ export const PLAN_SECTIONS = [
   "venue",
   "materials",
   "promotion",
-  "budget",
   "risk",
   "dayOfSchedule",
   "evaluation",
@@ -232,10 +231,9 @@ export const PLAN_SECTION_LABELS: Record<string, string> = {
   venue: "十、场地需求",
   materials: "十一、物料需求",
   promotion: "十二、宣传计划",
-  budget: "十三、预算",
-  risk: "十四、风险管理",
-  dayOfSchedule: "十五、活动当天执行表",
-  evaluation: "十六、评估指标",
+  risk: "十三、风险管理",
+  dayOfSchedule: "十四、活动当天执行表",
+  evaluation: "十五、评估指标",
 };
 
 export type BudgetItemData = {

@@ -69,10 +69,10 @@ export const AGENTS: AgentMeta[] = [
   {
     id: "planner",
     name: "详细方案策划师",
-    role: "把已选方案展开成 16 章节可执行方案",
+    role: "把已选方案展开成 15 章节可执行方案",
     file: "planner.ts",
     input: "已选方案 / 简报 / 研究 / 事实账本",
-    output: "16 章节方案",
+    output: "15 章节方案",
     requiresPlan: false,
   },
   {

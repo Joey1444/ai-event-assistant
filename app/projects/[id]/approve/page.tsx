@@ -216,13 +216,13 @@ function FieldView({
 }) {
   return (
     <div className="space-y-2">
-      {Object.entries(data).map(([k, v]) => (
+      {Object.entries(labels).map(([k, label]) => (
         <div key={k}>
           <div className="text-xs font-medium text-ink-soft">
-            {labels[k] ?? k}
+            {label}
           </div>
           <div className="mt-0.5 whitespace-pre-wrap text-sm text-ink">
-            {v || "—"}
+            {data[k] || "—"}
           </div>
         </div>
       ))}
