@@ -124,28 +124,19 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      {/* 顶部固定区：返回 / 项目名 / 步骤条 / 操作按钮 */}
-      <header className="shrink-0 border-b border-border px-6 py-4">
-        <Link href="/" className="text-sm text-ink-soft hover:text-ink">
-          ← 返回项目列表
+      {/* 矮顶栏：返回 / 项目名 / 状态 / 编辑 / 删除 */}
+      <header className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-2.5">
+        <Link href="/" className="shrink-0 text-sm text-ink-soft hover:text-ink">
+          ← 返回
         </Link>
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <h1 className="font-serif text-2xl font-bold text-ink">
-            {project.projectName}
-          </h1>
-          <Badge tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Badge>
-        </div>
-        <p className="mt-1 text-ink-soft">{project.organization}</p>
-        <div className="mt-3">
-          <NextActionBar action={nextAction} />
-        </div>
-        <div className="mt-3 rounded-xl border border-border bg-card px-4 py-3">
-          <WorkflowStepper current={project.status} />
-        </div>
-        <div className="mt-3 flex gap-3">
+        <h1 className="min-w-0 flex-1 truncate font-serif text-base font-bold text-ink">
+          {project.projectName}
+        </h1>
+        <Badge tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Badge>
+        <div className="flex shrink-0 items-center gap-2">
           <Link
             href={`/projects/${project.id}/edit`}
-            className="rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-gold"
+            className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-ink hover:bg-paper-2"
           >
             编辑
           </Link>
@@ -153,41 +144,49 @@ export default async function ProjectDetailPage({
         </div>
       </header>
 
-      {/* 主体滚动区：各区块独立滚动，互不干扰 */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-6 py-6">
-        <section className="max-h-[60vh] overflow-y-auto">
-          <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-            AI 连接
-          </h2>
-          <AiTestPanel initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"} />
-        </section>
+      {/* 主体：限宽居中，统一滚动 */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <div className="mx-auto w-full max-w-3xl px-6 py-6">
+          <div className="space-y-3">
+            <NextActionBar action={nextAction} />
+            <div className="rounded-xl border border-border bg-card px-4 py-3">
+              <WorkflowStepper current={project.status} />
+            </div>
+          </div>
 
-        <section className="mt-8 max-h-[60vh] overflow-y-auto">
-          <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-            项目详情
-          </h2>
-          <dl className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-            <Row label="活动类型" value={project.brief?.eventType} />
-            <Row label="活动日期" value={project.brief?.eventDate} />
-            <Row label="预计人数" value={project.brief?.expectedParticipants} />
-            <Row label="预算" value={project.brief?.budget} />
-            <Row label="活动地点" value={project.brief?.location} />
-            <Row label="目标人群" value={project.brief?.targetAudience} />
-            <Row label="活动目的" value={project.brief?.objective} />
-            <Row label="已知要求" value={project.brief?.requirements} />
-            <Row label="其他备注" value={project.brief?.notes} />
-          </dl>
-        </section>
+          <section className="mt-8">
+            <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
+              AI 连接
+            </h2>
+            <AiTestPanel
+              initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"}
+            />
+          </section>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
+          <section className="mt-8">
+            <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
+              项目详情
+            </h2>
+            <dl className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
+              <Row label="主办机构" value={project.organization} />
+              <Row label="活动类型" value={project.brief?.eventType} />
+              <Row label="活动日期" value={project.brief?.eventDate} />
+              <Row label="预计人数" value={project.brief?.expectedParticipants} />
+              <Row label="预算" value={project.brief?.budget} />
+              <Row label="活动地点" value={project.brief?.location} />
+              <Row label="目标人群" value={project.brief?.targetAudience} />
+              <Row label="活动目的" value={project.brief?.objective} />
+              <Row label="已知要求" value={project.brief?.requirements} />
+              <Row label="其他备注" value={project.brief?.notes} />
+            </dl>
+          </section>
+
           <PmAnalysisPanel
             id="panel-pm"
             projectId={project.id}
             savedAnalysis={toAnalysisData(latestAnalysis)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <ResearcherPanel
             id="panel-research"
             projectId={project.id}
@@ -199,32 +198,24 @@ export default async function ProjectDetailPage({
             }))}
             savedFacts={facts.map(toFactData)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <ConceptPanel
             id="panel-concept"
             projectId={project.id}
             savedConcepts={concepts.map(toConceptData)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <CriticPanel
             id="panel-critic"
             projectId={project.id}
             savedCritique={toCritiqueData(latestCritique)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <FactCheckPanel
             projectId={project.id}
             savedFacts={facts.map(toFactData)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <HumanDecisionGate
             id="panel-decision"
             projectId={project.id}
@@ -233,9 +224,7 @@ export default async function ProjectDetailPage({
             facts={facts.map(toFactData)}
             decision={toDecisionData(latestDecision)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <DetailedPlanPanel
             id="panel-plan"
             projectId={project.id}
@@ -243,33 +232,25 @@ export default async function ProjectDetailPage({
             selectedVariant={latestDecision?.selectedConcept ?? null}
             latestPlan={toPlanData(latestPlan)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <BudgetPanel
             id="panel-budget"
             projectId={project.id}
             latestBudget={toBudgetData(latestBudget)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <CopyPanel
             projectId={project.id}
             latestCopy={toContentData(latestCopy)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
           <PosterImagePanel
             projectId={project.id}
             posterContent={toContentData(latestPoster)?.content ?? null}
             images={posterImages.map(toPosterImageData)}
           />
-        </div>
 
-        <div className="mt-8 max-h-[60vh] overflow-y-auto">
-          <section>
+          <section className="mt-8">
             <Link
               href={`/projects/${project.id}/approve`}
               className="block rounded-xl bg-gold px-5 py-3.5 text-center font-serif text-base font-semibold text-paper transition-colors hover:bg-ink"
