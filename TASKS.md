@@ -24,7 +24,7 @@
 - [x] 接入文生图模型（直连第三方 DashScope 原生 API + posterDesigner agent + 历史版本对比 + 图生图修改）
 - [ ] 海报图片历史版本首屏只传最新 + 缩略图（当前全量 base64 会随版本数膨胀）
 - [ ] 文生图 action 鉴权 / 限流（对外部署前）
-- [ ] 文案一键复制按钮（`components/ui/CopyButton.tsx`，纯前端 `navigator.clipboard`）
+- [x] 文案一键复制按钮（`components/ui/CopyButton.tsx`，纯前端 `navigator.clipboard`）
 - [ ] 方案导出 Word / 预算导出 Excel（`lib/exportText.ts` + `lib/download.ts`）
 - [ ] 各面板加载进度与预计时间提示（「约 20~60 秒，请勿离开本页」）
 - [ ] 审批三按钮后果说明（批准=流程结束 / 驳回=打回重做 / 要求修改=退回改后再审）
