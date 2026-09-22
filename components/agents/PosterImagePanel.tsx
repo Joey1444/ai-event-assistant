@@ -289,7 +289,7 @@ export function PosterImagePanel({
                 ))}
               </div>
             ) : (
-              <div className="rounded-lg border border-dashed border-border bg-paper-2 px-4 py-3 text-sm text-ink-soft">
+              <div className="rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
                 还没有海报文案。点击「生成海报图片」时会自动生成。
               </div>
             )}
@@ -308,11 +308,8 @@ export function PosterImagePanel({
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-ink focus:border-gold focus:outline-none"
           />
           <div className="flex flex-wrap items-center gap-2">
-            <label
-              className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2"
-              title="二维码、logo 等精确图形文生图还原度低，可能无法识别；建议留白后手动贴入"
-            >
-              添加参考图片元素（二维码等精确图形还原度低）
+            <label className="cursor-pointer rounded-lg border border-border px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-2">
+              添加参考图片
               <input
                 type="file"
                 accept="image/*"
@@ -345,6 +342,9 @@ export function PosterImagePanel({
               </div>
             ))}
           </div>
+          <p className="text-xs text-ink-soft">
+            参考图仅作构图/色彩参考；二维码、logo 等精确图形建议生成后手动贴入。
+          </p>
           <div className="flex justify-end">
             <button
               type="button"

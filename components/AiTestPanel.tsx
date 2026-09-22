@@ -25,7 +25,7 @@ export function AiTestPanel({ initialStatus }: { initialStatus: string }) {
   const connected = status === "CONNECTED";
 
   return (
-    <div className="mt-8">
+    <div className="mt-3">
       <div className="flex items-center gap-3">
         <span className="text-sm text-ink-soft">状态：</span>
         <span

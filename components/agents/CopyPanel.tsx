@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { StepHeading } from "@/components/projects/StepHeading";
+import { CopyButton } from "@/components/ui/CopyButton";
 import { generateCopy, saveCopyVersion } from "@/lib/agents/actions";
 import {
   COPY_FIELDS,
@@ -162,8 +163,13 @@ export function CopyPanel({
                 key={key}
                 className="rounded-lg border border-border bg-card px-4 py-3"
               >
-                <div className="text-xs font-medium text-ink-soft">
-                  {COPY_FIELD_LABELS[key]}
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-medium text-ink-soft">
+                    {COPY_FIELD_LABELS[key]}
+                  </div>
+                  {data.content[key] ? (
+                    <CopyButton text={data.content[key]} />
+                  ) : null}
                 </div>
                 <div className="mt-1 whitespace-pre-wrap text-sm text-ink">
                   {data.content[key] || "—"}
