@@ -311,7 +311,7 @@ function SummaryStat({
     <div className="rounded-lg border border-border bg-paper-2 px-2 py-2">
       <div className="text-xs text-ink-soft">{label}</div>
       <div
-        className={`mt-0.5 text-sm font-semibold ${highlight ? "text-ink" : "text-ink"}`}
+        className={`mt-0.5 text-sm font-semibold ${highlight ? "text-gold" : "text-ink"}`}
       >
         {value}
       </div>

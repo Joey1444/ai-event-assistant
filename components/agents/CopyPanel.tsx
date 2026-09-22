@@ -12,9 +12,11 @@ import {
 export function CopyPanel({
   projectId,
   latestCopy,
+  id,
 }: {
   projectId: string;
   latestCopy: VersionedContentData | null;
+  id?: string;
 }) {
   const [data, setData] = useState<VersionedContentData | null>(latestCopy);
   const [editing, setEditing] = useState(false);
@@ -67,7 +69,7 @@ export function CopyPanel({
   }
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">11. 宣传文案</h2>
         <div className="flex gap-2">

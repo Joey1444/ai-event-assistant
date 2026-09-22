@@ -16,9 +16,11 @@ const STATUS_STYLES: Record<string, string> = {
 export function FactCheckPanel({
   projectId,
   savedFacts,
+  id,
 }: {
   projectId: string;
   savedFacts: FactData[];
+  id?: string;
 }) {
   const [facts, setFacts] = useState<FactData[]>(savedFacts);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export function FactCheckPanel({
   );
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">7. 事实核验</h2>
         <button

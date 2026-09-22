@@ -144,20 +144,11 @@ export default async function ProjectDetailPage({
             {project.projectName}
           </h1>
           <Badge tone={STATUS_TONES[status]}>{STATUS_LABELS[status]}</Badge>
-          <div className="flex shrink-0 items-center gap-2">
-            <Link
-              href={`/projects/${project.id}/edit`}
-              className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-ink hover:bg-paper-2"
-            >
-              编辑
-            </Link>
-            <DeleteProjectButton id={project.id} />
-          </div>
         </header>
 
         {/* 主体滚动 */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="mx-auto w-full max-w-3xl px-6 py-6">
+          <div className="w-full max-w-4xl px-6 py-6">
             <NextActionBar action={nextAction} />
 
             <section id="ai-connect" className="mt-8">
@@ -170,9 +161,20 @@ export default async function ProjectDetailPage({
             </section>
 
             <section id="project-detail" className="mt-8">
-              <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-                2. 项目详情
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
+                  2. 项目详情
+                </h2>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/projects/${project.id}/edit`}
+                    className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-ink hover:bg-paper-2"
+                  >
+                    编辑
+                  </Link>
+                  <DeleteProjectButton id={project.id} />
+                </div>
+              </div>
               <dl className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
                 <Row label="主办机构" value={project.organization} />
                 <Row label="活动类型" value={project.brief?.eventType} />

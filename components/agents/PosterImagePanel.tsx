@@ -17,10 +17,12 @@ export function PosterImagePanel({
   projectId,
   posterContent: initialPosterContent,
   images: initialImages,
+  id,
 }: {
   projectId: string;
   posterContent: Record<string, string> | null;
   images: PosterImageData[];
+  id?: string;
 }) {
   const [images, setImages] = useState<PosterImageData[]>(initialImages);
   const [selectedId, setSelectedId] = useState<string | null>(
@@ -115,7 +117,7 @@ export function PosterImagePanel({
   }
 
   return (
-    <section className="mt-8">
+    <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
           12. 海报图片
