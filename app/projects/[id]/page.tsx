@@ -153,7 +153,7 @@ export default async function ProjectDetailPage({
 
         {/* 主体滚动 */}
         <div className="flex-1 min-h-0 overflow-y-auto">
-          <div className="w-full max-w-4xl px-6 py-6">
+          <div className="mx-auto w-full max-w-4xl px-6 py-6">
             <NextActionBar action={nextAction} />
 
             <section id="ai-connect" className="mt-8">
