@@ -226,7 +226,7 @@ export function BudgetPanel({
                         ) : null}
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-2 text-right">
+                    <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums">
                       {editing ? (
                         <span className="inline-flex items-center gap-1">
                           <input
@@ -254,11 +254,11 @@ export function BudgetPanel({
                       ) : (
                         <>
                           {item.quantity} {item.unit} ×{" "}
-                          {money(item.unitPrice, currency)}
+                          {item.unitPrice.toFixed(2)}
                         </>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-right font-medium">
+                    <td className="px-3 py-2 text-right font-medium tabular-nums">
                       {money(item.quantity * item.unitPrice, currency)}
                     </td>
                     <td className="px-3 py-2">
@@ -311,7 +311,7 @@ function SummaryStat({
     <div className="rounded-lg border border-border bg-paper-2 px-2 py-2">
       <div className="text-xs text-ink-soft">{label}</div>
       <div
-        className={`mt-0.5 text-sm font-semibold ${highlight ? "text-gold" : "text-ink"}`}
+        className={`mt-0.5 text-sm font-semibold tabular-nums ${highlight ? "text-gold" : "text-ink"}`}
       >
         {value}
       </div>
