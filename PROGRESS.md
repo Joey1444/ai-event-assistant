@@ -12,6 +12,7 @@
 ## 变更日志
 
 <!-- 每轮追加一行：`- [日期] 内容（提交 hash）` -->
+- [2026-09-22] 修复事实流转三处问题：调研事实不再被核验事实覆盖（`checkedAt` 分流，两面板各显各的）；事实核验不再把方案预算范围误判 UNKNOWN（提示词规则 9）；事实人工核验落地（`verification`/`humanNote` 字段 + `verifyFact` action + 确认/驳回/补充说明 UI，事实状态机 human_verified/rejected 落库）
 - [2026-09-22] 详情页 UI 重构（基于代码审查反馈，5 个批次）：去掉面板嵌套滚动 + 删除确认改 modal + 详细方案折叠；序号单一事实来源（`lib/steps.ts` + `StepHeading`）+ 边栏步骤条打磨；预算表减负 + 海报面板结果优先；状态色 token 化（`ok`/`info`）+ 事实核验去重分组；文案单字段复制等打磨项
 - [2026-09-21] 接入文生图 + 新增 PosterDesigner Agent + 删除 Designer：`generateImage()` 直连第三方 DashScope 原生 API（key 走 `EP_IMAGE_API_*` 服务端 env，含 MIME 魔数校验）；新增 `posterDesigner` agent（海报文案→文生图提示词，首图/图生图双模式）；新增 `PosterImage` 表（历史版本对比 + 基于上一张图修改）；删除 designer（HTML 海报）及其全部引用；表数 16→16（PosterDesign→PosterImage）
 - [2026-09-20] 同步文档：Researcher Agent 已实现（`researcher.ts` + `ResearcherPanel` + registry/actions 接入，Tavily 联网检索）；README/TASKS 补齐 Researcher 与 `EP_TAVILY_API_KEY`；prisma 表数 18→16
