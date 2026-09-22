@@ -69,7 +69,7 @@ export function CopyPanel({
   return (
     <section className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">宣传文案</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">11. 宣传文案</h2>
         <div className="flex gap-2">
           {editing ? (
             <>

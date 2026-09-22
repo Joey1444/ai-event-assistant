@@ -162,16 +162,16 @@ export default async function ProjectDetailPage({
 
             <section id="ai-connect" className="mt-8">
               <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-                AI 连接
+                1. AI 连接
               </h2>
               <AiTestPanel
                 initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"}
               />
             </section>
 
-            <section className="mt-8">
+            <section id="project-detail" className="mt-8">
               <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-                项目详情
+                2. 项目详情
               </h2>
               <dl className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
                 <Row label="主办机构" value={project.organization} />
@@ -218,6 +218,7 @@ export default async function ProjectDetailPage({
             />
 
             <FactCheckPanel
+              id="panel-facts"
               projectId={project.id}
               savedFacts={facts.map(toFactData)}
             />
@@ -251,6 +252,7 @@ export default async function ProjectDetailPage({
 
             <div className="max-h-[70vh] overflow-y-auto">
               <CopyPanel
+                id="panel-copy"
                 projectId={project.id}
                 latestCopy={toContentData(latestCopy)}
               />
@@ -258,6 +260,7 @@ export default async function ProjectDetailPage({
 
             <div className="max-h-[70vh] overflow-y-auto">
               <PosterImagePanel
+                id="panel-poster"
                 projectId={project.id}
                 posterContent={toContentData(latestPoster)?.content ?? null}
                 images={posterImages.map(toPosterImageData)}

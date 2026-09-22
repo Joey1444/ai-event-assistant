@@ -118,7 +118,7 @@ export function PosterImagePanel({
     <section className="mt-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">
-          海报图片
+          12. 海报图片
         </h2>
         <button
           type="button"

@@ -35,7 +35,7 @@ export function PmAnalysisPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">项目经理分析</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">3. 项目经理分析</h2>
         <button
           type="button"
           onClick={handleRun}

@@ -76,7 +76,7 @@ export function DetailedPlanPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">详细活动方案</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">9. 详细活动方案</h2>
         {decisionCompleted ? (
           <div className="flex gap-2">
             {editing ? (

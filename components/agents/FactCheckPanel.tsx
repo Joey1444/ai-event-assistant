@@ -56,7 +56,7 @@ export function FactCheckPanel({
   return (
     <section className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">事实核验</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">7. 事实核验</h2>
         <button
           type="button"
           onClick={handleRun}

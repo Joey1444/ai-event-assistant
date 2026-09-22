@@ -99,7 +99,7 @@ export function BudgetPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">预算</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">10. 预算</h2>
         <div className="flex gap-2">
           {editing ? (
             <>

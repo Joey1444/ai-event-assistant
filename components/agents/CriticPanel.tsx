@@ -40,7 +40,7 @@ export function CriticPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">小莫评审</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">6. 小莫评审</h2>
         <button
           type="button"
           onClick={handleRun}

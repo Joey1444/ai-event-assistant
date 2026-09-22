@@ -59,7 +59,7 @@ export function ResearcherPanel({
   return (
     <section id={id} className="mt-8">
       <div className="flex items-center justify-between">
-        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">资料调研</h2>
+        <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">4. 资料调研</h2>
         <button
           type="button"
           onClick={handleRun}

@@ -67,7 +67,7 @@ export function HumanDecisionGate({
 
   return (
     <section id={id} className="mt-8">
-      <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">请选择活动方向</h2>
+      <h2 className="font-serif text-sm font-semibold tracking-wide text-ink-soft">8. 请选择活动方向</h2>
 
       {concepts.length === 0 ? (
         <div className="mt-3 rounded-lg border border-dashed border-border bg-paper-2 px-4 py-6 text-center text-sm text-ink-soft">
