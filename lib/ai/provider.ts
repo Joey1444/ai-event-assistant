@@ -1,7 +1,7 @@
 // AI Provider 抽象层：业务代码只调用 generateText() / generateImage()，不关心底层实现。
 // 文本模型直连 DeepSeek（OpenAI 兼容 /chat/completions）；文生图直连第三方（DashScope 原生 API）。
 import "server-only";
-import { aiConfig, imageConfig } from "./config";
+import { getAiConfig, getImageConfig } from "./config";
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant";
@@ -40,11 +40,12 @@ export async function generateText({
   maxTokens,
   timeoutMs,
 }: GenerateTextOptions): Promise<string> {
-  const m = model ?? aiConfig.model;
-  const mt = maxTokens ?? aiConfig.maxTokens;
-  const timeout = timeoutMs ?? aiConfig.timeoutMs;
+  const cfg = getAiConfig();
+  const m = model ?? cfg.model;
+  const mt = maxTokens ?? cfg.maxTokens;
+  const timeout = timeoutMs ?? cfg.timeoutMs;
 
-  if (!aiConfig.baseURL || !aiConfig.apiKey || !m) {
+  if (!cfg.baseURL || !cfg.apiKey || !m) {
     throw new AiError({
       kind: "unknown",
       message:
@@ -54,11 +55,11 @@ export async function generateText({
 
   let res: Response;
   try {
-    res = await fetch(`${aiConfig.baseURL.replace(/\/+$/, "")}/chat/completions`, {
+    res = await fetch(`${cfg.baseURL.replace(/\/+$/, "")}/chat/completions`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${aiConfig.apiKey}`,
+        authorization: `Bearer ${cfg.apiKey}`,
       },
       body: JSON.stringify({ model: m, max_tokens: mt, messages }),
       signal: AbortSignal.timeout(timeout),
@@ -113,9 +114,10 @@ export async function generateImage({
   model,
   timeoutMs,
 }: GenerateImageOptions): Promise<GenerateImageResult> {
-  const baseURL = imageConfig.baseURL;
-  const apiKey = imageConfig.apiKey;
-  const m = model ?? imageConfig.model;
+  const cfg = getImageConfig();
+  const baseURL = cfg.baseURL;
+  const apiKey = cfg.apiKey;
+  const m = model ?? cfg.model;
   if (!baseURL || !apiKey || !m) {
     throw new AiError({
       kind: "unknown",
@@ -148,7 +150,7 @@ export async function generateImage({
   };
   if (size) (body.parameters as Record<string, unknown>).size = size;
 
-  const timeout = timeoutMs ?? imageConfig.timeoutMs;
+  const timeout = timeoutMs ?? cfg.timeoutMs;
   let res: Response;
   try {
     res = await fetch(
@@ -250,7 +252,8 @@ function sniffImageMime(base64: string): string {
 // 轻量健康检查：只要网关有响应（哪怕 404），就认为 AI 服务在运行
 export async function checkAiHealth(): Promise<boolean> {
   try {
-    await fetch(`${aiConfig.baseURL}/`, {
+    const cfg = getAiConfig();
+    await fetch(`${cfg.baseURL}/`, {
       method: "GET",
       signal: AbortSignal.timeout(5000),
     });

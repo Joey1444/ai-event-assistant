@@ -1,12 +1,16 @@
 import Link from "next/link";
-import { aiConfig } from "@/lib/ai/config";
+import { getAiConfig, getImageConfig } from "@/lib/ai/config";
 import { checkAiHealth } from "@/lib/ai/provider";
+import { maskKey } from "@/lib/env";
 import { AiTestPanel } from "@/components/AiTestPanel";
+import { AiConfigForm } from "@/components/AiConfigForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function AiTestPage() {
   const healthy = await checkAiHealth();
+  const ai = getAiConfig();
+  const image = getImageConfig();
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
@@ -16,13 +20,28 @@ export default async function AiTestPage() {
       <h1 className="mt-4 font-serif text-3xl font-bold text-ink">
         AI Gateway Status
       </h1>
-      <p className="mt-1 text-ink-soft">直连 DeepSeek 官方 API</p>
+      <p className="mt-1 text-ink-soft">配置你的模型后测试连通性</p>
 
       <dl className="mt-6 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
-        <Row label="Provider" value="DeepSeek" />
-        <Row label="Base URL" value={safeHostname(aiConfig.baseURL)} />
-        <Row label="Model" value={aiConfig.model} />
+        <Row label="文本 Base URL" value={safeHostname(ai.baseURL)} />
+        <Row label="文本 Model" value={ai.model} />
+        <Row label="文生图 Model" value={image.model || "（未配置）"} />
       </dl>
+
+      <AiConfigForm
+        initial={{
+          text: {
+            baseUrl: ai.baseURL,
+            model: ai.model,
+            keyHint: maskKey(ai.apiKey),
+          },
+          image: {
+            baseUrl: image.baseURL,
+            model: image.model || "wan2.7-image-pro",
+            keyHint: maskKey(image.apiKey),
+          },
+        }}
+      />
 
       <AiTestPanel initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"} />
     </div>

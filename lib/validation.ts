@@ -28,3 +28,38 @@ export const contentSchema = z.record(z.string(), z.string().max(50_000));
 export const projectTextFieldSchema = z.string().trim().min(1).max(200);
 
 export const editInstructionSchema = z.string().trim().min(1).max(2000);
+
+// AI 网关配置（文本 / 文生图两套）：baseURL 限 http(s)、model 非空禁空格、apiKey 禁换行（允许空串=不修改）
+const baseUrlSchema = z
+  .string()
+  .trim()
+  .refine(
+    (u) => u === "" || /^https?:\/\/\S+$/i.test(u),
+    "请输入合法的 http/https 地址（留空则不修改）",
+  );
+
+const modelSchema = z
+  .string()
+  .trim()
+  .min(1, "模型名不能为空")
+  .max(200)
+  .regex(/^\S+$/, "模型名不能含空格或换行");
+
+const apiKeySchema = z
+  .string()
+  .trim()
+  .max(500)
+  .regex(/^[^\r\n\t]*$/, "API Key 不能含换行或制表符");
+
+export const aiConfigSchema = z.object({
+  text: z.object({
+    baseUrl: baseUrlSchema,
+    model: modelSchema,
+    apiKey: apiKeySchema,
+  }),
+  image: z.object({
+    baseUrl: baseUrlSchema,
+    model: modelSchema,
+    apiKey: apiKeySchema,
+  }),
+});
