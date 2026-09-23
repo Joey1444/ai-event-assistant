@@ -6,7 +6,7 @@ title event-planner 打包 release
 if not exist release mkdir release
 del /q release\event-planner-v1.0.0.zip 2>nul
 
-tar -a -c -f release\event-planner-v1.0.0.zip ^
+%SystemRoot%\System32\tar.exe -a -c -f release\event-planner-v1.0.0.zip ^
   --exclude=node_modules --exclude=.next --exclude=.git ^
   --exclude=.claude --exclude=cloudflared.exe --exclude=release ^
   --exclude=*.db --exclude=prisma/dev.db ^
