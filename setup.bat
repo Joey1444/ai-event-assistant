@@ -65,7 +65,7 @@ echo       完成。
 
 echo.
 echo ================================================
-echo   安装完成！
+echo   安装完成
 echo   首次使用请编辑 .env 填 key，或启动后打开
 echo   http://localhost:3000/ai-test 配置模型
 echo   以后双击 start-share.bat 即可启动
