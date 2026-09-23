@@ -62,28 +62,19 @@ Web App → lib/ai/provider.ts (generateText) → DeepSeek API
 
 ### 环境要求
 
-- Node.js 22+
+- Node.js 20.9 或更高（首次由 setup.bat 检查）
 
 ### 步骤
 
 ```bash
-# 1. 安装依赖
-npm install
-
-# 2. 配置环境变量（复制 .env.example 为 .env 并填写）
-cp .env.example .env
-
-# 3. 生成 Prisma 客户端 + 建库
-npx prisma generate
-npx prisma db push
-
-# 4. 启动
-npm run dev
+# 1. 从 GitHub Releases 下载 event-planner-v1.0.0.zip 并解压
+# 2. 首次：双击 setup.bat（自动装依赖 + 生成 Prisma + 建库 + 复制 .env）
+# 3. 之后每次：双击 start-share.bat 启动
 ```
 
 浏览器打开 `http://localhost:3000`。
 
-> 若换机器重装依赖后，需重跑 `npx prisma generate && npx prisma db push` 重建数据库（npm 11 默认拦截安装脚本，Prisma 的 postinstall 不会自动跑）。
+首次配置模型：启动后打开 `http://localhost:3000/ai-test`，填文本/文生图模型的地址、模型名和 key。
 
 ### 测试 AI 连接
 
@@ -93,7 +84,7 @@ npm run dev
 
 应用默认只能在 `localhost:3000` 本机访问。想让**没装环境的人**（比如参与体验的老师）通过公网链接直接打开，可以用 [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)（cloudflared）把本地端口临时暴露出去。
 
-**最简单的方式（推荐）**：双击项目里的 `start-share.bat`，脚本会自动启动网页 + 建立公网隧道，把窗口里出现的 `https://xxx.trycloudflare.com` 链接发给别人即可。
+**说明**：`start-share.bat` 只是本机一键启动应用（`npm run dev`），并不会自动建立公网隧道。要让没装环境的人通过公网链接访问，需按下面「手动分三步」用 cloudflared 单独建立隧道。
 
 **手动分三步：**
 

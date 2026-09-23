@@ -55,3 +55,7 @@ next-env.d.ts
 
 # Claude Code（只忽略本机专属配置；rules/agents/settings.json/launch.json 进 git 共享）
 .claude/settings.local.json
+
+# 本地打包产物
+release/
+*.zip
