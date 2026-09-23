@@ -131,6 +131,7 @@ cloudflared tunnel --url http://localhost:3000
 | `docs/AI接入说明.md` | AI 接入用户说明书（怎么用上 AI） |
 | `docs/提示词说明.md` | Agent 提示词约定（骨架 / 反幻觉原则） |
 | `docs/数据模型与数据流.md` | 表关系 + 生成影响完整快照（技术文档底稿） |
+| `docs/技术架构大纲.md` | 技术架构总纲（分层 / 数据流 / AI 网关 / 提示词 / 发布） |
 
 ## 已知说明 / 踩坑记录
 
