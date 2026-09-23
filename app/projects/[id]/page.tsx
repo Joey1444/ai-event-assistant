@@ -157,7 +157,15 @@ export default async function ProjectDetailPage({
             <NextActionBar action={nextAction} />
 
             <section id="ai-connect" className="mt-8">
-              <StepHeading id="ai" />
+              <div className="flex items-center justify-between">
+                <StepHeading id="ai" />
+                <Link
+                  href="/ai-test"
+                  className="rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-ink hover:bg-paper-2"
+                >
+                  配置模型
+                </Link>
+              </div>
               <AiTestPanel
                 initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"}
               />
