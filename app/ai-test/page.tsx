@@ -7,17 +7,19 @@ import { AiConfigForm } from "@/components/AiConfigForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function AiTestPage() {
+export default async function AiTestPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ projectId?: string }>;
+}) {
+  const { projectId } = await searchParams;
   const healthy = await checkAiHealth();
   const ai = getAiConfig();
   const image = getImageConfig();
 
   return (
     <div className="mx-auto w-full max-w-2xl flex-1 px-6 py-10">
-      <Link href="/" className="text-sm text-ink-soft hover:text-ink">
-        ← 返回首页
-      </Link>
-      <h1 className="mt-4 font-serif text-3xl font-bold text-ink">
+      <h1 className="font-serif text-3xl font-bold text-ink">
         AI Gateway Status
       </h1>
       <p className="mt-1 text-ink-soft">配置你的模型后测试连通性</p>
@@ -44,6 +46,15 @@ export default async function AiTestPage() {
       />
 
       <AiTestPanel initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"} />
+
+      <div className="mt-8 border-t border-border pt-4">
+        <Link
+          href={projectId ? `/projects/${projectId}` : "/"}
+          className="text-sm text-ink-soft hover:text-ink"
+        >
+          ← {projectId ? "返回项目页" : "返回项目列表"}
+        </Link>
+      </div>
     </div>
   );
 }
