@@ -30,6 +30,8 @@ cloudflared.exe
 # database
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
 
 # debug
 npm-debug.log*
@@ -53,9 +55,14 @@ next-env.d.ts
 ~$*
 ~*.tmp
 
-# Claude Code（只忽略本机专属配置；rules/agents/settings.json/launch.json 进 git 共享）
-.claude/settings.local.json
+# Claude Code 本地工作目录（预览配置、本机权限等，不进公开仓库）
+.claude/
 
 # 本地打包产物
 release/
 *.zip
+
+# 申报与技术架构文档（本地保留，不进 git）
+docs/技术架构大纲.md
+docs/作品申报说明.md
+docs/作品申报说明_润色稿.md
