@@ -7,7 +7,7 @@
 - **状态**：MVP 核心功能完成，本地可运行（`npm run dev` → http://localhost:3000）
 - **已完成**：16 张表的 Prisma schema；11 个 Agent（PM / Researcher / Strategist / Critic / FactChecker / Planner / Budget / Copywriter / Poster / PosterDesigner / QA）；2 道人工关卡；全部面板 UI；文本直连 DeepSeek 官方 API、文生图直连第三方 DashScope 原生 API；Researcher 联网调研（Tavily）；`/ai-test` 连通性测试
 - **未完成**：见 `TASKS.md`（测试体系、海报导出、版本对比等）
-- **已知坑**（详见 README「踩坑记录」）：Claude 沙箱跑 next build 报 EXDEV；npm 11 拦截 Prisma postinstall
+- **已知坑**：Claude 沙箱跑 next build 报 EXDEV；npm 11 拦截 Prisma postinstall
 
 ## 变更日志
 

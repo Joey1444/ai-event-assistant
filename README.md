@@ -119,23 +119,6 @@ npm run dev
 - **统一 AI Provider 层**：文本直连 DeepSeek、文生图直连 DashScope、联网检索走 Tavily，业务代码零 Provider 绑定。
 - 架构说明见 [docs/技术架构大纲.md](docs/技术架构大纲.md) 与 [docs/AI接入说明.md](docs/AI接入说明.md)。
 
-## 已知说明 / 踩坑记录
-
-<details>
-<summary>点击展开</summary>
-
-- **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。各 Agent 的 `max_tokens` 已统一设为 300000，provider 层也会检测截断并提示。
-- **`next build`/`next dev` 在 Claude 沙箱里跑会报 EXDEV**（写 `%APPDATA%\nextjs-nodejs` 失败），你自己的终端里无此问题。
-- **杀毒 / 清理程序可能清空 `node_modules`**：若报「`next` 不是内部或外部命令」，重跑 `npm install` 即可。
-- **Researcher（资料调研）已实现**：联网检索（Tavily）填充 `ResearchItem` / `Fact`，来源可追溯；未配置 `EP_TAVILY_API_KEY` 时研究库与事实账本为空，各 Agent 会把外部信息严格标为 `UNKNOWN`/`ASSUMPTION`。
-
-</details>
-
-## 下一步可做的事
-
-- 海报图片导出 PNG / PDF、多套设计主题
-- 预算、文案等模块的历史版本对比界面
-
 ## 贡献
 
 欢迎提交 Issue 与 Pull Request。新增 Agent、改提示词、修 bug 前请先读 [rules/CONTRIBUTING.md](rules/CONTRIBUTING.md)。
