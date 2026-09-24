@@ -1,14 +1,14 @@
-# AI 活动策划助手（Event Planner MVP）
+# AI 活动策划助手（文枢）
 
-一个面向新手的 AI 活动策划工具，用「**AI 提议 + 人类决定**」的方式，把一次活动从需求分析一路推进到最终审批。
+面向海外中文教学机构的文化活动智能策划体，用「**AI 提议 + 人类决定**」的方式，把一次活动从需求分析一路推进到最终审批。作品名「文枢」——「文」取中文与中华文化，「枢」取中枢、枢纽，对应多智能体流水线的协同调度。
 
-首个实战场景：**莫伊大学孔子学院 2026 年中秋节活动策划**。
+落地示例：**莫伊大学孔子学院 2026 年中秋节活动策划**。
 
 ---
 
 ## 这是什么
 
-用户填写活动简报（名称、机构、日期、预算、地点、人群等），系统随后调用多个 AI Agent 依次完成：需求分析 → 方案设计 → 评审 → 事实核验 → 详细方案 → 预算 → 文案 → 海报 → 最终质检，中间有两道**必须真人点击**的审批关卡。AI 全程只提议、不拍板。
+用户填写活动简报（名称、机构、日期、预算、地点、人群等），系统随后调用多个 AI Agent 依次完成：需求分析 → 资料调研 → 方案设计 → 评审 → 事实核验 → 详细方案 → 预算 → 文案 → 海报 → 最终质检，中间有两道**必须真人点击**的审批关卡。AI 全程只提议、不拍板。
 
 ## 核心原则
 
@@ -21,16 +21,18 @@
 
 - **Next.js 16**（App Router）+ **TypeScript** + **Tailwind CSS 4**
 - **Prisma 6** + **SQLite**
-- **统一 AI Provider 层**（`lib/ai/provider.ts`），直连 **DeepSeek 官方 API**（`deepseek-v4-pro`）
-- 架构说明见 [docs/AI接入说明.md](docs/AI接入说明.md)
+- **统一 AI Provider 层**（`lib/ai/provider.ts`）：文本直连 **DeepSeek**、文生图直连第三方 **DashScope**、联网检索走 **Tavily**
+- 架构说明见 [docs/AI接入说明.md](docs/AI接入说明.md) 与 [docs/技术架构大纲.md](docs/技术架构大纲.md)
 
 架构链路：
 
 ```
-Web App → lib/ai/provider.ts (generateText) → DeepSeek API
+Web App → lib/ai/provider.ts ─┬─ generateText()  → DeepSeek（文本）
+                              ├─ generateImage() → DashScope（文生图）
+                              └─ tavily.ts       → Tavily（联网检索）
 ```
 
-业务代码零 Provider 绑定；换模型只改 `EP_AI_BASE_URL` / `EP_AI_MODEL`。
+业务代码零 Provider 绑定；换模型只改环境变量，或在 `http://localhost:3000/ai-test` 页面直接配置。
 
 ## Agent 与人工关卡
 
@@ -48,13 +50,13 @@ Web App → lib/ai/provider.ts (generateText) → DeepSeek API
   → 资料调研（联网检索，填充研究库 + 事实账本）
   → 生成多个方案（2~4 个）
   → AI 评审（打分 + 推荐）
-  → 事实核验（外部事实分类）
   → 🧑 Human Gate 1：人工选择方向
-  → 生成 15 章节详细方案
+  → 事实核验（只核验选中方案的外部事实）
+  → 生成详细方案（15 章节）
   → 生成预算（10 类 + 自动合计）
-  → 生成宣传文案（9 项）
-  → 生成海报内容 + 海报图片（文生图，支持历史版本与图生图修改）
-  → Final QA（PASS/WARNING/BLOCK）
+  → 生成宣传文案（4 项，中英双语 + 社交媒体）
+  → 生成海报文案 + 海报图片（文生图，支持历史版本与图生图修改）
+  → Final QA（PASS / WARNING / BLOCK）
   → 🧑 Human Gate 2：最终批准 / 驳回 / 要求修改
 ```
 
@@ -76,9 +78,9 @@ Web App → lib/ai/provider.ts (generateText) → DeepSeek API
 
 首次配置模型：启动后打开 `http://localhost:3000/ai-test`，填文本/文生图模型的地址、模型名和 key。
 
-### 测试 AI 连接
+### 配置模型与测试连接
 
-打开 `http://localhost:3000/ai-test`，点「测试 AI」，看到「状态：已连接」即代表网关通了。
+打开 `http://localhost:3000/ai-test`：先在上方「模型配置」填好文本/文生图模型的地址、模型名和 key（保存后 key 只显示掩码、不再明文显示），再点「测试 AI」，看到「状态：已连接」即代表网关通了。
 
 ### 通过临时链接分享给他人（可选）
 
@@ -132,7 +134,7 @@ cloudflared tunnel --url http://localhost:3000
 | `docs/提示词说明.md` | Agent 提示词约定（骨架 / 反幻觉原则） |
 | `docs/数据模型与数据流.md` | 表关系 + 生成影响完整快照（技术文档底稿） |
 | `docs/技术架构大纲.md` | 技术架构总纲（分层 / 数据流 / AI 网关 / 提示词 / 发布） |
-| `docs/作品申报说明.md` | 智能体作品申报说明（定位 / 场景 / 人机协同 / 验证情况） |
+| `docs/作品申报说明_润色稿.md` | 智能体作品申报说明（申报最终稿：定位 / 场景 / 人机协同 / 验证情况） |
 
 ## 已知说明 / 踩坑记录
 
