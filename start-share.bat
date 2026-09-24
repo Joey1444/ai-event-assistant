@@ -3,6 +3,9 @@ chcp 65001 >nul
 title event-planner 一键启动
 cd /d "%~dp0"
 
+rem 优先使用本地便携版 Node（setup.bat 自动下载的）
+if exist runtime\node\node.exe set "PATH=%CD%\runtime\node;%PATH%"
+
 echo ================================================
 echo   event-planner 一键启动
 echo ================================================
