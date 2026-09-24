@@ -11,13 +11,20 @@ echo.
 echo [1/5] 检查 Node.js ...
 where node >nul 2>nul
 if errorlevel 1 (
-    echo       未检测到 Node.js，请先安装 Node.js 20.9 或更高版本
+    echo.
+    echo   [错误] 未检测到 Node.js
+    echo   请先到 https://nodejs.org 下载安装 Node.js 20.9 或更高版本
+    echo   安装完成后，重新双击本脚本
+    echo.
     pause
     exit /b 1
 )
-node -e "var m=process.versions.node.split('.');process.exit(m[0]*1>=20&&m[1]*1>=9?0:1)"
+node -e "var m=process.versions.node.split('.').map(Number);process.exit(m[0]>20||(m[0]===20&&m[1]>=9)?0:1)"
 if errorlevel 1 (
-    echo       Node.js 版本过低，请安装 20.9 或更高版本
+    echo.
+    echo   [错误] Node.js 版本过低，需 20.9 或更高
+    echo   请到 https://nodejs.org 升级后，重新双击本脚本
+    echo.
     pause
     exit /b 1
 )
