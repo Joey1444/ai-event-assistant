@@ -12,7 +12,7 @@ type Section = {
 export function AiConfigForm({
   initial,
 }: {
-  initial: { text: Section; image: Section };
+  initial: { text: Section; image: Section; tavily: { keyHint: string } };
 }) {
   const [text, setText] = useState({
     baseUrl: initial.text.baseUrl,
@@ -24,9 +24,11 @@ export function AiConfigForm({
     model: initial.image.model,
     apiKey: "",
   });
+  const [tavilyKey, setTavilyKey] = useState("");
   const [hint, setHint] = useState({
     text: initial.text.keyHint,
     image: initial.image.keyHint,
+    tavily: initial.tavily.keyHint,
   });
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -44,11 +46,13 @@ export function AiConfigForm({
           model: image.model,
           apiKey: image.apiKey,
         },
+        tavilyKey,
       });
       if (r.ok) {
-        setHint({ text: r.hint.text, image: r.hint.image });
+        setHint({ text: r.hint.text, image: r.hint.image, tavily: r.hint.tavily });
         setText((v) => ({ ...v, apiKey: "" }));
         setImage((v) => ({ ...v, apiKey: "" }));
+        setTavilyKey("");
         setSaved(true);
       } else {
         setError(r.error);
@@ -135,6 +139,21 @@ export function AiConfigForm({
             onChange={(e) => setImage((v) => ({ ...v, apiKey: e.target.value }))}
             placeholder={
               hint.image ? `已配置（${hint.image}），留空则不修改` : "未配置"
+            }
+            className={inputCls}
+          />
+        </label>
+      </div>
+
+      <div className="mt-4 rounded-lg border border-border bg-paper-2 p-4">
+        <div className="text-sm font-medium text-ink">联网检索（Tavily）</div>
+        <label className="mt-3 block text-xs text-ink-soft">
+          API Key
+          <input
+            value={tavilyKey}
+            onChange={(e) => setTavilyKey(e.target.value)}
+            placeholder={
+              hint.tavily ? `已配置（${hint.tavily}），留空则不修改` : "未配置"
             }
             className={inputCls}
           />

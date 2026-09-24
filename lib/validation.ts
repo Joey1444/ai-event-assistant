@@ -62,4 +62,5 @@ export const aiConfigSchema = z.object({
     model: modelSchema,
     apiKey: apiKeySchema,
   }),
+  tavilyKey: apiKeySchema,
 });

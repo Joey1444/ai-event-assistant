@@ -42,6 +42,9 @@ export default async function AiTestPage({
             model: image.model || "wan2.7-image-pro",
             keyHint: maskKey(image.apiKey),
           },
+          tavily: {
+            keyHint: maskKey(process.env.EP_TAVILY_API_KEY ?? ""),
+          },
         }}
       />
 

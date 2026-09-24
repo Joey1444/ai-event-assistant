@@ -22,10 +22,11 @@ export async function testAi(): Promise<AiTestResult> {
 export type AiConfigInput = {
   text: { baseUrl: string; model: string; apiKey: string };
   image: { baseUrl: string; model: string; apiKey: string };
+  tavilyKey: string;
 };
 
 export type SaveAiConfigResult =
-  | { ok: true; hint: { text: string; image: string } }
+  | { ok: true; hint: { text: string; image: string; tavily: string } }
   | { ok: false; error: string };
 
 export async function saveAiConfig(
@@ -37,7 +38,7 @@ export async function saveAiConfig(
     return { ok: false, error: msg || "配置格式不正确" };
   }
 
-  const { text, image } = parsed.data;
+  const { text, image, tavilyKey } = parsed.data;
   const updates: Record<string, string> = {};
   // 字段留空 = 保留现有值，不覆盖
   if (text.baseUrl) updates.EP_AI_BASE_URL = text.baseUrl;
@@ -46,6 +47,7 @@ export async function saveAiConfig(
   if (image.baseUrl) updates.EP_IMAGE_API_BASE_URL = image.baseUrl;
   if (image.model) updates.EP_IMAGE_MODEL = image.model;
   if (image.apiKey) updates.EP_IMAGE_API_KEY = image.apiKey;
+  if (tavilyKey) updates.EP_TAVILY_API_KEY = tavilyKey;
 
   try {
     // upsertEnv 返回写回后的最终值，用其准确计算掩码（不回传明文）
@@ -55,6 +57,7 @@ export async function saveAiConfig(
       hint: {
         text: maskKey(finalValues.EP_AI_API_KEY ?? ""),
         image: maskKey(finalValues.EP_IMAGE_API_KEY ?? ""),
+        tavily: maskKey(finalValues.EP_TAVILY_API_KEY ?? ""),
       },
     };
   } catch {

@@ -12,7 +12,7 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   { id: "detail", label: "项目详情", anchor: "#project-detail" },
   { id: "pm", label: "项目经理分析", anchor: "#panel-pm" },
   { id: "research", label: "资料调研", anchor: "#panel-research" },
-  { id: "concept", label: "活动方案", anchor: "#panel-concept" },
+  { id: "concept", label: "生成几个方向不同的方案", anchor: "#panel-concept" },
   { id: "critic", label: "小莫评审", anchor: "#panel-critic" },
   { id: "decision", label: "选择方向", anchor: "#panel-decision" },
   { id: "factcheck", label: "事实核验", anchor: "#panel-facts" },
