@@ -122,3 +122,7 @@ npm run dev
 欢迎提交 Issue 与 Pull Request。新增 Agent、改提示词、修 bug 前请先读 [rules/CONTRIBUTING.md](rules/CONTRIBUTING.md)。
 
 环境要求：Node.js 20.9 或更高。
+
+## License
+
+[MIT](LICENSE) © 2026 Joey1444
