@@ -1,52 +1,44 @@
 # AI 活动策划助手（小莫）
 
-面向海外中文教学机构的文化活动智能策划体，用「**AI 提议 + 人类决定**」的方式，把一次活动从需求分析一路推进到最终审批。
+> AI 提议 · 人类拍板 —— 面向海外中文教学机构的文化活动智能策划体
 
-落地示例：**莫伊大学孔子学院 2026 年中秋节活动策划**。
+小莫用「**AI 提议 + 人类决定**」的方式，把一场文化活动从需求分析一路推进到最终审批：你填一份简报，11 个 AI 智能体分工完成方案、预算、文案、海报与质检，两道关键审批由你亲手点击。落地示例：莫伊大学孔子学院 2026 年中秋节活动策划。
 
----
+## ✨ 特性
 
-## 这是什么
+- 🧠 **一条流水线到底**：简报 → 方案 → 审批，11 个 AI 智能体依次推进，上一步产出自动成为下一步输入
+- 🧑 **两道真人关卡**：选方向 / 最终审批，AI 只提议、永不替人拍板
+- 🔍 **反幻觉护栏**：外部事实必须带来源，无来源标 UNKNOWN，可追溯、可人工核验
+- ✏️ **产出全程可改**：方案 / 预算 / 文案 / 海报都能编辑、重生成、留历史版本
+- 🔌 **模型可换**：改环境变量即可，业务代码零 Provider 绑定
+- 🎨 **文生图海报**：文案自动转提示词出图，支持图生图迭代修改
 
-用户填写活动简报（名称、机构、日期、预算、地点、人群等），系统随后调用多个 AI Agent 依次完成：需求分析 → 资料调研 → 方案设计 → 评审 → 事实核验 → 详细方案 → 预算 → 文案 → 海报 → 最终质检，中间有两道**必须真人点击**的审批关卡。AI 全程只提议、不拍板。
+## 🚀 快速开始
 
-## 核心原则
+**面向用户（新手，推荐）**
 
-1. **AI 永远不替人类做最终决定**——两道 Human Gate（选方向、最终批准）只能由用户点击。
-2. **不把 AI 假设当事实**——所有外部信息要么有来源，要么标 `UNKNOWN` / `ASSUMPTION` / `CONFLICT`，绝不凭常识断定。
-3. **不编造**——日期、地点、联系人、电话、费用、报名方式缺失时用 `[待确认]` 占位。
-4. 完整规则见 [AI_DEVELOPMENT_RULES.md](rules/AI_DEVELOPMENT_RULES.md)。
-
-## 技术栈
-
-- **Next.js 16**（App Router）+ **TypeScript** + **Tailwind CSS 4**
-- **Prisma 6** + **SQLite**
-- **统一 AI Provider 层**（`lib/ai/provider.ts`）：文本直连 **DeepSeek**、文生图直连第三方 **DashScope**、联网检索走 **Tavily**
-- 架构说明见 [docs/AI接入说明.md](docs/AI接入说明.md) 与 [docs/技术架构大纲.md](docs/技术架构大纲.md)
-
-架构链路：
-
-```
-Web App → lib/ai/provider.ts ─┬─ generateText()  → DeepSeek（文本）
-                              ├─ generateImage() → DashScope（文生图）
-                              └─ tavily.ts       → Tavily（联网检索）
+```bash
+# 1. 从 GitHub Releases 下载 event-planner-v1.0.0.zip 并解压
+# 2. 首次：双击 setup.bat（自动装依赖 + 建库 + 复制 .env）
+# 3. 之后每次：双击 start-share.bat 启动
 ```
 
-业务代码零 Provider 绑定；换模型只改环境变量，或在 `http://localhost:3000/ai-test` 页面直接配置。
+**面向开发者**
 
-## Agent 与人工关卡
+```bash
+npm install
+cp .env.example .env          # 填模型 key
+npx prisma generate && npx prisma db push
+npm run dev
+```
 
-全部 Agent（名称、文件、输入、输出）以 `lib/agents/registry.ts` 为**唯一事实来源**，不在此重复；每个 Agent 的字段与规则见各 `lib/agents/*.ts` 的 prompt。流水线顺序见下方「完整工作流」。
+浏览器打开 `http://localhost:3000`。首次配置模型：打开 `/ai-test`，填文本 / 文生图模型的地址、模型名和 key（保存后 key 只显示掩码、不再明文显示）。
 
-**两道人工关卡**：
-- **Human Gate 1**——「请选择活动方向」：用户在多个方案中点击选择（或全部驳回），系统绝不自动选。
-- **Human Gate 2**——「最终人工审批」：用户点击 APPROVE / REJECT / REQUEST CHANGES。
-
-## 完整工作流
+## 🧭 完整工作流
 
 ```
 创建项目
-  → PM 分析（已知/未知/假设）
+  → PM 分析（已知 / 未知 / 假设）
   → 资料调研（联网检索，填充研究库 + 事实账本）
   → 生成多个方案（2~4 个）
   → AI 评审（打分 + 推荐）
@@ -60,14 +52,22 @@ Web App → lib/ai/provider.ts ─┬─ generateText()  → DeepSeek（文本�
   → 🧑 Human Gate 2：最终批准 / 驳回 / 要求修改
 ```
 
-## 可自定义与扩展
+## 核心原则
 
-「小莫」不是一套写死的中秋活动工具，而是一条**可定制的 AI 策划流水线**。下面几个层面都能按需调整，从而把应用场景从「文化活动」拓宽到更多类型。
+1. **AI 永不替人做最终决定**——两道 Human Gate 只能由用户点击。
+2. **不把假设当事实**——外部信息要么有来源，要么标 `UNKNOWN` / `ASSUMPTION` / `CONFLICT`。
+3. **不编造**——缺失信息用 `[待确认]` 占位。
+4. 完整规则见 [AI_DEVELOPMENT_RULES.md](rules/AI_DEVELOPMENT_RULES.md)。
+
+## 🔧 可自定义与扩展
+
+<details>
+<summary>「小莫」是一条可定制的流水线，可适配更多场景（点击展开）</summary>
 
 ### 模型提供方可自由更换
 
 - 文本、文生图、联网检索三类能力都经统一网关（`lib/ai/provider.ts`）接入，业务代码零 Provider 绑定。
-- 换模型只改环境变量，或在 `http://localhost:3000/ai-test` 页面直接填新模型的地址、模型名和 key。
+- 换模型只改环境变量，或在 `/ai-test` 页面直接填新模型的地址、模型名和 key。
 - 文本默认 DeepSeek（OpenAI 兼容），文生图默认通义万相，均可换成其它兼容服务。
 
 ### AI 提示词可自行迭代
@@ -83,7 +83,7 @@ Web App → lib/ai/provider.ts ─┬─ generateText()  → DeepSeek（文本�
 ### 数据模型与流程可扩展
 
 - 数据模型在 `prisma/schema.prisma`，可加字段、加表；字段校验在 `lib/validation.ts`。
-- 流水线顺序由注册表决定，步骤序号/标签由 `lib/steps.ts` 决定，「下一步该做什么」由 `lib/workflow.ts` 决定。
+- 流水线顺序由注册表决定，步骤序号 / 标签由 `lib/steps.ts` 决定，「下一步该做什么」由 `lib/workflow.ts` 决定。
 
 ### 界面文案与外观可定制
 
@@ -95,67 +95,9 @@ Web App → lib/ai/provider.ts ─┬─ generateText()  → DeepSeek（文本�
 - **春节文化周 / 汉语角 / 招生开放日**：改提示词里的文化内容与活动示例即可。
 - **教学计划 / 活动复盘 / 项目申报**：复用「简报 → 分析 → 方案 → 评审 → 审批」骨架，改简报字段和方案章节。
 
-## 快速开始
+</details>
 
-### 环境要求
-
-- Node.js 20.9 或更高（首次由 setup.bat 检查）
-
-### 步骤
-
-```bash
-# 1. 从 GitHub Releases 下载 event-planner-v1.0.0.zip 并解压
-# 2. 首次：双击 setup.bat（自动装依赖 + 生成 Prisma + 建库 + 复制 .env）
-# 3. 之后每次：双击 start-share.bat 启动
-```
-
-浏览器打开 `http://localhost:3000`。
-
-首次配置模型：启动后打开 `http://localhost:3000/ai-test`，填文本/文生图模型的地址、模型名和 key。
-
-### 配置模型与测试连接
-
-打开 `http://localhost:3000/ai-test`：先在上方「模型配置」填好文本/文生图模型的地址、模型名和 key（保存后 key 只显示掩码、不再明文显示），再点「测试 AI」，看到「状态：已连接」即代表网关通了。
-
-### 通过临时链接分享给他人（可选）
-
-应用默认只能在 `localhost:3000` 本机访问。想让**没装环境的人**（比如参与体验的老师）通过公网链接直接打开，可以用 [Cloudflare Tunnel](https://www.cloudflare.com/products/tunnel/)（cloudflared）把本地端口临时暴露出去。
-
-**说明**：`start-share.bat` 只是本机一键启动应用（`npm run dev`），并不会自动建立公网隧道。要让没装环境的人通过公网链接访问，需按下面「手动分三步」用 cloudflared 单独建立隧道。
-
-**手动分三步：**
-
-1. 启动应用（`npm run dev`），确认 `localhost:3000` 已监听。
-
-2. 下载并启动 cloudflared：
-
-```bash
-# 下载 cloudflared（Windows amd64）。GitHub 直连可能很慢，可加 ghproxy 镜像前缀加速：
-curl -L -o cloudflared.exe "https://ghproxy.net/https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe"
-
-# 启动隧道（若 cloudflared 不在 PATH，用完整路径 ./cloudflared.exe）
-cloudflared tunnel --url http://localhost:3000
-```
-
-3. 从 cloudflared 输出里找到形如 `https://xxx.trycloudflare.com` 的链接，发给别人即可打开。
-
-**注意**：
-
-- 这是**临时链接**，每次重启 cloudflared 都会生成全新的随机域名，旧链接随即失效。
-- 需**一直开着**应用和 cloudflared 两个进程，链接才有效；电脑也不能关机或睡眠。
-- 免费快速隧道**无可用性保证**，且需每小时至少访问一次以保持存活，不适合长期或正式使用。
-- 一旦开启，应用即**对公网可见**，其中的报名信息（机构、联系人、预算等）他人也能看到，演示时注意。
-
-## 环境变量
-
-见 `.env.example`（每个变量都有注释，以它为准）。项目**不直接持有任何模型 Provider 的 Key**，也不要把真实 Key 写进前端、数据库或 `.env.example`。
-
-## 目录结构与数据模型
-
-- **目录结构**：见 `rules/CONTRIBUTING.md` 的「目录结构」（唯一来源）。
-- **数据模型**：见 `prisma/schema.prisma`（表名、字段、关系都在那里，不在此重复）。
-
-## 文档导航
+## 📚 文档导航
 
 | 文件 | 是什么 |
 |---|---|
@@ -169,16 +111,33 @@ cloudflared tunnel --url http://localhost:3000
 | `docs/提示词说明.md` | Agent 提示词约定（骨架 / 反幻觉原则） |
 | `docs/数据模型与数据流.md` | 表关系 + 生成影响完整快照（技术文档底稿） |
 | `docs/技术架构大纲.md` | 技术架构总纲（分层 / 数据流 / AI 网关 / 提示词 / 发布） |
-| `docs/作品申报说明_润色稿.md` | 智能体作品申报说明（申报最终稿：定位 / 场景 / 人机协同 / 验证情况） |
+| `docs/作品申报说明_润色稿.md` | 智能体作品申报说明（申报最终稿） |
+
+## 🛠 技术栈与架构
+
+- **Next.js 16**（App Router）+ **TypeScript** + **Tailwind CSS 4**；**Prisma 6** + **SQLite**。
+- **统一 AI Provider 层**：文本直连 DeepSeek、文生图直连 DashScope、联网检索走 Tavily，业务代码零 Provider 绑定。
+- 架构说明见 [docs/技术架构大纲.md](docs/技术架构大纲.md) 与 [docs/AI接入说明.md](docs/AI接入说明.md)。
 
 ## 已知说明 / 踩坑记录
 
+<details>
+<summary>点击展开</summary>
+
 - **`deepseek-v4-pro` 是推理模型**，会先"思考"再输出。各 Agent 的 `max_tokens` 已统一设为 300000，provider 层也会检测截断并提示。
 - **`next build`/`next dev` 在 Claude 沙箱里跑会报 EXDEV**（写 `%APPDATA%\nextjs-nodejs` 失败），你自己的终端里无此问题。
-- **杀毒/清理程序可能清空 `node_modules`**：若报「`next` 不是内部或外部命令」，重跑 `npm install` 即可。
+- **杀毒 / 清理程序可能清空 `node_modules`**：若报「`next` 不是内部或外部命令」，重跑 `npm install` 即可。
 - **Researcher（资料调研）已实现**：联网检索（Tavily）填充 `ResearchItem` / `Fact`，来源可追溯；未配置 `EP_TAVILY_API_KEY` 时研究库与事实账本为空，各 Agent 会把外部信息严格标为 `UNKNOWN`/`ASSUMPTION`。
+
+</details>
 
 ## 下一步可做的事
 
 - 海报图片导出 PNG / PDF、多套设计主题
 - 预算、文案等模块的历史版本对比界面
+
+## 贡献
+
+欢迎提交 Issue 与 Pull Request。新增 Agent、改提示词、修 bug 前请先读 [rules/CONTRIBUTING.md](rules/CONTRIBUTING.md)。
+
+环境要求：Node.js 20.9 或更高。
