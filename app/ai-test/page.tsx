@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAiConfig, getImageConfig } from "@/lib/ai/config";
 import { checkAiHealth } from "@/lib/ai/provider";
 import { maskKey } from "@/lib/env";
+import { isPublicMode } from "@/lib/publicMode";
 import { AiTestPanel } from "@/components/AiTestPanel";
 import { AiConfigForm } from "@/components/AiConfigForm";
 
@@ -13,7 +14,9 @@ export default async function AiTestPage({
   searchParams: Promise<{ projectId?: string }>;
 }) {
   const { projectId } = await searchParams;
-  const healthy = await checkAiHealth();
+  const publicMode = isPublicMode();
+  // 公网演示环境不主动探测模型（每次探测都是一次真实计费调用），只展示配置状态
+  const healthy = publicMode ? true : await checkAiHealth();
   const ai = getAiConfig();
   const image = getImageConfig();
 
@@ -22,7 +25,9 @@ export default async function AiTestPage({
       <h1 className="font-serif text-3xl font-bold text-ink">
         AI Gateway Status
       </h1>
-      <p className="mt-1 text-ink-soft">配置你的模型后测试连通性</p>
+      <p className="mt-1 text-ink-soft">
+        {publicMode ? "在线演示环境：模型由管理员预设" : "配置你的模型后测试连通性"}
+      </p>
 
       <dl className="mt-6 divide-y divide-border overflow-hidden rounded-xl border border-border bg-card">
         <Row label="文本 Base URL" value={safeHostname(ai.baseURL)} />
@@ -30,25 +35,34 @@ export default async function AiTestPage({
         <Row label="文生图 Model" value={image.model || "（未配置）"} />
       </dl>
 
-      <AiConfigForm
-        initial={{
-          text: {
-            baseUrl: ai.baseURL,
-            model: ai.model,
-            keyHint: maskKey(ai.apiKey),
-          },
-          image: {
-            baseUrl: image.baseURL,
-            model: image.model || "wan2.7-image-pro",
-            keyHint: maskKey(image.apiKey),
-          },
-          tavily: {
-            keyHint: maskKey(process.env.EP_TAVILY_API_KEY ?? ""),
-          },
-        }}
-      />
+      {publicMode ? (
+        <div className="mt-6 rounded-xl border border-border bg-card p-5 text-sm text-ink-soft">
+          当前为在线演示环境，模型配置由管理员在平台侧预设，访客不可修改。
+          本地运行时可在此页面填写自己的模型地址、模型名与 API Key。
+        </div>
+      ) : (
+        <AiConfigForm
+          initial={{
+            text: {
+              baseUrl: ai.baseURL,
+              model: ai.model,
+              keyHint: maskKey(ai.apiKey),
+            },
+            image: {
+              baseUrl: image.baseURL,
+              model: image.model || "wan2.7-image-pro",
+              keyHint: maskKey(image.apiKey),
+            },
+            tavily: {
+              keyHint: maskKey(process.env.EP_TAVILY_API_KEY ?? ""),
+            },
+          }}
+        />
+      )}
 
-      <AiTestPanel initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"} />
+      {publicMode ? null : (
+        <AiTestPanel initialStatus={healthy ? "CONNECTED" : "DISCONNECTED"} />
+      )}
 
       <div className="mt-8 border-t border-border pt-4">
         <Link

@@ -12,6 +12,7 @@
 ## 变更日志
 
 <!-- 每轮追加一行：`- [日期] 内容（提交 hash）` -->
+- [2026-10-29] 支持公网部署（评委可通过链接直接使用）：新增 `Dockerfile` / `.dockerignore` / `render.yaml` / `docs/部署到公网.md`；新增公网演示模式 `EP_PUBLIC_MODE=1`——锁定 `/ai-test` 模型配置表单与服务端 `saveAiConfig`（防止访客改写 baseURL 劫持 Key）、首页显示演示说明条；新增每日调用上限 `EP_DAILY_CALL_LIMIT`（`lib/ai/quota.ts`，默认 300 次/日，仅公网模式生效）；部署包不含本地数据
 - [2026-09-23] 新增 AI 网关模型配置界面（`/ai-test`）：网页表单配置文本/文生图模型的 baseURL/model/apiKey，写入项目 `.env`；`config.ts` 从模块常量改函数（`getAiConfig`/`getImageConfig`）支持保存后立即生效；apiKey 提交后只显示掩码（`****末4位`）不回明文；文生图默认模型 `wan2.7-image-pro`
 - [2026-09-22] 三项用户反馈落地：事实核验人工确认后实时刷新顶部「下一步」计数（handleVerify 补 router.refresh）；预算面板支持编辑全字段 + 增删预算项；详细活动方案移除预算章节（16→15 章，审批页 FieldView 改遍历 labels 防旧数据泄漏）
 - [2026-09-22] 重构 11 个 Agent 提示词（对齐 `docs/数据模型与数据流.md` + 高星项目写法）：`provider.ts` 加 system role、静态指令进 system/动态输入进 user；提示词改 XML 标签六段式 + 反幻觉四件套 + 事实可信度分层（USER_PROVIDED/FACT 可信、UNKNOWN/CONFLICT 标待确认）+ 复杂 Agent 加思考段；修正规则文档 maxTokens 统一 300000；修正 registry copywriter 文案数量 9→4

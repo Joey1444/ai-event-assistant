@@ -34,6 +34,8 @@ npm run dev
 
 双击 start-share.bat 启动后，黑色窗口不能关闭，浏览器打开 `http://localhost:3000`。首次使用需接入三类 AI 能力：文本（DeepSeek）、文生图（通义万相）、联网检索（Tavily），都可在 `/ai-test` 页面直接填写——文本 / 文生图填地址、模型名和 key，Tavily 填 key（保存后 key 只显示掩码、不再明文显示）。完整接入步骤见 [docs/AI接入说明.md](docs/AI接入说明.md)。
 
+**想让评委通过链接直接使用？** 见 [docs/部署到公网.md](docs/部署到公网.md)：仓库已带 `Dockerfile` 与 `render.yaml`，在 Render 上用 GitHub 登录即可免绑卡部署，模型 Key 在平台侧预设，访客打开网页就能用。
+
 ## 💰 运行成本
 
 一次完整运行（创建项目 → 全流程 → 审批）的实测花费约 **1.55 元人民币**，全部来自文本模型 DeepSeek：
@@ -122,6 +124,7 @@ npm run dev
 | `PROGRESS.md` | 进度记录（当前状态 + 变更日志） |
 | `CLAUDE.md` | 给 Claude Code 的说明（自治循环 + 命令 + 架构大图） |
 | `docs/AI接入说明.md` | AI 接入用户说明书（怎么用上 AI） |
+| `docs/部署到公网.md` | 部署成评委可访问的在线链接（Render / Railway / 自建服务器） |
 | `docs/提示词说明.md` | Agent 提示词约定（骨架 / 反幻觉原则） |
 | `docs/数据模型与数据流.md` | 表关系 + 生成影响完整快照（技术文档底稿） |
 | `docs/技术架构大纲.md` | 技术架构总纲（分层 / 数据流 / AI 网关 / 提示词 / 发布） |

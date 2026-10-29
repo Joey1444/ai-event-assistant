@@ -1,0 +1,39 @@
+# Render Blueprint：在 render.com 上新建 Blueprint 时自动读取本文件
+# 免费档说明：15 分钟无访问会休眠并清空磁盘，SQLite 数据随之重置（表结构由启动命令自动重建）
+services:
+  - type: web
+    name: ai-event-assistant
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: npx prisma db push --skip-generate && npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # 在线演示模式：锁定模型配置页，防止访客改写 .env 劫持 API Key
+      - key: EP_PUBLIC_MODE
+        value: "1"
+      # SQLite 落在容器内（免费档无持久盘，重启即重置）
+      - key: EP_DATABASE_URL
+        value: file:./prod.db
+      # 每日 AI 调用上限：防止链接被转发后刷爆额度
+      - key: EP_DAILY_CALL_LIMIT
+        value: "300"
+      - key: EP_AI_BASE_URL
+        value: https://api.deepseek.com
+      - key: EP_AI_MODEL
+        value: deepseek-v4-pro
+      - key: EP_IMAGE_MODEL
+        value: wan2.7-image-pro
+      - key: EP_IMAGE_TIMEOUT_MS
+        value: "180000"
+      # 以下三项在部署时手动填写，不写进仓库
+      - key: EP_AI_API_KEY
+        sync: false
+      - key: EP_IMAGE_API_BASE_URL
+        sync: false
+      - key: EP_IMAGE_API_KEY
+        sync: false
+      - key: EP_TAVILY_API_KEY
+        sync: false

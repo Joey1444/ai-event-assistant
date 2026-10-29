@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { Badge } from "@/components/ui/Badge";
+import { isPublicMode } from "@/lib/publicMode";
 import { STATUS_LABELS, STATUS_TONES, type ProjectStatus } from "@/lib/status";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +13,14 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl flex-1 px-6 py-10">
+      {isPublicMode() ? (
+        <div className="mb-6 rounded-xl border border-border bg-card px-5 py-4 text-sm text-ink-soft">
+          <span className="font-medium text-ink">在线演示环境</span>
+          ：模型由主办方提供，AI 调用有每日上限；演示数据可能随时重置。
+          一次完整策划约需 10 分钟、十余次 AI 生成，建议先点「新建项目」填一份简报体验。
+        </div>
+      ) : null}
+
       <header className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="font-serif text-3xl font-bold text-ink">

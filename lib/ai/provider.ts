@@ -2,6 +2,7 @@
 // 文本模型直连 DeepSeek（OpenAI 兼容 /chat/completions）；文生图直连第三方（DashScope 原生 API）。
 import "server-only";
 import { getAiConfig, getImageConfig } from "./config";
+import { acquireAiQuota } from "./quota";
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant";
@@ -51,6 +52,11 @@ export async function generateText({
       message:
         "未配置文本模型：请在 .env 里设置 EP_AI_BASE_URL / EP_AI_API_KEY / EP_AI_MODEL",
     });
+  }
+
+  const quota = acquireAiQuota();
+  if (!quota.ok) {
+    throw new AiError({ kind: "unknown", message: quota.error });
   }
 
   let res: Response;
@@ -124,6 +130,11 @@ export async function generateImage({
       message:
         "未配置文生图服务：请在 .env 里设置 EP_IMAGE_API_BASE_URL / EP_IMAGE_API_KEY / EP_IMAGE_MODEL",
     });
+  }
+
+  const quota = acquireAiQuota();
+  if (!quota.ok) {
+    throw new AiError({ kind: "unknown", message: quota.error });
   }
 
   // 非本机地址必须 https，避免 Bearer key 明文传输

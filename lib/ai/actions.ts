@@ -2,6 +2,7 @@
 
 import { generateText, classifyError } from "./provider";
 import { upsertEnv, maskKey } from "../env";
+import { isPublicMode } from "../publicMode";
 import { aiConfigSchema } from "../validation";
 
 export type AiTestResult =
@@ -32,6 +33,14 @@ export type SaveAiConfigResult =
 export async function saveAiConfig(
   input: AiConfigInput,
 ): Promise<SaveAiConfigResult> {
+  // 公网演示环境禁止访客改写模型配置（防止 baseURL 被指向第三方服务器劫持 Key）
+  if (isPublicMode()) {
+    return {
+      ok: false,
+      error: "当前为在线演示环境，模型配置由管理员预设，不支持在此修改。",
+    };
+  }
+
   const parsed = aiConfigSchema.safeParse(input);
   if (!parsed.success) {
     const msg = parsed.error.issues.map((i) => i.message).join("；");
