@@ -26,5 +26,5 @@ ENV EP_DATABASE_URL=file:/app/data/prod.db
 COPY --from=build /app ./
 RUN mkdir -p /app/data
 EXPOSE 3000
-# 启动时把 schema 同步到 SQLite（幂等），再起正式服务
-CMD ["sh", "-c", "npx prisma db push --skip-generate && exec node node_modules/next/dist/bin/next start -H 0.0.0.0 -p ${PORT:-3000}"]
+# 启动时把 schema 同步到 SQLite（幂等）、导入示例项目（已存在则跳过），再起正式服务
+CMD ["sh", "-c", "npx prisma db push --skip-generate && node prisma/seed-demo.mjs && exec node node_modules/next/dist/bin/next start -H 0.0.0.0 -p ${PORT:-3000}"]

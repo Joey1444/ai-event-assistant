@@ -9,7 +9,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed:demo": "node prisma/seed-demo.mjs",
+    "export:demo": "node scripts/export-demo.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",

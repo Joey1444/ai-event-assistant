@@ -12,6 +12,7 @@
 ## 变更日志
 
 <!-- 每轮追加一行：`- [日期] 内容（提交 hash）` -->
+- [2026-10-29] 内置示例项目种子：`scripts/export-demo.mjs` 把本地中秋项目（含 15 章节方案、6 版预算、5 版海报图）导出为 `prisma/demo-seed.json`（海报用 ffmpeg 压到宽 512，17MB→600KB），`prisma/seed-demo.mjs` 在部署启动时幂等导入（`EP_SEED_DEMO=0` 可关）；状态标为「最终评审」，最终审批留空供评委体验 Human Gate 2；`render.yaml` / `Dockerfile` 启动命令已接入
 - [2026-10-29] 支持公网部署（评委可通过链接直接使用）：新增 `Dockerfile` / `.dockerignore` / `render.yaml` / `docs/部署到公网.md`；新增公网演示模式 `EP_PUBLIC_MODE=1`——锁定 `/ai-test` 模型配置表单与服务端 `saveAiConfig`（防止访客改写 baseURL 劫持 Key）、首页显示演示说明条；新增每日调用上限 `EP_DAILY_CALL_LIMIT`（`lib/ai/quota.ts`，默认 300 次/日，仅公网模式生效）；部署包不含本地数据
 - [2026-09-23] 新增 AI 网关模型配置界面（`/ai-test`）：网页表单配置文本/文生图模型的 baseURL/model/apiKey，写入项目 `.env`；`config.ts` 从模块常量改函数（`getAiConfig`/`getImageConfig`）支持保存后立即生效；apiKey 提交后只显示掩码（`****末4位`）不回明文；文生图默认模型 `wan2.7-image-pro`
 - [2026-09-22] 三项用户反馈落地：事实核验人工确认后实时刷新顶部「下一步」计数（handleVerify 补 router.refresh）；预算面板支持编辑全字段 + 增删预算项；详细活动方案移除预算章节（16→15 章，审批页 FieldView 改遍历 labels 防旧数据泄漏）
